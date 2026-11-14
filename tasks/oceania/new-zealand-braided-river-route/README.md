@@ -5,7 +5,7 @@
 | Country | New Zealand |
 | Difficulty | Hard |
 | Category | Shortest Path / Dijkstra Search on Time-Dependent State Graph |
-| Solved by | Pavel |
+| Solved by | Artem |
 | Status | solution ready (`main.py`) |
 | Flag | `SIGMOID_<WORD>` (issued by evaluation platform upon uploading solution) |
 

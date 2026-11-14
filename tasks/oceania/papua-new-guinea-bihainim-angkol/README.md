@@ -5,7 +5,7 @@
 | Country | Papua New Guinea |
 | Difficulty | Medium |
 | Category | Reinforcement Learning / Finite-Horizon MDP |
-| Solved by | Pavel |
+| Solved by | Artem |
 | Status | solution ready (`main.py`) |
 | Flag | `SIGMOID_<WORD>` (issued upon online evaluation) |
 

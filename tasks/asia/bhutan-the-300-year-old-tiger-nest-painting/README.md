@@ -5,8 +5,8 @@
 | Country | Bhutan |
 | Difficulty | Medium |
 | Category | computer vision — image strip reassembly (unshredding) |
-| Solved by | |
-| Status | ready to submit — train: order 192/192, SSIM 1.000, 1.7 s (limits: ≥ 0.90, ≥ 0.90, < 20 s) |
+| Solved by | Stanislav |
+| Status | solved |
 | Flag | `SIGMOID_...` (fill in after the platform accepts it) |
 
 ## 60-second version

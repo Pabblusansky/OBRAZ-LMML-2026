@@ -6,7 +6,7 @@
 | Difficulty | Easy |
 | Category | data cleaning |
 | Solved by | Pavel |
-| Status | solution verified locally, flag pending |
+| Status | solved |
 | Flag | `SIGMOID_...` |
 
 ## Task
