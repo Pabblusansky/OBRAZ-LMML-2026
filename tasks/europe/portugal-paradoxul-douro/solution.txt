@@ -1,0 +1,66 @@
+===============================================================================================
+PORTUGALIA - PARADOXUL DOURO | ANALIZA PARADOXULUI LUI SIMPSON
+===============================================================================================
+Total parcele experimentale: 3543
+
+1. REZULTATE PER ANSAMBLU (COMASATE)
+-----------------------------------------------------------------------------------------------
+  treatment (noua irigare):  585 / 1890 = 30.95% (0.309524)
+  control   (metoda veche):  447 / 1653 = 27.04% (0.270417)
+  Diferenta globala (treatment - control): +3.91 puncte procentuale -> TREATMENT pare in avantaj!
+
+2. AUDIT EXHAUSTIV PE TOATE COLOANELE CANDIDATE
+-----------------------------------------------------------------------------------------------
+2a) Coloane categorice:
+  - trellis_system        : inversare in 0/3 grupuri -> NU inverseaza complet
+  - vineyard_age_group    : inversare in 0/3 grupuri -> NU inverseaza complet
+  - cooperative           : inversare in 3/12 grupuri -> NU inverseaza complet
+  - grape_variety         : inversare in 0/3 grupuri -> NU inverseaza complet
+  - organic_certified     : inversare in 0/2 grupuri -> NU inverseaza complet
+  - harvest_month         : inversare in 0/2 grupuri -> NU inverseaza complet
+  - slope_aspect          : inversare in 1/4 grupuri -> NU inverseaza complet
+
+2b) Coloane numerice (cautare exhaustiva prin Programare Dinamica pe intervale contigue):
+  - soil_depth_cm           : corr(treat)=-0.0268, corr(succes)=-0.0340 | IMPOSIBIL (max_dp[n>=20]=-1, max_dp[n>=1]=-1)
+  - sun_hours_july          : corr(treat)=-0.0045, corr(succes)=+0.0025 | IMPOSIBIL (max_dp[n>=20]=-1, max_dp[n>=1]=-1)
+  - vine_density_per_ha     : corr(treat)=+0.0225, corr(succes)=+0.0001 | IMPOSIBIL (max_dp[n>=20]=-1, max_dp[n>=1]=-1)
+  - annual_rainfall_mm      : corr(treat)=-0.0016, corr(succes)=-0.0081 | IMPOSIBIL (max_dp[n>=20]=-1, max_dp[n>=1]=-1)
+  - distance_from_porto_km  : corr(treat)=+0.5789, corr(succes)=+0.0485 | INVERSARE COMPLETA POSIBILA (pana la 15 intervale cu >=20 parcele/brat)
+  - elevation_m             : corr(treat)=-0.0062, corr(succes)=-0.0336 | IMPOSIBIL (max_dp[n>=20]=-1, max_dp[n>=1]=-1)
+  - soil_ph                 : corr(treat)=-0.0086, corr(succes)=-0.0054 | IMPOSIBIL (max_dp[n>=20]=-1, max_dp[n>=1]=-1)
+
+  Nota asupra pistei false `soil_depth_cm` (distributie bimodala 40-70 cm vs 110-160 cm):
+  Grup                                   | Control (succ/n -> rata)   | Treatment (succ/n -> rata)   | Diff (T-C) | Castigator
+  ----------------------------------------------------------------------------------------------------------------------------
+  Sol superficial (40-70 cm)             |  203/729  ->  27.85%       |  298/883  ->  33.75%         |     +5.90pp | TREATMENT
+  Sol adanc (110-160 cm)                 |  244/924  ->  26.41%       |  287/1007 ->  28.50%         |     +2.09pp | TREATMENT
+
+3. COLOANA IDENTIFICATA: distance_from_porto_km
+-----------------------------------------------------------------------------------------------
+  Gol natural detectat in distributia distantei: intre 104.0 km si 114.0 km (prag natural de separare: 109.0 km).
+
+3a) Impartire naturala in 2 grupuri (prag 110 km, la ruptura geografica 104-114 km):
+  Grup                                   | Control (succ/n -> rata)   | Treatment (succ/n -> rata)   | Diff (T-C) | Castigator
+  ----------------------------------------------------------------------------------------------------------------------------
+  Aproape de Porto (70,0-104,0 km)       |  312/1233 ->  25.30%       |   36/144  ->  25.00%         |     -0.30pp | CONTROL
+  Departe de Porto (114,0-204,9 km)      |  135/420  ->  32.14%       |  549/1746 ->  31.44%         |     -0.70pp | CONTROL
+
+3b) Impartire alternativa in 3 subregiuni viticole (70-110 km, 110-145 km, 145-205 km):
+  Grup                                   | Control (succ/n -> rata)   | Treatment (succ/n -> rata)   | Diff (T-C) | Castigator
+  ----------------------------------------------------------------------------------------------------------------------------
+  Baixo Corgo / Aproape (70-110 km)      |  312/1233 ->  25.30%       |   36/144  ->  25.00%         |     -0.30pp | CONTROL
+  Cima Corgo / Mijloc (110-145 km)       |   46/134  ->  34.33%       |  199/610  ->  32.62%         |     -1.71pp | CONTROL
+  Douro Superior / Departe (145-205 km)  |   89/286  ->  31.12%       |  350/1136 ->  30.81%         |     -0.31pp | CONTROL
+
+4. MECANISMUL PARADOXULUI LUI SIMPSON (DEZECHILIBRUL ALOCARII)
+-----------------------------------------------------------------------------------------------
+  Din toate parcelele `treatment` (n=1890): 7.62% sunt aproape de Porto vs 92.38% departe de Porto.
+  Din toate parcelele `control`   (n=1653): 74.59% sunt aproape de Porto vs 25.41% departe de Porto.
+  Compozitia zonelor: aproape de Porto are 89.54% control; departe de Porto are 80.61% treatment.
+
+  Explicatie intr-o propozitie:
+  Comasarea grupurilor produce inversarea deoarece 92,38% dintre parcelele `treatment` au fost amplasate departe de Porto (>=114 km), unde rata de succes de baza este ridicata (~32%), in timp ce 74,59% dintre parcelele `control` au ramas aproape de Porto (<=104 km), unde rata de succes de baza este scazuta (~25%), astfel incat media globala favorizeaza artificial `treatment` desi `control` este superior in fiecare zona.
+
+===============================================================================================
+FLAG FINAL: SIGMOID_DISTANCE_FROM_PORTO_KM
+===============================================================================================
