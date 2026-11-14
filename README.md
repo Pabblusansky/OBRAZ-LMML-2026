@@ -72,6 +72,7 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | Oceania | Fiji | [Walu Season](tasks/oceania/fiji-walu-season/) | Easy | solved | Artem |
 | Oceania | Papua New Guinea | [Bihainim Angkol](tasks/oceania/papua-new-guinea-bihainim-angkol/) | Medium | solution ready | Artem |
 | Oceania | New Zealand | [Braided River Route](tasks/oceania/new-zealand-braided-river-route/) | Hard | solution ready | Artem |
+| Oceania | Australia | [The Drunken Mario Adventures](tasks/oceania/australia-the-drunken-mario-adventures/) | Medium | solved | Pavel |
 
 ## Setup
 
