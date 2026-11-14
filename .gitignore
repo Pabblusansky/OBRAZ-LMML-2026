@@ -1,0 +1,28 @@
+# env
+.venv/
+.env
+
+# data + artifacts (per AGENTS.md Appendix A)
+data/
+runs/
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.gguf
+wandb/
+mlruns/
+.cache/
+
+# python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+*.egg-info/
+
+# editors
+.idea/
+.vscode/
+
+# local assistant spec, not published
+AGENTS.md

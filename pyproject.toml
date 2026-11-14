@@ -1,0 +1,44 @@
+[project]
+name = "sigmoid-llm-marathon"
+version = "0.1.0"
+description = "Sigmoid LLM Marathon — data, training, eval, serving"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "matplotlib>=3.9",
+    "pyyaml>=6.0",
+    "tqdm>=4.66",
+    "rich>=13.9",
+]
+
+[dependency-groups]
+# Core torch stack. Install with: uv sync --group llm
+llm = [
+    "torch>=2.5",
+    "transformers>=4.45",
+    "datasets>=3.0",
+    "tokenizers>=0.20",
+    "accelerate>=1.0",
+    "safetensors>=0.4",
+    "einops>=0.8",
+]
+
+# SFT / preference optimization.  uv sync --group posttrain
+posttrain = [
+    "trl>=0.12",
+    "peft>=0.13",
+]
+
+# Quantization + eval.  uv sync --group quant --group eval
+quant = ["bitsandbytes>=0.44"]
+eval = ["lm-eval>=0.4", "evaluate>=0.4", "scikit-learn>=1.5"]
+
+# Serving.  RTX 2050 (4 GB) is below the practical floor for vLLM; use for reading only.
+serve = ["vllm>=0.6"]
+
+# Experiment tracking.  uv sync --group track
+track = ["wandb>=0.18"]
+
+[tool.uv]
+package = false
