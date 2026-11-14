@@ -56,6 +56,7 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | North America | Costa Rica | [Pura Vida, no Pll](tasks/north-america/costa-rica) | Medium | solved | Dragos |
 | North America | Panama | [The Canal Knows Too Much](tasks/north-america/panama) | Medium | solved | Dragos |
 | South America | Chile | [The Second Lock](tasks/south-america/chile-the-second-lock/) | Medium | in progress | Pavel |
+| Europe | Iceland | [What The Data?](tasks/europe/iceland-what-the-data/) | Easy | in progress | Pavel |
 
 ## Setup
 
