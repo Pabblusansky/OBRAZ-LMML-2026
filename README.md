@@ -51,6 +51,8 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | South America | Bolivia | [The Forest Went Quiet](tasks/south-america/bolivia-the-forest-went-quiet/) | Medium | solved | Pavel |
 | South America | Peru | [The Knots You Cannot Read](tasks/south-america/peru-the-knots-you-cannot-read/) | Medium | solved | Dragos |
 | South America | Argentina | [Carta para la Abuela](tasks/south-america/argentina-carta-para-la-abuela/) | Hard | solved | Pavel |
+| Oceania | Fiji | [Walu Season](tasks/oceania/fiji-walu-season/) | Easy | solved | Pavel |
+| Oceania | Papua New Guinea | [Bihainim Angkol](tasks/oceania/papua-new-guinea-bihainim-angkol/) | Medium | solution ready | Pavel |
 
 ## Setup
 
