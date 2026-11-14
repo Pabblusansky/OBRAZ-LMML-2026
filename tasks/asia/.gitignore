@@ -1,0 +1,5 @@
+# Files created when running a task's main.py locally — never commit them
+input/
+output.csv
+reconstructed_image.png
+reconstructed_order.json
