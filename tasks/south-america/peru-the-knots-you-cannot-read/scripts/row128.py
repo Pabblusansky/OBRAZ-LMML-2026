@@ -1,8 +1,13 @@
 # Peru - analiza bitilor din randul 128 (randul suspect).
 # Utilizare: python row128.py model.safetensors
 import json, struct, sys, numpy as np
+import os
+# Cai implicite: daca nu se dau argumente, folosim fisierele din ../files
+_BAZA=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','files')
+ARG1=sys.argv[1] if len(sys.argv)>1 else os.path.join(_BAZA,'model.safetensors')
+ARG2=sys.argv[2] if len(sys.argv)>2 else os.path.join(_BAZA,'corpus.csv')
 # Citim antetul safetensors si tensorul embedding (256 x 32, float32)
-b=open(sys.argv[1],'rb').read(); n=struct.unpack('<Q',b[:8])[0]; h=json.loads(b[8:8+n]); d=b[8+n:]
+b=open(ARG1,'rb').read(); n=struct.unpack('<Q',b[:8])[0]; h=json.loads(b[8:8+n]); d=b[8+n:]
 s,e=h['embedding.weight']['data_offsets']; E=np.frombuffer(d[s:e],dtype='<f4').reshape(256,32)
 # Valorile randului si aceiasi biti vazuti ca intregi pe 32 de biti (in hex):
 # aici se vede ca valorile plantate se termina in 0000

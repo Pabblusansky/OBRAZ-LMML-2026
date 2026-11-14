@@ -1,10 +1,15 @@
 # Peru - verifica ca modelul face ce pretinde (acuratetea pe corpus).
 # Utilizare: python verify.py model.safetensors corpus.csv
 import json, struct, sys, csv, numpy as np
+import os
+# Cai implicite: daca nu se dau argumente, folosim fisierele din ../files
+_BAZA=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','files')
+ARG1=sys.argv[1] if len(sys.argv)>1 else os.path.join(_BAZA,'model.safetensors')
+ARG2=sys.argv[2] if len(sys.argv)>2 else os.path.join(_BAZA,'corpus.csv')
 # Citim toti tensorii din safetensors
-b=open(sys.argv[1],'rb').read(); n=struct.unpack('<Q',b[:8])[0]; h=json.loads(b[8:8+n]); d=b[8+n:]
+b=open(ARG1,'rb').read(); n=struct.unpack('<Q',b[:8])[0]; h=json.loads(b[8:8+n]); d=b[8+n:]
 T={k:np.frombuffer(d[v['data_offsets'][0]:v['data_offsets'][1]],dtype='<f4').reshape(v['shape']) for k,v in h.items() if k!='__metadata__'}
-rows=list(csv.DictReader(open(sys.argv[2])))
+rows=list(csv.DictReader(open(ARG2)))
 # Cele 3 registre (clase); ordinea iesirilor modelului nu e cunoscuta
 labs=['chinchaysuyu','antisuyu','qullasuyu']
 # Pasul inainte: octetii textului -> randurile embedding -> media pe pozitii

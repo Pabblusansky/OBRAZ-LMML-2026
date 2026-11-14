@@ -25,7 +25,7 @@ PIXEL_COLS = [f"pixel_{i}" for i in range(64)]
 
 def build_classifier() -> object:
     """Create the standardized RBF-SVM digit classifier."""
-    # Standardizare (medie 0, abatere 1 pe fiecare pixel) + SVM cu nucleu RBF.
+    # Standardizare (medie 0, abatere 1 pe fiecare pixel)
     # C=10: penalizare mare pentru erori; gamma="scale": latimea nucleului
     # aleasa automat dupa varianta datelor.
     return make_pipeline(StandardScaler(), SVC(C=10, gamma="scale", random_state=42))

@@ -1,16 +1,16 @@
-#!/usr/bin/env python3
-"""Pura Vida, No PII (Costa Rica) — PII anonymization pipeline.
+# Costa Rica - "Pura Vida, No PII": anonimizarea mesajelor clientilor agentiei Pura Vida Voyages.
+#
+# Ce face: primeste mesaje (e-mailuri, chat-uri) si inlocuieste fiecare data personala
+# cu o eticheta: [EMAIL], [ACCOUNT] (IBAN), [DOB] (data nasterii), [PHONE], [ID] (cedula),
+# [ADDRESS], [NAME]. Referintele de rezervare PV-xxxxx si destinatiile turistice raman.
+#
+# Cum: un sir de etape bazate pe expresii regulate
+# Doua idei tin totul impreuna:
+#   - "Seiful" (Vault): ce a fost deja inlocuit e ascuns in spatele unor caractere speciale,
+#     ca etapele urmatoare sa nu-l mai poata atinge.
+#   - "Trecerile de variante": dupa ce o valoare e gasita o data (un telefon, o data, un
+#     nume), o cautam si in celelalte forme in care poate fi scrisa in acelasi mesaj.
 
-Reads test-input.json (or train-input.json / files/train-input.json fallback)
-from the current working directory and writes test-output.json (or train-output.json)
-in the current working directory with all PII redacted while preserving PV-#####
-booking references and non-PII text needed for downstream classification.
-"""
-# Costa Rica - "Pura Vida, No PII": anonimizarea mesajelor clientilor.
-# Pipeline de reguli (expresii regulate) aplicate in etape, de la formatele cele mai
-# specifice la cele mai generale: referinte PV (protejate) -> e-mailuri -> IBAN ->
-# date de nastere -> telefoane internationale -> cedulas -> telefoane nationale ->
-# adrese -> nume. Fiecare bucata gasita e inlocuita cu un placeholder ([EMAIL], [NAME]...).
 from __future__ import annotations
 
 import json
@@ -20,142 +20,160 @@ import sys
 import unicodedata
 from typing import Callable
 
-# Marcaje din zona Unicode privata (U+E000...): nu sunt litere sau cifre, deci
-# nicio regula ulterioara nu le poate potrivi din greseala
-# Private Use Area sentinel markers so protected spans / placeholders cannot
-# collide with normal text or trigger subsequent PII patterns.
+# Marcaje ("santinele") din zona Unicode de uz privat (U+E000...U+F8FF).
+# Aceste caractere nu apar in text normal si nu sunt nici litere, nici cifre, deci nicio
+# expresie regulata din etapele urmatoare (\w, \d, [A-Z]...) nu le poate potrivi.
 _SENTINEL_OPEN = "\uE000"
 _SENTINEL_CLOSE = "\uE001"
+# Tabel de traducere: cifra 0..9 -> caracterul privat U+E010..U+E019.
+# Indexul din seif nu poate fi scris cu cifre obisnuite, altfel regulile pentru telefoane
+# sau cedulas l-ar putea lua drept numar si l-ar inlocui.
 _DIGIT_TO_PUA = str.maketrans("0123456789", "\uE010\uE011\uE012\uE013\uE014\uE015\uE016\uE017\uE018\uE019")
 
 
-# Indexul din seif e scris tot cu caractere private (cifra d -> U+E010 + d)
+# Transforma indexul (ex. 12) in sirul privat corespunzator (U+E011 U+E012).
 def _encode_index(idx: int) -> str:
     return str(idx).translate(_DIGIT_TO_PUA)
 
 
-# "Seiful": bucatile protejate (referinte PV, placeholdere deja emise) sunt mutate aici
-# si inlocuite in text cu un marcaj; la final restore() le pune inapoi
+# "Seiful". Problema: ce am inlocuit deja (ex. "[ACCOUNT]") sau ce trebuie pastrat
+# (ex. referinta "PV-AB123", care contine cifre) nu trebuie atins de etapele urmatoare.
+# Solutia: mutam valoarea intr-o lista si in text punem doar un marcaj
+# (U+E000 + index codat + U+E001). La final, restore() pune valorile inapoi.
 class Vault:
-    """Stores protected non-PII spans and emitted placeholders behind PUA sentinels."""
+    """Seif pentru bucatile protejate si placeholderele emise, ascunse in spatele santinelelor."""
 
     def __init__(self) -> None:
         self._items: list[str] = []
 
+    # Salveaza valoarea si intoarce marcajul care o inlocuieste in text.
     def stash(self, value: str) -> str:
-        # Pastram valoarea si intoarcem marcajul: U+E000 + index codat + U+E001
+        # Pozitia noii valori in lista devine indexul ei
         idx = len(self._items)
         self._items.append(value)
         return f"{_SENTINEL_OPEN}{_encode_index(idx)}{_SENTINEL_CLOSE}"
 
+    # Inlocuieste fiecare marcaj din text cu valoarea salvata.
     def restore(self, text: str) -> str:
-        # Inversul codarii: caracter privat -> cifra
+        # Dictionarul invers: caracter privat -> cifra obisnuita
         pua_to_digit = {chr(0xE010 + d): str(d) for d in range(10)}
+        # Expresia unui marcaj intreg: deschidere, una sau mai multe cifre private, inchidere
         pattern = re.compile(
             re.escape(_SENTINEL_OPEN)
             + r"([\uE010-\uE019]+)"
             + re.escape(_SENTINEL_CLOSE)
         )
 
+        # Decodam indexul si intoarcem valoarea originala din seif
         def _repl(match: re.Match[str]) -> str:
             digits = "".join(pua_to_digit[ch] for ch in match.group(1))
             return self._items[int(digits)]
 
-        # Run twice in case a stashed value itself contained a sentinel.
+        # Doua treceri: daca o valoare salvata continea la randul ei un marcaj, a doua
+        # trecere il rezolva si pe acela.
         out = pattern.sub(_repl, text)
         out = pattern.sub(_repl, out)
         return out
 
 
-# ---------------------------------------------------------------------------
-# Normalization helpers (case + accent insensitive with exact index alignment)
-# ---------------------------------------------------------------------------
-
-# NFD separa literele de accente (e + accent); eliminam accentele (categoria "Mn") si
-# trecem la litere mici: "José" -> "jose"
+# ===== Normalizare: comparatii fara majuscule si fara accente =====
+# NFD descompune fiecare litera accentuata in litera de baza + semnul diacritic
+# ("é" -> "e" + U+0301). Semnele diacritice au categoria Unicode "Mn"; le eliminam si
+# trecem la litere mici: "José" -> "jose", "Río" -> "rio".
 def strip_accents_lower(s: str) -> str:
     decomposed = unicodedata.normalize("NFD", s)
     return "".join(ch for ch in decomposed if unicodedata.category(ch) != "Mn").lower()
 
 
-# Construieste textul fara accente SI o harta de la fiecare caracter normalizat la
-# pozitia (start, end) din textul original, ca o potrivire gasita pe textul normalizat
-# sa poata fi inlocuita exact in textul original
+# Problema: cautam tiparele pe textul normalizat (fara accente, litere mici), dar trebuie
+# sa inlocuim in textul ORIGINAL. De aceea construim, pe langa textul normalizat, lista
+# "spans": spans[i] = (start, end) = pozitia in original a caracterului i normalizat.
 def build_normalized_index(text: str) -> tuple[str, list[tuple[int, int]]]:
-    """Return (accent_stripped_lowercase_str, [(orig_start, orig_end), ...])."""
+    """Intoarce (text_fara_accente_cu_litere_mici, [(start_original, end_original), ...])."""
     norm_chars: list[str] = []
     spans: list[tuple[int, int]] = []
     for idx, ch in enumerate(text):
         cat = unicodedata.category(ch)
+        # Semn diacritic separat (combinant): nu produce caracter normalizat, dar il
+        # lipim de litera dinaintea lui, extinzand capatul intervalului ei.
         if cat == "Mn":
             if spans:
                 s0, _ = spans[-1]
                 spans[-1] = (s0, idx + 1)
             continue
+        # Caracter obisnuit: il descompunem si pastram doar literele de baza
         decomp = unicodedata.normalize("NFD", ch)
         base = [c.lower() for c in decomp if unicodedata.category(c) != "Mn"]
+        # Nu a ramas nimic (caracter format doar din diacritice) -> il sarim
         if not base:
             continue
+        # Fiecare litera de baza indica spre acelasi caracter original idx
         for b in base:
             norm_chars.append(b)
             spans.append((idx, idx + 1))
     return "".join(norm_chars), spans
 
 
-# Aplica mai multe inlocuiri (start, end, text_nou) deodata
+# Aplica mai multe inlocuiri (start, end, text_nou) deodata, intr-o singura reconstructie.
 def replace_spans(text: str, spans: list[tuple[int, int, str]]) -> str:
-    """Apply non-overlapping (start, end, replacement) edits on text."""
+    """Aplica pe text editari (start, end, inlocuire) care nu se suprapun."""
     if not spans:
         return text
-    # Sortam dupa start; la acelasi start, cea mai lunga intai; sarim peste suprapuneri
+    # Sortam dupa start; la acelasi start punem intai intervalul cel mai lung,
+    # ca potrivirea mai completa sa castige.
     spans_sorted = sorted(spans, key=lambda item: (item[0], -(item[1] - item[0])))
+    # Pastram doar intervalele care nu se suprapun cu unul deja acceptat
     merged: list[tuple[int, int, str]] = []
     cur_end = -1
     for start, end, repl in spans_sorted:
+        # Incepe inainte sa se termine cel precedent -> suprapunere, il ignoram
         if start < cur_end:
             continue
         merged.append((start, end, repl))
         cur_end = end
-    # Reconstruim textul: bucatile neatinse + inlocuirile
+    # Reconstruim textul: bucata neatinsa dintre editari, apoi inlocuirea, pe rand
     parts: list[str] = []
     pos = 0
     for start, end, repl in merged:
         parts.append(text[pos:start])
         parts.append(repl)
         pos = end
+    # Coada textului de dupa ultima editare
     parts.append(text[pos:])
     return "".join(parts)
 
 
-# Ca re.sub, dar ignorand majusculele si accentele: cautam pe textul normalizat,
-# inlocuim in textul original folosind harta de pozitii
+# Echivalentul lui re.sub, dar insensibil la majuscule si accente: cautam tiparul pe
+# textul normalizat si inlocuim in textul original, folosind harta de pozitii.
+# repl_fn primeste bucata originala si potrivirea, si intoarce textul de inlocuire.
 def sub_normalized(
     text: str,
     pattern: re.Pattern[str],
     repl_fn: Callable[[str, re.Match[str]], str],
 ) -> str:
-    """Match pattern on accent-stripped lowercase text and replace in original text."""
+    """Cauta tiparul pe textul normalizat si inlocuieste in textul original."""
     norm_text, spans = build_normalized_index(text)
     edits: list[tuple[int, int, str]] = []
     for m in pattern.finditer(norm_text):
+        # Ignoram potrivirile goale (lungime zero)
         if m.start() == m.end():
             continue
+        # Traducem pozitiile din textul normalizat in pozitii din textul original
         orig_start = spans[m.start()][0]
         orig_end = spans[m.end() - 1][1]
         orig_slice = text[orig_start:orig_end]
         replacement = repl_fn(orig_slice, m)
+        # Inregistram editarea doar daca s-a schimbat ceva
         if replacement != orig_slice:
             edits.append((orig_start, orig_end, replacement))
     return replace_spans(text, edits)
 
 
-# ---------------------------------------------------------------------------
-# Lexicons & Constants
-# ---------------------------------------------------------------------------
-
-# Numele lunilor (engleza + spaniola, inclusiv abrevieri) -> numarul lunii
+# ===== Lexicoane si constante =====
+# Numele lunilor in engleza si spaniola (cu abrevieri) -> numarul lunii.
+# Cheile sunt fara accente si cu litere mici, ca textul normalizat.
 MONTH_NAME_TO_NUM: dict[str, int] = {
-    # English
+    # Engleza
     "january": 1, "jan": 1,
     "february": 2, "feb": 2,
     "march": 3, "mar": 3,
@@ -168,7 +186,7 @@ MONTH_NAME_TO_NUM: dict[str, int] = {
     "october": 10, "oct": 10,
     "november": 11, "nov": 11,
     "december": 12, "dec": 12,
-    # Spanish
+    # Spaniola
     "enero": 1, "ene": 1,
     "febrero": 2,
     "marzo": 3,
@@ -183,7 +201,8 @@ MONTH_NAME_TO_NUM: dict[str, int] = {
     "diciembre": 12, "dic": 12,
 }
 
-# Inversul: luna -> toate denumirile ei (pentru variantele unei date gasite)
+# Inversul: numarul lunii -> toate denumirile ei. Il folosim cand am gasit o data si vrem
+# sa stergem si celelalte scrieri ale ei (ex. "26/03/1975" si "marzo 26, 1975").
 NUM_TO_MONTHS: dict[int, tuple[str, ...]] = {
     1: ("january", "jan", "enero", "ene"),
     2: ("february", "feb", "febrero"),
@@ -199,12 +218,13 @@ NUM_TO_MONTHS: dict[int, tuple[str, ...]] = {
     12: ("december", "dec", "diciembre", "dic"),
 }
 
-# Alternativa regex cu toate lunile, cele mai lungi intai ("september" inaintea "sep")
+# Alternativa regex cu toate lunile ("september|...|sep|..."). Cele mai lungi intai,
+# altfel "sep" ar castiga in fata lui "september" si ar ramane "tember" nepotrivit.
 _MONTH_ALT = "|".join(sorted(MONTH_NAME_TO_NUM.keys(), key=len, reverse=True))
 
-# Fraze cu majuscule care NU sunt date personale (nume de agentie, destinatii turistice):
-# fara lista asta, "Manuel Antonio" ar fi luat drept nume de persoana
-# Non-PII geographic / agency phrases that must not be redacted as person names
+# Fraze cu majuscule care NU sunt date personale: numele agentiei si destinatii turistice.
+# Fara aceasta lista, "Manuel Antonio" (parc national) ar fi luat drept prenume + nume de
+# persoana. Inainte de etapa de nume, aceste fraze sunt mutate in seif.
 PROTECTED_NON_PII_PHRASES: tuple[str, ...] = (
     "Pura Vida Voyages",
     "Pura Vida",
@@ -295,9 +315,9 @@ PROTECTED_NON_PII_PHRASES: tuple[str, ...] = (
     "Osa Peninsula",
 )
 
-# Orase/provincii: sfarsitul unei adrese, dar nu fragmente distinctive in sine
-# Common city/province names in Costa Rica (non-distinctive city suffix of an address;
-# should NOT be extracted as standalone address fragments outside the full address).
+# Orase si provincii din Costa Rica. Apar la finalul unei adrese ("..., Escazu"), dar
+# singure nu identifica pe nimeni si apar des in text turistic normal. De aceea NU le
+# stergem separat in restul mesajului, ci doar ca parte a adresei complete.
 ADDRESS_CITY_NAMES: frozenset[str] = frozenset({
     "san jose", "quepos", "heredia", "limon", "escazu", "puntarenas",
     "alajuela", "cartago", "liberia", "santa ana", "curridabat", "san pedro",
@@ -312,8 +332,8 @@ ADDRESS_CITY_NAMES: frozenset[str] = frozenset({
     "dominical", "costa rica",
 })
 
-# Cuvinte care nu sunt nume, chiar daca apar cu majuscula sau intr-un e-mail
-# Non-name words that might appear in email local parts or near capitalized contexts
+# Cuvinte care nu sunt nume, chiar daca apar cu majuscula la inceput de fraza sau ca
+# parte locala a unui e-mail (info@, booking@...). Previn stergerile gresite.
 NON_NAME_STOPWORDS: frozenset[str] = frozenset({
     "the", "and", "for", "with", "from", "that", "this", "have", "has", "had",
     "are", "was", "were", "will", "would", "could", "should", "can", "may",
@@ -345,8 +365,7 @@ NON_NAME_STOPWORDS: frozenset[str] = frozenset({
     "heredia", "limon", "escazu", "puntarenas",
 })
 
-# Lexicon de prenume (fara accente, litere mici)
-# Curated Costa Rican / Hispanic / English first names (accent-stripped lowercase)
+# Lexicon de prenume (costaricane, hispanice, englezesti), fara accente, litere mici.
 FIRST_NAMES: frozenset[str] = frozenset({
     "adriana", "agustin", "aaron", "alberto", "alejandra", "alejandro", "alex",
     "alexa", "alexander", "alexandra", "alfonso", "alfredo", "alicia", "alonso",
@@ -421,8 +440,9 @@ FIRST_NAMES: frozenset[str] = frozenset({
     "zaida", "zoe", "zulema",
 })
 
-# Lexicon de nume de familie
-# Curated Costa Rican / Hispanic / common surnames (accent-stripped lowercase)
+# Lexicon de nume de familie, fara accente, litere mici. In etapa 8c o fraza e
+# recunoscuta ca nume daca incepe cu un prenume din FIRST_NAMES si contine cel putin un
+# nume de familie din LAST_NAMES.
 LAST_NAMES: frozenset[str] = frozenset({
     "abarca", "acevedo", "acosta", "acuna", "aguero", "aguilar", "aguilera",
     "aguirre", "alanis", "aleman", "alfaro", "allen", "almanza", "alonso",
@@ -538,11 +558,10 @@ LAST_NAMES: frozenset[str] = frozenset({
 })
 
 
-# ---------------------------------------------------------------------------
-# Date validation and variant generation
-# ---------------------------------------------------------------------------
-
-# Data trebuie sa existe: an plauzibil, zile pe luna, 29 februarie doar in ani bisecti
+# ===== Validarea datelor si generarea variantelor =====
+# Data trebuie sa existe in calendar: an intre 1900 si 2029, luna 1-12, ziua potrivita
+# lunii (30 de zile in aprilie, iunie, septembrie, noiembrie), iar 29 februarie doar in ani
+# bisecti (divizibili cu 4, dar nu cu 100, cu exceptia celor divizibili cu 400).
 def _is_valid_date(year: int, month: int, day: int) -> bool:
     if not (1900 <= year <= 2029 and 1 <= month <= 12 and 1 <= day <= 31):
         return False
@@ -555,42 +574,43 @@ def _is_valid_date(year: int, month: int, day: int) -> bool:
     return True
 
 
-# Pentru o data gasita, generam tiparele pentru TOATE celelalte scrieri ale ei
-# (ISO, zi/luna/an, luna/zi/an, 8 cifre lipite, cu numele lunii in engleza/spaniola)
+# Pentru o data gasita, generam tiparele pentru TOATE celelalte moduri de a o scrie,
+# ca sa o stergem si daca apare din nou, in alt format, in acelasi mesaj.
 def _dob_variants(year: int, month: int, day: int) -> list[str]:
-    """Generate regex patterns (on normalized lowercase text) for a given date."""
+    """Genereaza tiparele regex (pe text normalizat) pentru toate scrierile unei date."""
     y = f"{year:04d}"
     m2 = f"{month:02d}"
     d2 = f"{day:02d}"
     m1 = str(month)
     d1 = str(day)
     m_alts = "|".join(re.escape(name) for name in NUM_TO_MONTHS[month])
+    # Separator permis intre zi, luna si an: spatiu, punct, slash sau cratima
     sep = r"[\s./-]"
     pats = [
-        # ISO & slash / dash / dot
+        # An-luna-zi (ISO): 1975-03-26, 1975/3/26
         rf"\b{y}{sep}0?{m1}{sep}0?{d1}\b",
+        # Zi/luna/an si luna/zi/an: 26/03/1975, 3-26-1975
         rf"\b0?{d1}{sep}0?{m1}{sep}{y}\b",
         rf"\b0?{m1}{sep}0?{d1}{sep}{y}\b",
-        # Glued 8-digit & unpadded forms
+        # 8 cifre lipite: 19750326, 26031975, 03261975
         rf"\b{y}{m2}{d2}\b",
         rf"\b{d2}{m2}{y}\b",
         rf"\b{m2}{d2}{y}\b",
-        # Month-name forms (spaces, optional commas, optional 'de')
+        # Cu numele lunii: "March 26, 1975", "marzo 26 de 1975", "26 de marzo de 1975", "26th March 1975"
         rf"\b(?:{m_alts})\.?\s*0?{d1}(?:st|nd|rd|th)?(?:\s*,\s*|\s+(?:de\s+)?){y}\b",
         rf"\b0?{d1}(?:st|nd|rd|th)?\s*(?:de\s+)?(?:{m_alts})\.?(?:\s*(?:de|,)\s*|\s+){y}\b",
-        # Glued month-name forms (no spaces/separators)
+        # Numele lunii lipit de cifre: "march261975", "26marzo1975"
         rf"\b(?:{m_alts})0?{d1}{y}\b",
         rf"\b0?{d1}(?:{m_alts}){y}\b",
     ]
     return pats
 
 
-# ---------------------------------------------------------------------------
-# Core PII redaction pipeline
-# ---------------------------------------------------------------------------
-
-# Pare textul o adresa? Da daca are virgula, cifre sau un cuvant de adresa (calle,
-# avenida, barrio, metros, frente, street ...); nu daca e "me", "my email" etc.
+# ===== Functii ajutatoare pentru adrese si nume =====
+# Verifica daca textul prins dupa o fraza ca "my address is ..." chiar arata a adresa:
+# - prea scurt (< 6 caractere) sau un pronume ("me", "my email") -> nu;
+# - contine virgula sau cifre -> da (adresele au de obicei numere sau parti separate);
+# - contine un cuvant tipic de adresa (calle, avenida, barrio, metros, frente, street...) -> da.
 def _is_plausible_address_context(candidate: str) -> bool:
     norm = strip_accents_lower(candidate).strip()
     if not norm or len(norm) < 6:
@@ -610,21 +630,26 @@ def _is_plausible_address_context(candidate: str) -> bool:
     return bool(re.search(addr_kw, norm))
 
 
-# Din o adresa gasita extragem fragmentele distinctive (strada, reper), ca sa le stergem
-# si cand apar separat in alt loc din mesaj
+# Imparte o adresa gasita in fragmente distinctive (strada, cartier, reper), ca sa le
+# stergem si cand reapar separat in alt loc din mesaj (ex. clientul repeta doar
+# "Barrio Escalante", fara restul adresei).
 def _extract_address_fragments(addr_text: str) -> list[str]:
-    """Extract distinctive fragments (street, landmark/house) from an address."""
+    """Extrage fragmentele distinctive (strada, reper, casa) dintr-o adresa."""
     frags: list[str] = []
+    # Partile adresei sunt separate prin virgula; curatam spatiile si punctuatia
     parts = [p.strip(" ,.;:") for p in addr_text.split(",") if p.strip(" ,.;:")]
     for idx, part in enumerate(parts):
         norm = strip_accents_lower(part)
-        # Do not extract standalone trailing city names as global fragments
-        # (cities like San José / Tamarindo / Manuel Antonio can appear in non-PII travel text).
+        # Ultima parte, daca e doar un oras cunoscut (San Jose, Tamarindo...), nu e un
+        # fragment distinctiv: orasul poate aparea legitim in text turistic.
         if idx == len(parts) - 1 and norm in ADDRESS_CITY_NAMES and len(parts) >= 2:
             continue
+        # Partile de cel putin 4 caractere devin fragmente
         if len(norm) >= 4:
             frags.append(part)
-        # Also extract inner named landmark after directional prefixes
+        # Adresele costaricane folosesc repere: "200 metros al norte de la Iglesia",
+        # "frente al Banco Nacional". Extragem si numele reperului de dupa aceste expresii
+        # de directie ("Iglesia", "Banco Nacional").
         m = re.search(
             r"(?:metros\s+(?:al\s+)?(?:norte|sur|este|oeste)\s+de(?:l|\s+la)?|"
             r"frente\s+(?:a|al|a\s+la)|contiguo\s+(?:a|al|a\s+la)|"
@@ -636,10 +661,11 @@ def _extract_address_fragments(addr_text: str) -> list[str]:
         if m:
             inner = m.group(1).strip(" ,.;:")
             inner_norm = strip_accents_lower(inner)
+            # Reperul trebuie sa fie destul de lung si sa nu fie doar un oras
             if len(inner_norm) >= 5 and inner_norm not in ADDRESS_CITY_NAMES:
                 frags.append(inner)
-    # Eliminam duplicatele (fara accente) si le ordonam de la cel mai lung la cel mai scurt
-    # Deduplicate keeping longest first
+    # Eliminam duplicatele (comparand fara accente) si sortam de la cel mai lung la cel
+    # mai scurt, ca un fragment lung sa fie inlocuit inaintea unei parti din el.
     unique: dict[str, str] = {}
     for f in frags:
         k = strip_accents_lower(f)
@@ -648,56 +674,80 @@ def _extract_address_fragments(addr_text: str) -> list[str]:
     return sorted(unique.values(), key=len, reverse=True)
 
 
-# Inregistreaza un nume gasit: numele complet + fiecare cuvant al lui (fara particule
-# ca "de", "la"), pentru trecerea finala care sterge toate aparitiile
+# Inregistreaza un nume gasit pentru trecerea finala (8d): numele complet normalizat
+# intra in full_names, iar fiecare cuvant al lui in name_tokens (fara particule ca "de",
+# "del", "la", "y"). Astfel, daca "Maria Fernanda Solis" a fost gasita o data, un "Solis"
+# singur, mai jos in mesaj, va fi si el sters.
 def _add_name_candidate(
     raw_name: str,
     full_names: set[str],
     name_tokens: set[str],
 ) -> None:
+    # Spatii multiple -> unul singur; eliminam punctuatia de la capete
     cleaned = re.sub(r"\s+", " ", raw_name).strip(" ,.;:!?\"'()[]{}")
     norm_full = strip_accents_lower(cleaned)
     if not norm_full or len(norm_full) < 2:
         return
+    # Un cuvant obisnuit nu e nume
     if norm_full in NON_NAME_STOPWORDS:
         return
     full_names.add(norm_full)
+    # Fiecare cuvant de minim 2 litere, care nu e cuvant comun sau particula
     for tok in re.split(r"[\s]+", norm_full):
         tok = tok.strip("'-")
         if len(tok) >= 2 and tok not in NON_NAME_STOPWORDS and tok not in ("de", "del", "la", "las", "los", "y"):
             name_tokens.add(tok)
 
 
+# ===== Etapele de anonimizare =====
+# Functia principala: primeste textul unui mesaj si intoarce versiunea anonimizata.
+# Etapele merg de la tiparele cele mai specifice (e-mail, IBAN) la cele mai generale
+# (nume). Exemplu de ce conteaza ordinea: un IBAN are 20 de cifre; daca regula de telefon
+# ar rula inaintea celei de IBAN, ar taia din el o bucata de 8 cifre si ar lasa restul.
+# Tot ce se inlocuieste intra in seif, ca etapele urmatoare sa nu-l mai atinga.
 def redact_document(text: str) -> str:
+    # Mesaj gol -> intoarcem doar [REDACTED]
     if not text or not text.strip():
         return "[REDACTED]"
 
+    # Un seif nou pentru fiecare document
     vault = Vault()
 
-    # Etapa 1: referintele de rezervare trebuie PASTRATE -> le mutam in seif
-    # 1. Protect booking references PV-#####
+    # Etapa 1: referintele de rezervare (PV-AB123) NU sunt date personale si trebuie
+    # pastrate intacte. Contin cifre, deci regulile de telefon/ID le-ar putea strica,
+    # asa ca le mutam in seif chiar de la inceput.
     pv_re = re.compile(r"\bPV-[A-Za-z0-9]{4,10}\b")
     text = pv_re.sub(lambda m: vault.stash(m.group(0)), text)
 
-    # Etapa 2: e-mailuri -> [EMAIL]; partea locala (carlos.solano) da si nume candidate
-    # 2. Emails: redact full emails and collect local parts + candidate name tokens
+    # Etapa 2: adrese de e-mail -> [EMAIL].
+    # Grupul 1 = partea locala (inainte de @). Lookbehind-ul si lookahead-ul se asigura
+    # ca prindem e-mailul intreg, nu doar o bucata din el.
     email_re = re.compile(
         r"(?<![A-Za-z0-9._%+-])([A-Za-z0-9._%+-]+)@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?![A-Za-z0-9])"
     )
+    # Partile locale cu separatori sau cifre (carlos.solano, ana_m88): le cautam si singure
+    # in text, pentru ca sunt practic un identificator unic.
     email_locals_sep: set[str] = set()
+    # Partile locale simple (carlos): le stergem singure doar la final (8e).
     email_locals_plain: set[str] = set()
+    # Cuvinte de nume si nume complete gasite in document (folosite in trecerea 8d)
     doc_name_tokens: set[str] = set()
     doc_full_names: set[str] = set()
 
+    # Pentru fiecare e-mail: retinem partea locala si cuvintele din ea, apoi il
+    # inlocuim cu [EMAIL] (pus in seif).
     def _email_repl(m: re.Match[str]) -> str:
         local = m.group(1)
         local_norm = strip_accents_lower(local)
         if len(local_norm) >= 3 and local_norm not in NON_NAME_STOPWORDS:
+            # Are separatori sau cifre -> lista "sep"; altfel lista "plain"
             if re.search(r"[._+\-\d]", local_norm):
                 email_locals_sep.add(local_norm)
             else:
                 email_locals_plain.add(local_norm)
-        # Extract name parts from local part
+        # Impartim partea locala la separatori: "carlos.solano" -> "carlos", "solano";
+        # cifrele de la final sunt eliminate ("solano88" -> "solano"). Bucatile de minim
+        # 3 litere, care nu sunt cuvinte comune, devin cuvinte de nume candidate.
         for part in re.split(r"[._+\-]+", local_norm):
             part_alpha = re.sub(r"\d+$", "", part)
             if (
@@ -710,37 +760,41 @@ def redact_document(text: str) -> str:
 
     text = email_re.sub(_email_repl, text)
 
-    # Redact standalone email local parts that contain separators or digits (e.g. carlos.solano)
+    # Partea locala aparuta singura in text (ex. "user carlos.solano") -> [EMAIL].
+    # Permitem orice separator: "carlos_solano" se potriveste si cu "carlos.solano".
     for local_norm in sorted(email_locals_sep, key=len, reverse=True):
         escaped = re.escape(local_norm)
-        # Allow minor separator differences (., _, -) if local part uses separators
         flex = re.sub(r"\\([._+\-])", r"[._+-]", escaped)
         pat = re.compile(rf"(?<![a-z0-9._+-]){flex}(?![a-z0-9])")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[EMAIL]"))
 
-    # Etapa 3: conturi IBAN -> [ACCOUNT], scrise grupat sau lipit
-    # 3. Bank Accounts (IBAN grouped and glued)
+    # Etapa 3: conturi bancare IBAN -> [ACCOUNT].
+    # Retinem cifrele fiecarui IBAN gasit, ca sa-l stergem si cand reapare in alt format.
     iban_digit_cores: set[str] = set()
 
+    # Pastram doar cifrele; daca sunt destule (>= 14), le retinem atat complet, cat si
+    # fara primele 2 (cifrele de control), pentru ca uneori clientul scrie doar numarul
+    # de cont, fara "CR" si fara cifrele de control.
     def _record_iban(raw: str) -> str:
         alnum = re.sub(r"[^A-Za-z0-9]", "", raw).upper()
         digits_only = re.sub(r"\D", "", alnum)
         if len(digits_only) >= 14:
             iban_digit_cores.add(digits_only)
             if len(digits_only) >= 18:
-                # Core without 2-digit IBAN check digits
                 iban_digit_cores.add(digits_only[2:])
         return vault.stash("[ACCOUNT]")
 
-    # Costa Rica IBAN (CR + 20 digits, optional spaces/hyphens)
+    # IBAN Costa Rica: "CR" + 20 de cifre, optional grupate cu spatii sau cratime
     cr_iban_re = re.compile(r"\b[Cc][Rr](?:[\s-]?\d){20}\b")
     text = cr_iban_re.sub(lambda m: _record_iban(m.group(0)), text)
 
-    # General uppercase IBAN (2 letters + 2 digits + 11..30 alphanumeric chars)
+    # IBAN general (alte tari): 2 litere mari + 2 cifre + grupuri de caractere alfanumerice
     gen_iban_re = re.compile(
         r"\b[A-Z]{2}\d{2}(?:[\s-]?[A-Z0-9]{4}){2,7}(?:[\s-]?[A-Z0-9]{1,4})?\b"
     )
 
+    # Il acceptam doar daca lungimea e de IBAN (15-34 caractere) si are minim 8 cifre,
+    # altfel ar putea fi un cod oarecare scris cu majuscule.
     def _gen_iban_repl(m: re.Match[str]) -> str:
         raw = m.group(0)
         compact = re.sub(r"[^A-Z0-9]", "", raw)
@@ -750,26 +804,31 @@ def redact_document(text: str) -> str:
 
     text = gen_iban_re.sub(_gen_iban_repl, text)
 
-    # Redact any remaining occurrence of detected IBAN digits (with/without CR and separators)
+    # Orice alta aparitie a cifrelor deja gasite (cu sau fara prefix de 2 litere, cu sau
+    # fara separatori intre cifre) -> [ACCOUNT]
     for core in sorted(iban_digit_cores, key=len, reverse=True):
         flex_digits = r"[\s-]*".join(core)
         pat = re.compile(rf"(?<![a-z0-9])(?:[a-z]{{2}}[\s-]*)?{flex_digits}(?!\d)")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[ACCOUNT]"))
 
-    # Etapa 4: date de nastere -> [DOB], in toate formatele
-    # 4. Dates of Birth (all formats + cross-format variants)
+    # Etapa 4: date de nastere -> [DOB], in toate formatele.
+    # detected_dobs retine (an, luna, zi) pentru fiecare data gasita, ca la final (4e) sa
+    # stergem orice alta scriere a aceleiasi date.
     detected_dobs: set[tuple[int, int, int]] = set()
 
+    # Inregistram data si intoarcem marcajul pentru [DOB]
     def _stash_dob(year: int, month: int, day: int) -> str:
         detected_dobs.add((year, month, day))
         return vault.stash("[DOB]")
 
-    # 4a. Month-name formats: "March 26, 1975" / "26 March 1975" / "26 de marzo de 1975"
+    # 4a. Formate cu numele lunii.
+    # Luna intai: "March 26, 1975", "marzo 26 de 1975", "Mar. 26th 1975"
     dob_month_first_re = re.compile(
         rf"\b(?P<mon>{_MONTH_ALT})\.?\s+(?P<day>0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?"
         rf"(?:\s*,\s*|\s+(?:de\s+)?)(?P<year>19\d{{2}}|20[0-2]\d)\b"
     )
 
+    # Validam data inainte de a o sterge ("February 30, 1990" nu e o data reala)
     def _dob_mf_repl(orig: str, m: re.Match[str]) -> str:
         y = int(m.group("year"))
         mon = MONTH_NAME_TO_NUM[m.group("mon")]
@@ -780,11 +839,13 @@ def redact_document(text: str) -> str:
 
     text = sub_normalized(text, dob_month_first_re, _dob_mf_repl)
 
+    # Ziua intai: "26 March 1975", "26 de marzo de 1975", "26 marzo, 1975"
     dob_day_first_re = re.compile(
         rf"\b(?P<day>0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?\s+(?:de\s+)?"
         rf"(?P<mon>{_MONTH_ALT})\.?(?:\s*(?:de|,)\s*|\s+)(?P<year>19\d{{2}}|20[0-2]\d)\b"
     )
 
+    # Aceeasi validare ca mai sus
     def _dob_df_repl(orig: str, m: re.Match[str]) -> str:
         y = int(m.group("year"))
         mon = MONTH_NAME_TO_NUM[m.group("mon")]
@@ -795,7 +856,8 @@ def redact_document(text: str) -> str:
 
     text = sub_normalized(text, dob_day_first_re, _dob_df_repl)
 
-    # 4b. ISO numeric: YYYY-MM-DD / YYYY/MM/DD / YYYY.MM.DD
+    # 4b. Format numeric ISO: an-luna-zi (1975-03-26, 1975/3/26, 1975.03.26).
+    # "\2" cere ca ambii separatori sa fie acelasi caracter.
     dob_iso_re = re.compile(
         r"\b(?P<year>19\d{2}|20[0-2]\d)([./-])(?P<mon>0?[1-9]|1[0-2])\2(?P<day>0?[1-9]|[12]\d|3[01])\b"
     )
@@ -810,37 +872,41 @@ def redact_document(text: str) -> str:
 
     text = sub_normalized(text, dob_iso_re, _dob_iso_repl)
 
-    # In Costa Rica formatul standard e zi/luna/an; daca a doua parte > 12, e luna/zi/an
-    # 4c. Numeric DD/MM/YYYY or MM/DD/YYYY (with / or - or .)
+    # 4c. Numeric zi/luna/an sau luna/zi/an (cu "/", "-" sau ".").
     dob_dmy_re = re.compile(
         r"\b(?P<p1>0?[1-9]|[12]\d|3[01])([./-])(?P<p2>0?[1-9]|[12]\d|3[01])\2(?P<year>19\d{2}|20[0-2]\d)\b"
     )
 
+    # In Costa Rica formatul standard e zi/luna/an, deci il incercam primul. Daca a doua
+    # parte e > 12, nu poate fi luna, deci data e luna/zi/an (format american).
     def _dob_dmy_repl(orig: str, m: re.Match[str]) -> str:
         p1 = int(m.group("p1"))
         p2 = int(m.group("p2"))
         y = int(m.group("year"))
-        # Prefer DD/MM/YYYY (Costa Rican standard); fall back to MM/DD/YYYY if p2 > 12
         if p2 <= 12 and _is_valid_date(y, p2, p1):
+            # Caz ambiguu (ex. 03/04/1980): ambele interpretari sunt valide. Retinem si
+            # varianta luna/zi/an, ca trecerea 4e sa stearga ambele scrieri posibile.
             if p1 <= 12 and p1 != p2 and _is_valid_date(y, p1, p2):
-                # Record ambiguous alternate too so cross-format variants catch both
                 detected_dobs.add((y, p1, p2))
             return _stash_dob(y, p2, p1)
+        # Nu era zi/luna/an valid -> incercam luna/zi/an
         if p1 <= 12 and _is_valid_date(y, p1, p2):
             return _stash_dob(y, p1, p2)
         return orig
 
     text = sub_normalized(text, dob_dmy_re, _dob_dmy_repl)
 
-    # 4d. Glued 8-digit DOB explicitly in birth-date context (e.g. "date of birth is 19750326")
+    # 4d. 8 cifre lipite, dar DOAR dupa o expresie de data nasterii ("date of birth is
+    # 19750326", "nacimiento: 26031975"). Fara context, 8 cifre ar putea fi un telefon.
     dob_glued_ctx_re = re.compile(
         r"\b(?:date of birth|dob|born|nacimiento)\s*(?:is\s+|:?\s*)(?P<digits>\d{8})\b"
     )
 
     def _dob_glued_repl(orig: str, m: re.Match[str]) -> str:
         digs = m.group("digits")
+        # Pastram expresia de context ("date of birth is ") si inlocuim doar cifrele
         prefix = orig[:-len(digs)]
-        # Check YYYYMMDD then DDMMYYYY then MMDDYYYY
+        # Incercam pe rand: AAAALLZZ, apoi ZZLLAAAA, apoi LLZZAAAA; prima valida castiga
         y1, m1, d1 = int(digs[:4]), int(digs[4:6]), int(digs[6:8])
         if _is_valid_date(y1, m1, d1):
             return prefix + _stash_dob(y1, m1, d1)
@@ -854,8 +920,8 @@ def redact_document(text: str) -> str:
 
     text = sub_normalized(text, dob_glued_ctx_re, _dob_glued_repl)
 
-    # Odata gasita o data, stergem orice alta scriere a ei din mesaj
-    # 4e. Cross-variant pass: eliminate any other representation of detected DOBs
+    # 4e. Trecerea de variante: odata gasita o data, stergem orice alta scriere a ei
+    # din mesaj (lista de tipare vine din _dob_variants).
     for y, mon, d in sorted(detected_dobs):
         for pat_str in _dob_variants(y, mon, d):
             text = sub_normalized(
@@ -864,12 +930,15 @@ def redact_document(text: str) -> str:
                 lambda _orig, _m: vault.stash("[DOB]"),
             )
 
-    # Etapa 5: telefoane; ordinea conteaza - cedulas (9 cifre) inaintea telefoanelor
-    # nationale (8 cifre), ca un numar de 9 cifre sa nu fie taiat in 8
-    # 5. Phones (international first, then cédulas, then national 8-digit phones,
-    #    then cross-variant phone numbers)
+    # Etapa 5: numere de telefon -> [PHONE].
+    # Ordinea conteaza: intai cele internationale (cu prefix), apoi cedulas (etapa 6, 9 cifre)
+    # si abia apoi telefoanele nationale de 8 cifre (5c). Altfel o cedula de 9 cifre ar fi
+    # taiata intr-un "telefon" de 8 cifre + o cifra ramasa in text.
+    # detected_phone_cores retine cifrele fiecarui telefon gasit, pentru trecerea de variante.
     detected_phone_cores: set[str] = set()
 
+    # Pastram doar cifrele. Pentru +506 XXXX XXXX retinem cele 8 cifre fara prefix,
+    # ca sa recunoastem acelasi numar si cand e scris fara prefix.
     def _record_phone(raw: str) -> str:
         digits = re.sub(r"\D", "", raw)
         if len(digits) == 11 and digits.startswith("506"):
@@ -880,17 +949,20 @@ def redact_document(text: str) -> str:
             detected_phone_cores.add(digits)
         return vault.stash("[PHONE]")
 
-    # 5a. Costa Rica international phone (+506 / 00506 / 506)
+    # 5a. Telefon Costa Rica cu prefix: +506, 00506 sau 506 (eventual intre paranteze),
+    # urmat de 8 cifre cu prima cifra intre 2 si 8 (telefoane fixe si mobile)
     cr_intl_phone_re = re.compile(
         r"(?<![A-Za-z0-9])(?:\+|00)?\s*\(?\s*506\s*\)?[\s.-]*[2-8]\d{3}[\s.-]*\d{4}\b"
     )
     text = cr_intl_phone_re.sub(lambda m: _record_phone(m.group(0)), text)
 
-    # 5b. General international phone numbers (e.g. +1 555-123-4567, +34 612 345 678)
+    # 5b. Alte telefoane internationale: "+" + cod de tara (1-3 cifre), optional prefix
+    # intre paranteze, apoi grupuri de cifre (ex. +1 555-123-4567, +34 612 345 678)
     gen_intl_phone_re = re.compile(
         r"(?<![A-Za-z0-9])\+\d{1,3}[\s.-]*(?:\(\d{1,4}\)[\s.-]*)?\d{2,4}(?:[\s.-]*\d{2,4}){1,3}\b"
     )
 
+    # Acceptam doar numere cu 8-15 cifre (15 = lungimea maxima a unui numar international)
     def _gen_intl_phone_repl(m: re.Match[str]) -> str:
         digits = re.sub(r"\D", "", m.group(0))
         if 8 <= len(digits) <= 15:
@@ -899,25 +971,28 @@ def redact_document(text: str) -> str:
 
     text = gen_intl_phone_re.sub(_gen_intl_phone_repl, text)
 
-    # Etapa 6: buletinele (cedulas) -> [ID]
-    # 6. National IDs / Cédulas (hyphenated/spaced and glued 9-digit, plus DIMEX/jurídica in ID context)
+    # Etapa 6: numere de identitate (cedulas) -> [ID]
     detected_cedulas: set[str] = set()
 
+    # Retinem cifrele cedulei, pentru trecerea de variante de mai jos
     def _record_cedula(raw: str) -> str:
         digits = re.sub(r"\D", "", raw)
         if digits:
             detected_cedulas.add(digits)
         return vault.stash("[ID]")
 
-    # Standard Costa Rican 9-digit cédula (X-XXXX-XXXX or X XXXX XXXX)
+    # Cedula de persoana fizica: 9 cifre scrise X-XXXX-XXXX sau X XXXX XXXX
+    # (prima cifra, 1-9, este provincia)
     cedula_sep_re = re.compile(r"\b[1-9][\s-]\d{4}[\s-]\d{4}\b")
     text = cedula_sep_re.sub(lambda m: _record_cedula(m.group(0)), text)
 
-    # Cédula jurídica (X-XXX-XXXXXX)
+    # Cedula juridica (a unei firme): X-XXX-XXXXXX
     cedula_jur_re = re.compile(r"\b[1-9]-\d{3}-\d{6}\b")
     text = cedula_jur_re.sub(lambda m: _record_cedula(m.group(0)), text)
 
-    # Glued 9-digit cédula anywhere (or 10-12 digit DIMEX/ID near ID context)
+    # 9-12 cifre lipite dupa un cuvant de identitate ("cedula", "identity", "DIMEX", "ID").
+    # DIMEX-ul (actul strainilor rezidenti) are 11-12 cifre. Pastram cuvantul de context
+    # si inlocuim doar cifrele.
     cedula_ctx_re = re.compile(
         r"\b(?:cedula|identidad|identity|dimex|id)\s*(?:number\s+is\s+|is\s+|#?\s*:?\s*)(?P<ced>\d{9,12})\b"
     )
@@ -927,10 +1002,13 @@ def redact_document(text: str) -> str:
         lambda orig, m: orig[:-len(m.group("ced"))] + _record_cedula(m.group("ced")),
     )
 
+    # Cedula lipita (9 cifre) oriunde in text. Lookbehind-ul exclude sumele de bani
+    # ($, ₡ - colonul costarican, €, £), iar lookahead-ul exclude procentele.
     cedula_glued_re = re.compile(r"(?<![$₡€£\d])\b[1-9]\d{8}\b(?![\d%])")
     text = cedula_glued_re.sub(lambda m: _record_cedula(m.group(0)), text)
 
-    # Cross-variant pass for detected cédulas (e.g. 1-2345-6789 <-> 123456789)
+    # Trecerea de variante: aceeasi cedula scrisa altfel
+    # (1-2345-6789 <-> 123456789 <-> 1 2345 6789) -> [ID]
     for ced in sorted(detected_cedulas, key=len, reverse=True):
         if len(ced) == 9:
             p1, p2, p3 = ced[0], ced[1:5], ced[5:9]
@@ -940,18 +1018,21 @@ def redact_document(text: str) -> str:
             pat = re.compile(rf"\b{flex}\b")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[ID]"))
 
-    # Telefoanele nationale de 8 cifre -> [PHONE], apoi variantele lor
-    # 5c. National 8-digit phones (with separator or glued)
+    # 5c. Telefoane nationale de 8 cifre (dupa cedulas, vezi explicatia de la etapa 5).
+    # Cu separator: 8812-3456, 2222 3333. Sumele de bani si procentele sunt excluse.
     cr_nat_sep_phone_re = re.compile(r"(?<![$₡€£\d])\b[2-8]\d{3}[\s.-]\d{4}\b(?![\d%])")
     text = cr_nat_sep_phone_re.sub(lambda m: _record_phone(m.group(0)), text)
 
+    # Format american, cu prefixul de zona intre paranteze: (555) 123-4567
     us_phone_re = re.compile(r"(?<![A-Za-z0-9])\(\d{3}\)[\s.-]*\d{3}[\s.-]*\d{4}\b")
     text = us_phone_re.sub(lambda m: _record_phone(m.group(0)), text)
 
+    # 8 cifre lipite, prima intre 2 si 8: 88123456
     cr_nat_glued_phone_re = re.compile(r"(?<![$₡€£\d])\b[2-8]\d{7}\b(?![\d%])")
     text = cr_nat_glued_phone_re.sub(lambda m: _record_phone(m.group(0)), text)
 
-    # Cross-variant pass for detected phone numbers
+    # Trecerea de variante: acelasi numar scris altfel (cu sau fara +506 / 00506,
+    # cu alte separatoare sau fara) -> [PHONE]
     for core in sorted(detected_phone_cores, key=len, reverse=True):
         if len(core) == 8:
             p1, p2 = core[:4], core[4:]
@@ -963,18 +1044,23 @@ def redact_document(text: str) -> str:
             pat = re.compile(rf"(?<![a-z0-9])\+?\s*{flex}(?!\d)")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[PHONE]"))
 
-    # Etapa 7: adrese -> [ADDRESS], plus fragmentele lor oriunde reapar
-    # 7. Postal Addresses + distinctive fragments
+    # Etapa 7: adrese postale -> [ADDRESS], plus fragmentele lor distinctive oriunde reapar
     detected_addr_fragments: list[str] = []
 
+    # Retinem fragmentele adresei si intoarcem marcajul pentru [ADDRESS]
     def _record_address(raw: str) -> str:
         detected_addr_fragments.extend(_extract_address_fragments(raw))
         return vault.stash("[ADDRESS]")
 
-    # 7a. Costa Rican 3-part (or 2-part) address starting with street/barrio keyword
+    # 7a. Adresa costaricana in 2-3 parti separate prin virgula, care incepe cu un cuvant de
+    # strada sau cartier: "Calle 5, Barrio Amon, San Jose".
+    # _CAP_WORD  = un cuvant care incepe cu majuscula;
+    # _CONN_WORD = particule de legatura (de, del, la, y...);
+    # _CITY_SPEC = numele unui oras de 1-3 cuvinte ("Santa Ana", "Montes de Oca").
     _CAP_WORD = r"[A-ZÁÉÍÓÚÜÑ][A-Za-zÁÉÍÓÚÜÑáéíóúüñ-]+"
     _CONN_WORD = r"(?:de|del|la|las|los|y|al|a|el)"
     _CITY_SPEC = rf"{_CAP_WORD}(?:\s+(?:{_CONN_WORD}\s+)?{_CAP_WORD}){{0,2}}"
+    # Cuvant cheie + prima parte, virgula, a doua parte, optional virgula + oras
     cr_addr_re = re.compile(
         rf"\b(?:Avenida|Av\.?|Calle|Paseo|Diagonal|Transversal|Boulevard|Blvd\.?|"
         rf"Barrio|Urbanizaci[oó]n|Urb\.?|Residencial|Condominio|Ruta|Carretera)\s+"
@@ -982,25 +1068,32 @@ def redact_document(text: str) -> str:
     )
     text = cr_addr_re.sub(lambda m: _record_address(m.group(0)), text)
 
-    # 7b. Contextual delivery / pickup / address phrases
+    # 7b. Adrese recunoscute dupa context. Grupul 1 = expresia de context (ramane in text),
+    # grupul 2 = adresa (se inlocuieste). Adresa se termina la punct, la sfarsit de rand sau
+    # inaintea unor cuvinte care incep alta propozitie ("and keep", "please"...).
     addr_ctx_patterns = [
         re.compile(
+            # "pickup at <adresa>"
             r"(\bpickup at )(.+?)(?=\s+(?:to\s+our|for\s+our|and\s+keep|on\s+file|if\s+you|please)|[.;!\n]|$)",
             flags=re.IGNORECASE,
         ),
         re.compile(
+            # "send the paperwork / invoice / reply ... to <adresa>"
             r"(\b(?:send|mail|deliver|forward)\s+(?:the\s+)?(?:paperwork|written\s+reply|reply|documents|docs|invoice|receipt|confirmation|package|letter|itinerary)\s+to\s+)(.+?)(?=\s+(?:and\s+keep|on\s+file|asap)|[.;!\n]|$)",
             flags=re.IGNORECASE,
         ),
         re.compile(
+            # "my (postal / home / billing ...) address is <adresa>"
             r"(\b(?:my|our)\s+(?:postal\s+|mailing\s+|home\s+|street\s+|residential\s+|billing\s+)?address\s+is\s+)(.+?)(?=\s+(?:and\s+keep)|[.;!\n]|$)",
             flags=re.IGNORECASE,
         ),
         re.compile(
+            # "I live at / we live at / residing at <adresa>"
             r"(\b(?:i\s+live\s+at|we\s+live\s+at|residing\s+at)\s+)(.+?)(?=[.;!\n]|$)",
             flags=re.IGNORECASE,
         ),
     ]
+    # Inlocuim doar daca textul prins chiar arata a adresa (vezi _is_plausible_address_context)
     for ctx_re in addr_ctx_patterns:
         def _ctx_addr_repl(m: re.Match[str]) -> str:
             cand = m.group(2).strip()
@@ -1009,20 +1102,24 @@ def redact_document(text: str) -> str:
             return m.group(0)
         text = ctx_re.sub(_ctx_addr_repl, text)
 
-    # 7c. Standalone street / landmark / English street phrases
+    # 7c. Bucati de adresa care apar singure, fara expresie de context
     standalone_addr_patterns = [
+        # "Calle 5", "Avenida Central", "Ruta 27"
         re.compile(r"\b(?:Avenida|Av\.?|Calle|Paseo|Ruta)\s+(?:\d+[A-Za-z]?|Central)\b", flags=re.IGNORECASE),
         re.compile(
+            # "200 metros al norte de la Iglesia ..." (reper dat prin distanta si directie)
             rf"\b\d+\s*(?:m|mts|metros)\s+(?:al\s+)?(?:norte|sur|este|oeste)\s+de(?:l|\s+la)?\s+"
             rf"(?:la\s+|el\s+|los\s+|las\s+)?{_CITY_SPEC}"
         ),
         re.compile(
+            # "Frente al Banco ...", "Contiguo a ...", "Costado sur de ...", "Detras del ..."
             rf"\b(?:Frente\s+(?:a|al|a\s+la)|Contiguo\s+(?:a|al|a\s+la)|"
             rf"Diagonal\s+(?:a|al|a\s+la)|Costado\s+(?:norte|sur|este|oeste)\s+de(?:l|\s+la)?|"
             rf"Detr[aá]s\s+de(?:l|\s+la)?)\s+(?:la\s+|el\s+|los\s+|las\s+)?{_CITY_SPEC}",
             flags=re.IGNORECASE,
         ),
         re.compile(
+            # Adresa in stil american: "742 Evergreen Street, Apt 3"
             r"\b\d{1,5}\s+(?:[A-Z][a-z]+\s+){1,3}(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Court|Ct|Way|Place|Pl)\.?"
             r"(?:\s*,?\s*(?:Apt|Suite|Unit|#)\s*[A-Za-z0-9-]+)?\b"
         ),
@@ -1030,7 +1127,8 @@ def redact_document(text: str) -> str:
     for addr_pat in standalone_addr_patterns:
         text = addr_pat.sub(lambda m: _record_address(m.group(0)), text)
 
-    # 7d. Cross-variant pass: redact any repeated distinctive fragment from detected addresses
+    # 7d. Trecerea de variante: orice fragment distinctiv al unei adrese gasite, aparut din
+    # nou in mesaj -> [ADDRESS]. Sarim peste orasele simple si peste duplicate.
     seen_frag_norms: set[str] = set()
     for frag in sorted(detected_addr_fragments, key=len, reverse=True):
         fnorm = strip_accents_lower(frag)
@@ -1041,66 +1139,79 @@ def redact_document(text: str) -> str:
         pat = re.compile(rf"(?<![a-z0-9]){flex}(?![a-z0-9])")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[ADDRESS]"))
 
-    # Etapa 8: nume de persoane -> [NAME]
-    # 8. Person Names
-    # Intai protejam destinatiile/agentia, ca sa nu fie confundate cu nume
-    # 8a. Protect known non-PII capitalized phrases (Pura Vida Voyages, tourist destinations)
+    # Etapa 8: nume de persoane -> [NAME].
+    # 8a. Intai protejam numele agentiei si destinatiile turistice: le mutam in seif cu
+    # textul lor original, ca regulile de nume sa nu le confunde cu persoane.
     for phrase in sorted(PROTECTED_NON_PII_PHRASES, key=len, reverse=True):
         pnorm = strip_accents_lower(phrase)
         flex = r"\s+".join(re.escape(w) for w in pnorm.split())
         pat = re.compile(rf"\b{flex}\b")
         text = sub_normalized(text, pat, lambda orig, _m: vault.stash(orig))
 
-    # Nume din context: "My name is ...", "Regards, ...", "Me llamo ..."
-    # 8b. Extract & redact contextual person names
+    # 8b. Nume gasite dupa context.
+    # _NAME_WORD = un cuvant cu majuscula (poate contine accente, apostrof, cratima);
+    # _NAME_SPAN = 1-4 astfel de cuvinte, cu particule permise intre ele ("de los", "del", "y").
     _NAME_WORD = r"[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ'-]+"
     _NAME_SPAN = rf"{_NAME_WORD}(?:\s+(?:(?:de(?:\s+l[ao]s)?|del|y)\s+)?{_NAME_WORD}){{0,3}}"
 
+    # Rude si insotitori: "my wife Ana", "my son Diego"
     _RELATIVES = (
         r"son|daughter|wife|husband|partner|spouse|brother|sister|mother|father|"
         r"mom|dad|parent|child|kid|friend|companion|colleague|cousin|uncle|aunt|"
         r"nephew|niece|grandfather|grandmother|grandpa|grandma|fianc[eé]e?|guest|"
         r"traveler|traveller|passenger"
     )
+    # Formule de incheiere, dupa care urmeaza semnatura pe randul urmator
     _SIGNOFFS = (
         r"Regards|Best regards|Kind regards|Warm regards|Sincerely|Yours sincerely|"
         r"Yours truly|Best|Thanks|Thank you|Many thanks|Cheers|Respectfully|"
         r"Cordially|Warmly|Saludos|Cordialmente|Atentamente|Gracias"
     )
+    # Titluri de politete: "Mr. Smith", "Sra. Vargas", "Doña Rosa"
     _TITLES = r"Mr\.?|Mrs\.?|Ms\.?|Miss|Dr\.?|Prof\.?|Sr\.?|Sra\.?|Srta\.?|Don|Doña"
 
+    # Inregistram numele (pentru 8d) si pastram contextul, inlocuind doar numele
     def _name_ctx_repl(prefix: str, raw_name: str) -> str:
         _add_name_candidate(raw_name, doc_full_names, doc_name_tokens)
         return prefix + vault.stash("[NAME]")
 
+    # Tiparele de context: grupul 1 = contextul, grupul 2 = numele. "(?i:...)" face doar
+    # contextul insensibil la majuscule; numele trebuie sa inceapa cu majuscula.
     name_ctx_patterns: list[re.Pattern[str]] = [
+        # "my name is", "this is", "I am", "I'm" + nume
         re.compile(rf"(\b(?i:my\s+(?:full\s+)?name\s+is|name\s+is|this\s+is|i\s+am|i'm)\s+)({_NAME_SPAN})\b"),
+        # "my wife / son / friend ..." + nume
         re.compile(rf"(\b(?i:my\s+(?:{_RELATIVES}))\s+)({_NAME_SPAN})\b"),
+        # "traveling with", "booked under", "passenger:", "contact:" ... + nume
         re.compile(rf"(\b(?i:with\s+my\s+(?:{_RELATIVES})|accompanied\s+by|traveling\s+with|travelling\s+with|under\s+the\s+name|booked\s+(?:for|under)|passenger\s*:?|guest\s*:?|contact\s*:?|name\s*:?|signed(?:\s+by)?)\s+)({_NAME_SPAN})\b"),
+        # Semnatura: "Regards," pe un rand, numele pe randul urmator
         re.compile(rf"(\b(?i:{_SIGNOFFS})[,!.]?\s*\n+\s*)({_NAME_SPAN})(?=\s*(?:[,.;!\n]|$))"),
+        # Titlu + nume
         re.compile(rf"(\b(?:{_TITLES})\s+)({_NAME_SPAN})\b"),
     ]
 
     for npat in name_ctx_patterns:
+        # Daca toate cuvintele prinse sunt cuvinte comune ("I am Very Upset"), nu e un nume
+        # si lasam textul neschimbat.
         def _repl_fn(m: re.Match[str]) -> str:
             cand = m.group(2)
-            # Avoid matching obvious non-name sentence starters or common words
             words_norm = [strip_accents_lower(w) for w in cand.split()]
             if all(w in NON_NAME_STOPWORDS for w in words_norm):
                 return m.group(0)
             return _name_ctx_repl(m.group(1), cand)
         text = npat.sub(_repl_fn, text)
 
-    # Perechi Prenume Nume recunoscute din lexicoane
-    # 8c. Lexicon-based <FirstName> <LastName> (+ optional middle/second surname)
+    # 8c. Nume recunoscute din lexicoane: 2-4 cuvinte consecutive cu majuscula
     multi_cap_re = re.compile(rf"\b{_NAME_WORD}(?:\s+{_NAME_WORD}){{1,3}}\b")
 
     def _lexicon_name_repl(m: re.Match[str]) -> str:
         phrase = m.group(0)
         words = phrase.split()
         norms = [strip_accents_lower(w) for w in words]
+        # Primul cuvant e prenume cunoscut si cel putin unul din restul e nume de familie cunoscut
         if len(words) >= 2 and norms[0] in FIRST_NAMES and any(n in LAST_NAMES for n in norms[1:]):
-            # Ensure all words look like names (either first or last name, or not in stopwords)
+            # ...si TOATE cuvintele sunt prenume sau nume de familie
+            # (ca "Maria Lopez Hotel" sa nu fie luat intreg drept nume)
             if all(n in FIRST_NAMES or n in LAST_NAMES for n in norms):
                 _add_name_candidate(phrase, doc_full_names, doc_name_tokens)
                 return vault.stash("[NAME]")
@@ -1108,9 +1219,8 @@ def redact_document(text: str) -> str:
 
     text = multi_cap_re.sub(_lexicon_name_repl, text)
 
-    # Orice reaparitie a numelor deja gasite, ignorand majusculele si accentele
-    # 8d. Pass for any remaining occurrences of full names and standalone name tokens
-    #     (ignoring case and accents) anywhere in the document!
+    # 8d. Orice reaparitie a numelor deja gasite, ignorand majusculele si accentele:
+    # intai numele complete (cele mai lungi intai), apoi fiecare cuvant al lor singur.
     for full_norm in sorted(doc_full_names, key=len, reverse=True):
         parts = full_norm.split()
         if not parts:
@@ -1119,36 +1229,37 @@ def redact_document(text: str) -> str:
         pat = re.compile(rf"\b{flex}\b")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[NAME]"))
 
+    # Cuvintele de nume singure (ex. "Solano", din carlos.solano@... sau din "Carlos Solano") -> [NAME]
     for tok_norm in sorted(doc_name_tokens, key=len, reverse=True):
         if len(tok_norm) < 2 or tok_norm in NON_NAME_STOPWORDS:
             continue
         pat = re.compile(rf"\b{re.escape(tok_norm)}\b")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[NAME]"))
 
-    # 8e. Pass for remaining standalone single-word email local parts (e.g. "carlos" from carlos@...)
+    # 8e. Partile locale simple de e-mail (ex. "carlos" din carlos@gmail.com), aparute
+    # singure in text -> [EMAIL]
     for local_norm in sorted(email_locals_plain, key=len, reverse=True):
         if len(local_norm) < 3 or local_norm in NON_NAME_STOPWORDS:
             continue
         pat = re.compile(rf"\b{re.escape(local_norm)}\b")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[EMAIL]"))
 
-    # Etapa 9: scoatem din seif referintele PV si placeholderele
-    # 9. Restore all protected spans and placeholders
+    # Etapa 9: golim seiful: referintele PV si frazele protejate revin la textul original,
+    # iar marcajele placeholderelor devin [EMAIL], [NAME] etc.
     text = vault.restore(text)
 
-    # Collapse consecutive identical [NAME] placeholders (e.g. "[NAME] [NAME]" -> "[NAME]")
+    # Mai multe [NAME] consecutive (prenume si nume inlocuite separat) -> un singur [NAME]
     text = re.sub(r"\[NAME\](?:\s+\[NAME\])+", "[NAME]", text)
 
+    # Daca nu a mai ramas nimic, intoarcem [REDACTED]
     return text if text.strip() else "[REDACTED]"
 
 
-# ---------------------------------------------------------------------------
-# I/O entrypoint
-# ---------------------------------------------------------------------------
-
-# Intrarea: test-input.json, altfel train-input.json, altfel files/train-input.json
+# ===== Intrare / iesire =====
+# Alegem fisierul de intrare din directorul curent: test-input.json (la evaluare), altfel
+# train-input.json, altfel files/train-input.json de langa script.
 def resolve_io_paths() -> tuple[str, str]:
-    """Select input and output JSON paths in the current working directory."""
+    """Alege caile fisierelor JSON de intrare si de iesire."""
     if os.path.isfile("test-input.json"):
         return "test-input.json", "test-output.json"
     if os.path.isfile("train-input.json"):
@@ -1161,6 +1272,7 @@ def resolve_io_paths() -> tuple[str, str]:
     sys.exit(f"No test-input.json or train-input.json found in {os.getcwd()}")
 
 
+# Citeste documentele, anonimizeaza fiecare text si scrie rezultatul JSON.
 def main() -> None:
     in_path, out_path = resolve_io_paths()
     with open(in_path, "r", encoding="utf-8") as f:
@@ -1174,10 +1286,12 @@ def main() -> None:
         raw_text = doc.get("text", "")
         redacted_documents[doc_id] = redact_document(raw_text)
 
+    # Formatul cerut: {"redacted_documents": {id: text}}; ensure_ascii=False pastreaza accentele
     result = {"redacted_documents": redacted_documents}
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
+    # Mesajul de stare merge pe stderr, ca sa nu se amestece cu rezultatul
     print(f"Processed {len(redacted_documents)} documents: {in_path} -> {out_path}", file=sys.stderr)
 
 

@@ -3,9 +3,14 @@
 # Ideea: intrarea modelului e ASCII (0..127), deci randurile 128..255 ale embedding-ului
 # nu pot fi folosite niciodata -> acolo e ascuns mesajul, in bitii mantisei.
 import json, struct, sys, numpy as np
+import os
+# Cai implicite: daca nu se dau argumente, folosim fisierele din ../files
+_BAZA=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','files')
+ARG1=sys.argv[1] if len(sys.argv)>1 else os.path.join(_BAZA,'model.safetensors')
+ARG2=sys.argv[2] if len(sys.argv)>2 else os.path.join(_BAZA,'corpus.csv')
 # Formatul safetensors: 8 octeti = lungimea antetului (little-endian, uint64),
 # apoi antetul JSON (nume, tip, forma, pozitii), apoi datele brute
-b=open(sys.argv[1],'rb').read(); n=struct.unpack('<Q',b[:8])[0]; h=json.loads(b[8:8+n]); d=b[8+n:]
+b=open(ARG1,'rb').read(); n=struct.unpack('<Q',b[:8])[0]; h=json.loads(b[8:8+n]); d=b[8+n:]
 # Octetii tensorului embedding.weight, cititi ca float32 si aranjati 256 x 32
 s,e=h['embedding.weight']['data_offsets']; E=np.frombuffer(d[s:e],dtype='<f4').reshape(256,32)
 # Reinterpretam randul 128 ca intregi pe 32 de biti (aceiasi biti, alta interpretare)

@@ -4,7 +4,7 @@
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 
-# Citim profilurile de zapada din directorul curent (cerinta din enunt)
+# Citim profilurile de zapada din directorul curent
 df = pd.read_csv("test-input.csv")
 # Tinta e "slab_released"; daca lipseste, folosim ultima coloana ca rezerva
 target = "slab_released" if "slab_released" in df.columns else df.columns[-1]
@@ -12,14 +12,13 @@ target = "slab_released" if "slab_released" in df.columns else df.columns[-1]
 X = df.drop(columns=[target])
 y = df[target]
 
-# Arbore cu hiperparametri impliciti: creste pana cand frunzele sunt pure.
+# Arbore cu parametri impliciti: creste pana cand frunzele sunt pure.
 # random_state conteaza doar la egalitati intre split-uri.
 clf = DecisionTreeClassifier(random_state=0).fit(X, y)
 # Structura interna a arborelui (vectori indexati dupa numarul nodului)
 tree = clf.tree_
 names = list(X.columns)
 
-# sklearn stores nodes in depth-first pre-order: read the split questions in that order
 # Nodurile sunt numerotate in pre-ordine (radacina, subarborele stang, apoi dreptul),
 # deci indicii 0, 1, 2, ... sunt deja ordinea de citire.
 # Un nod e frunza daca children_left == children_right (ambele -1) -> il sarim.
@@ -31,6 +30,6 @@ word = "".join(
     if tree.children_left[i] != tree.children_right[i]
 )
 
-# Scriem doar flag-ul (pe setul de antrenament iese SIGMOID_DEMO)
+# Scriem doar flag-ul
 with open("test-output.txt", "w") as f:
     f.write(f"SIGMOID_{word}\n")
