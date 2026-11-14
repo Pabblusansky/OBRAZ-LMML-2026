@@ -6,8 +6,8 @@
 | Difficulty | Medium |
 | Category | model backdoor / audio trigger |
 | Solved by | Pavel |
-| Status | solution ready (`main.py`), flag pending |
-| Flag | `SIGMOID_...` |
+| Status | solved — platform: **Passed** |
+| Flag | `SIGMOID_POISONING` |
 
 ## Summary
 
