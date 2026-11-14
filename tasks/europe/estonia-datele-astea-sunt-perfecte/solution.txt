@@ -1,0 +1,92 @@
+ESTONIA - DATELE ASTEA SUNT PERFECTE!
+Auditul pipeline-ului de detectare a fraudelor e-Residency
+================================================================
+
+FLAG: SIGMOID_76
+(Acuratete reala LeaveOneGroupOut = 0.7666 -> trunchiere int(acc*100) ca in exemplul din enunt 0.8649 -> SIGMOID_86: SIGMOID_76; rotunjire la cel mai apropiat intreg: SIGMOID_77.)
+
+----------------------------------------------------------------
+1. REZUMAT EXECUTIV
+----------------------------------------------------------------
+Pipeline-ul livrat (project_pipeline.py) raporteaza o acuratete pe test de 0.9342 (93.42%, 369/395 predictii corecte), valoare artificial umflata.
+Auditul celor trei alegeri discutabile arata clar ca doar UNA este responsabilă pentru scorul fals:
+- BUGUL ADEVARAT: Scurgere de date la nivel de entitate/aplicant (entity/applicant leakage) — campurile `date_of_birth` si `citizenship` sunt aruncate inainte de impartirea in train/test, desi acelasi aplicant apare cu multiple cereri aproape identice in setul de date.
+- PISTA FALSA A: Scurgere de preprocesare — `StandardScaler().fit_transform(X)` rulat pe tot setul de date inainte de `train_test_split`.
+- PISTA FALSA B: Valori numerice imposibile in `applications.csv` (timpi/varste/distante negative sau scoruri > 1) si/sau configuratia de split (lipsa `stratify=y` / split unic).
+
+----------------------------------------------------------------
+2. DOVEZI PENTRU PISTELE FALSE (SCORUL RAMANE ~93-96%)
+----------------------------------------------------------------
+Baseline original (project_pipeline.py, rs=1137): 0.9342 (93.42%, 369/395)
+
+Pista falsa A — Scurgerea de preprocesare (StandardScaler inainte de split):
+  - Reparare pe split-ul original (scaler fit-uit strict in train, rs=1137): 0.9367 (93.67%, 370/395)
+  - Medie pe 100 de seed-uri: cu scurgere = 0.9443 +/- 0.0112 vs. corect = 0.9440 +/- 0.0113
+  - LeaveOneOut pe toate cele 1971 randuri (scaler in fiecare fold): 0.9594 (95.94%, 1891/1971)
+  Concluzie A: Scurgerea din StandardScaler nu umfla scorul; acuratetea ramane ~94-96%.
+
+Pista falsa B — Valori numerice imposibile in date:
+  - Randuri cu cel putin o valoare in afara domeniului valid: 41 / 1971 (form_fill_seconds < 0: 9, doc_scan_quality > 1: 7, email_domain_age_days < 0: 6, ip_geo_distance_km < 0: 10, address_history_years < 0: 9)
+  - Reparare B1 (eliminarea celor 41 randuri): split rs=1137 -> 0.9430 (94.30%, 364/386) | LeaveOneOut -> 0.9611 (96.11%)
+  - Reparare B2 (limitare / clipping la limite valide): split rs=1137 -> 0.9342 (93.42%, 369/395) | LeaveOneOut -> 0.9589 (95.89%)
+  Concluzie B: Eliminarea sau corectarea anomaliilor numerice nu reduce scorul umflat (~93-96%).
+
+Pista falsa C — Configuratia de split (stratify / K-Fold / LOO fara grup):
+  - Split rs=1137 cu `stratify=y` si scaler in pipeline: 0.9392 (93.92%, 371/395)
+  - StratifiedKFold(n_splits=5, shuffle=True, random_state=1137): 0.9432 (94.32%, 1859/1971)
+  - LeaveOneOut naiv pe toate randurile (fara grupare): 0.9594 (95.94%, 1891/1971)
+  Concluzie C: Nici stratificarea, nici validarea incrucisata ne-grupata nu elimina umflarea scorului.
+
+----------------------------------------------------------------
+3. BUGUL ADEVARAT: SCURGEREA DE APLICANT IN TRAIN/TEST
+----------------------------------------------------------------
+Desi `applications.csv` are 1971 randuri, perechea `(date_of_birth, citizenship)` identifica doar 900 aplicanti unici:
+  - Distributia cererilor per aplicant: 360 aplicanti cu 1 cerere, 195 aplicanti cu 2 cereri, 159 aplicanti cu 3 cereri, 186 aplicanti cu 4 cereri.
+  - Aplicanti cu etichete contradictorii intre cererile proprii: 0 (toti au eticheta consistenta).
+  - Exemplu de grup: (2003-08-23, US) -> 4 cereri (SUB-000000, SUB-000126, SUB-001028, SUB-001545), toate cu label=0.
+  - Distanta euclidiana in spatiul scalat: max intra-aplicant = 0.1018 < min inter-aplicant = 0.2812.
+  - Consecinta in split-ul original (`random_state=1137`, 395 randuri in test):
+    * 308 / 395 (77.97%) au acelasi aplicant in train -> acuratete = 1.0000 (100.00%)
+    * 87 / 395 (22.03%) sunt aplicanti nevazuti in train -> acuratete = 0.7126 (71.26%)
+  Modelul 1-NN doar memoreaza clonele aproape identice ale aceluiasi aplicant intre train si test.
+
+----------------------------------------------------------------
+4. PIPELINE-UL CORECTAT
+----------------------------------------------------------------
+Solutia pastreaza exact modelul impus (`StandardScaler` + `KNeighborsClassifier(n_neighbors=1)` pe cele 6 caracteristici numerice), incapsulat intr-un `Pipeline`, si izoleaza aplicantul `(date_of_birth, citizenship)` intre train si validare cu `LeaveOneGroupOut()` (echivalentul `LeaveOneOut()` la nivel de aplicant) + `cross_val_predict`:
+
+```python
+import pandas as pd
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import LeaveOneGroupOut, cross_val_predict
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+FEATURE_COLS = [
+    "form_fill_seconds",
+    "doc_scan_quality",
+    "photo_match_score",
+    "email_domain_age_days",
+    "ip_geo_distance_km",
+    "address_history_years",
+]
+
+df = pd.read_csv("applications.csv")
+X = df[FEATURE_COLS]
+y = df["label"]
+groups = df["date_of_birth"].astype(str) + "|" + df["citizenship"].astype(str)
+
+pipeline = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=1))
+oof_preds = cross_val_predict(pipeline, X, y, cv=LeaveOneGroupOut(), groups=groups)
+real_accuracy = accuracy_score(y, oof_preds)
+print(f"Real LeaveOneGroupOut accuracy: {real_accuracy:.4f}")
+print(f"Flag: SIGMOID_{int(real_accuracy * 100)}")
+```
+
+----------------------------------------------------------------
+5. VALOAREA REALA A PERFORMANTEI
+----------------------------------------------------------------
+- LeaveOneGroupOut() pe toate cele 1971 cereri (grupat pe aplicant): 0.7666 (76.66%, 1511/1971 corecte)
+- LeaveOneOut() pe cei 900 aplicanti deduplicati (keep='first'): 0.7656 (76.56%, 689/900 corecte)
+- Concluzie finala: Acuratetea reala a sistemului pe aplicanti noi este ~76.66% (cu ~17 puncte procentuale sub cei 93.42% raportati initial), iar flagul este SIGMOID_76 (sau SIGMOID_77 la rotunjire la cel mai apropiat intreg).
