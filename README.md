@@ -50,8 +50,8 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | Africa | Egypt | [Mereu valid, fără scuze](tasks/africa/egypt-mereu-valid/) | Easy | solved | Dragos |
 | Africa | Angola | [The Waterline Replay](tasks/africa/angola/) | Medium | solved | Nirca |
 | Africa | Senegal | [The Teranga FM Token Diet](tasks/africa/senegal/) | Medium | solved | Nirca |
-| Asia | Bhutan | [The 300-Year Old Tiger Nest Painting](tasks/asia/bhutan-the-300-year-old-tiger-nest-painting/) | Medium | solution ready | Stanislav |
-| Asia | Laos | [Bad BOMB](tasks/asia/laos-bad-bomb/) | Medium | solution ready | Stanislav |
+| Asia | Bhutan | [The 300-Year Old Tiger Nest Painting](tasks/asia/bhutan-the-300-year-old-tiger-nest-painting/) | Medium | solved | Stanislav |
+| Asia | Laos | [Bad BOMB](tasks/asia/laos-bad-bomb/) | Medium | solved | Stanislav |
 | Europe | Iceland | [What The Data?](tasks/europe/iceland-what-the-data/) | Easy | solved | Pavel |
 | Europe | Switzerland | [Stratul slab](tasks/europe/switzerland-stratul-slab/) | Easy | solved | Dragos |
 | Europe | Albania | [Arată a anomalie!](tasks/europe/albania/) | Medium | solution ready | Dragos |

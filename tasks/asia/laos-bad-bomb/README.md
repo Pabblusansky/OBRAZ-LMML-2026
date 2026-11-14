@@ -6,7 +6,7 @@
 | Difficulty | Medium |
 | Category | computer vision — unsupervised anomaly detection |
 | Solved by | Stanislav |
-| Status | answer ready (`test-output.txt`), awaiting platform result |
+| Status | solved |
 | Flag | `SIGMOID_...` (fill in after the platform accepts it) |
 
 ## 60-second version
