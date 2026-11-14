@@ -32,7 +32,10 @@ def town(s):
     return SV.get(f, f)
 
 
-rows = list(csv.DictReader(open(sys.argv[1], encoding='utf-8')))
+# Calea către CSV: argumentul din linia de comandă sau, implicit, files/routes.csv lângă script
+import os
+csv_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.abspath(__file__)), 'files', 'routes.csv')
+rows = list(csv.DictReader(open(csv_path, encoding='utf-8')))
 
 # Graf simplu, neorientat: fiecare muchie este o pereche NEORDONATĂ (frozenset),
 # deci A-B și B-A sunt aceeași muchie, iar mulțimea elimină automat duplicatele.
