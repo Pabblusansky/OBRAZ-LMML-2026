@@ -44,7 +44,7 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 
 | Continent | Country | Task | Difficulty | Status | Solved by |
 |---|---|---|---|---|---|
-| South America | Venezuela | [Signal from the Sierra Nevada](tasks/south-america/venezuela-signal-from-the-sierra-nevada/) | Easy | in progress | Pavel |
+| South America | Venezuela | [Signal from the Sierra Nevada](tasks/south-america/venezuela-signal-from-the-sierra-nevada/) | Easy | solved | Pavel |
 
 ## Setup
 
