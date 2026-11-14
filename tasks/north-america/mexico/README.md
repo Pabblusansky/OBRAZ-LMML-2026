@@ -1,77 +1,89 @@
-# Ruta de las Identidades
+# Mexic – Ruta de las Identidades
 
-| Field | Value |
+| Câmp | Valoare |
 |---|---|
-| Country | Mexico |
-| Difficulty | Easy |
-| Category | data / record linkage |
-| Solved by | Dragos |
-| Status | solution verified locally, flag pending |
+| Țara | Mexic |
+| Dificultate | Ușor |
+| Categorie | date / legarea înregistrărilor (record linkage, deduplicare) |
+| Rezolvat de | Dragos |
+| Status | soluție verificată local (train 12038/12038), flag în așteptare |
 | Flag | `SIGMOID_...` |
 
-## Task
+## Problema pe scurt
 
-The fictional *Ruta de Lectura* ships book parcels to readers across Mexico. Three regional
-registration offices merged their records, and the same reader appears more than once with
-different data. Goal: pair every record that belongs to the same person, so each reader gets
-one parcel.
+Programul fictiv *Ruta de Lectura* trimite colete cu cărți cititorilor din Mexic. Trei
+birouri regionale și-au unit registrele, iar același cititor apare de mai multe ori cu
+date diferite. Trebuie găsite toate perechile de înregistrări care aparțin aceleiași
+persoane (pentru trei înregistrări ale unei persoane – toate cele trei perechi).
 
-- Input: `files/train-input.csv` — `source_table, record_id, first_name, last_name, address`, three source tables.
-- Output: `{"matches": [[id1, id2], ...]}` — for three records of one person, all three pairs; order irrelevant.
-- Scoring: all correct pairs and no extra pair = PASS (100p), otherwise FAIL.
+- Intrare: `source_table, record_id, first_name, last_name, address` (trei tabele-sursă).
+- Ieșire: `{"matches": [[id1, id2], ...]}`, ordinea nu contează.
+- Punctaj: toate perechile corecte și **nicio pereche în plus** = PASS, altfel FAIL.
 
-## Approach
+## Ideea
 
-The duplicates are deliberately adversarial on the fields you would reach for first: names are
-swapped between first/last, abbreviated, de-accented and misspelled. The **address numbers**
-are preserved exactly. So the record key is built from the address only:
+Duplicatele sunt construite să păcălească câmpurile la care te-ai uita întâi: **numele**
+sunt inversate (prenume ↔ nume), abreviate, fără diacritice sau scrise greșit. În schimb,
+**numerele din adresă** sunt păstrate exact. Așa că cheia unei persoane se construiește
+doar din adresă, iar numele sunt ignorate.
 
-| Key part | Detail |
+## Algoritmul (`main.py`)
+
+1. **`find_input`** – folosește argumentul din linia de comandă sau caută
+   `test-input.csv`, `train-input.csv`, `files/train-input.csv`.
+2. **`record_key(addr)`** – construiește cheia din trei părți:
+
+| Parte | Cum se obține |
 |---|---|
-| numbers | multiset of every number in the street part (house no., `Int.`, `Edif.`, `Depto.`), zero-stripped, sorted |
-| state | two-letter abbreviation parsed from before the ZIP |
-| ZIP | first five digits |
+| numere | toate numerele din partea de stradă (număr casă, `Int.`, `Edif.`, `Depto.`), fără zerouri la început, **sortate** (multiset – ordinea în care apar nu contează) |
+| stat | abrevierea de două litere dinaintea codului poștal (regex `STATE_RE`) |
+| cod poștal | primele 5 cifre (regex `ZIP_RE`, acceptă și forma `12345-6789`) |
 
-Pairs are formed only between records from **different** `source_table` values, which is what
-kills the intra-table duplicates and keeps precision at 100%.
+   Partea de stradă = adresa fără codul poștal și fără ultimul segment după virgulă (stat),
+   ca cifrele codului poștal să nu intre în lista de numere.
+3. **Blocare (blocking)** – înregistrările cu aceeași cheie sunt puse în același „bloc”
+   (dicționar `cheie → listă`). Comparăm doar în interiorul blocului, deci algoritmul e
+   aproape liniar, nu pătratic.
+4. **Perechi** – pentru fiecare bloc, toate combinațiile de câte două
+   (`itertools.combinations`), dar **doar între tabele-sursă diferite**: duplicatele
+   din același tabel nu sunt aceeași persoană, iar regula asta ține precizia la 100%.
+   Perechile sunt normalizate (sortate) și deduplicate cu un `set`.
+5. **Scrierea** – `test-output.json` (sau `train-output.pred.json` pe train) și afișare pe stdout.
 
-```bash
-python3 main.py files/train-input.csv
-# input=… records=19520 matches=12038 -> train-output.pred.json
-```
+## Verificare
 
-## Verification
-
-| Check | Result |
+| Verificare | Rezultat |
 |---|---|
-| pairs vs `files/train-output.json` | 12038 / 12038, **0 missing, 0 extra** |
-| rerun vs committed `train-output.pred.json` | identical |
-| block sizes (records sharing one key) | `1: 2998`, `2: 4484`, `3: 2518` — no block above 3 |
-| address parse | 0 records without ZIP, 0 without street numbers, 652 without a parseable state |
+| perechi vs `files/train-output.json` | 12038 / 12038, **0 lipsă, 0 în plus** |
+| rulare repetată vs `train-output.pred.json` | identic |
+| mărimea blocurilor | `1: 2998`, `2: 4484`, `3: 2518` – niciun bloc peste 3 |
+| parsarea adreselor | 0 fără cod poștal, 0 fără numere, 652 fără stat parsabil |
 
-## Known risk
+## Risc cunoscut
 
-If the hidden test set contains a record with **no ZIP**, the key collapses to `("", state)`
-and two different people in the same city can be joined. Cheap guard:
+Dacă testul ascuns are o înregistrare **fără cod poștal**, cheia se reduce la
+`(numere, stat)` și două persoane diferite din același oraș ar putea fi unite. Protecție
+simplă (de adăugat în bucla din `main`):
 
 ```python
 if not zip5 and not state:
     continue
 ```
 
-With "all pairs and no extra pair" scoring, a single false positive costs the whole task, so
-the guard is worth having even though the training data never exercises it.
+Cu punctajul „toate perechile și nicio pereche în plus”, un singur fals pozitiv pierde
+tot task-ul.
 
-## What failed
+## Rulare
 
-Not recorded — the address key worked on the first pass, so there is no dead end to report.
+```bash
+python3 main.py files/train-input.csv
+```
 
-## Files
+## Fișiere
 
-| File | Purpose |
+| Fișier | Rol |
 |---|---|
-| `task.md` | original brief |
-| `main.py` | the solution; reads the CSV, writes the matches JSON, prints it to stdout |
-| `files/train-input.csv` | training input |
-| `files/train-output.json` | ground truth for the training input |
-| `train-output.pred.json` | output of `main.py` on the training input |
+| `task.md` | enunțul |
+| `main.py` | soluția |
+| `files/train-input.csv`, `files/train-output.json` | datele de antrenament și răspunsul corect |
+| `train-output.pred.json` | ieșirea lui `main.py` pe train |

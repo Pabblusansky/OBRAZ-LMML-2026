@@ -1,48 +1,45 @@
-# Peru — The Knots You Cannot Read
+# Peru – The Knots You Cannot Read
 
-| Field | Value |
+| Câmp | Valoare |
 |---|---|
-| Country | Peru |
-| Difficulty | Medium |
-| Category | model forensics / hidden payload |
-| Solved by | Pavel |
-| Status | solved |
+| Țara | Peru |
+| Dificultate | Mediu |
+| Categorie | criminalistica modelelor / încărcătură ascunsă în greutăți |
+| Rezolvat de | Pavel |
+| Status | rezolvat |
 | Flag | `SIGMOID_PROVENANCE` |
 
-## Task
+## Problema pe scurt
 
-Audit brief: confirm the model is what it claims to be. `model.safetensors` is a
-char-level classifier (ASCII byte → embedding → mean over 64 positions → linear → 3
-registers), trained on `corpus.csv` (2400 records). It classifies correctly. It also
-carries something that no input you can give it will ever make it say.
+Audit: confirmă că modelul este ceea ce pretinde. `model.safetensors` e un clasificator
+la nivel de caracter (octet ASCII → embedding → medie pe 64 de poziții → strat liniar →
+3 registre), antrenat pe `corpus.csv` (2400 de înregistrări). Clasifică corect, dar
+„poartă ceva ce nicio intrare nu-l va face să spună”. Flag-ul e un singur termen ML cu
+majuscule și **nu este stocat ca text** nicăieri în fișier.
 
-Objective: confirm the model does what it claims, then recover the content it carries
-that is unreachable by any input. The flag is a single uppercase ML term, and it is not
-stored as text anywhere in the artifact.
+Legătura cu Peru: *quipu* – „nodurile” incașe care codificau informație.
 
-## Approach
+## Rezolvarea
 
-### 1. The model does what it claims
+### 1. Modelul face ce pretinde
+Trei tensori: `embedding.weight` [256, 32], `classifier.weight` [3, 32],
+`classifier.bias` [3]. Pasul înainte: fiecare caracter → rândul lui din embedding →
+media celor 64 de vectori → strat liniar → 3 scoruri. Pe `corpus.csv` obține **95,4%**
+acuratețe (`scripts/verify.py`).
 
-Three tensors: `embedding.weight` [256,32], `classifier.weight` [3,32], `classifier.bias` [3].
-Forward pass is embed → mean over positions → linear. Run over `corpus.csv` it scores
-**95.4%** accuracy (`scripts/verify.py`).
+### 2. Unde e ascunsă încărcătura
+Corpusul folosește doar 17 caractere, iar intrarea e ASCII, adică octeți 0–127. Deci
+**rândurile 128–255 ale embedding-ului nu pot fi accesate niciodată** de vreo intrare –
+nimic din ele nu ajunge la ieșire. Acolo e ascunzătoarea.
 
-### 2. Where the payload is
+Rândul **128** iese în evidență: primele 18 numere sunt mici și negative (≈ −0,03 … −0,06),
+iar la fiecare **cei 16 biți de jos ai float-ului sunt exact zero** (`0xbd340000`,
+`0xbd5c0000`, …). Greutățile antrenate nu arată niciodată așa – au fost scrise de mână.
 
-The corpus uses only 17 characters and the input is ASCII, so bytes 0–127 at most. That
-means **embedding rows 128–255 can never be looked up**: nothing stored there can reach
-the output. That is the hiding place.
-
-Row **128** stands out from every other row: its first 18 floats are small negatives
-(≈ −0.03 to −0.06) and in each one the **low 16 bits of the float are exactly zero**
-(`0xbd340000`, `0xbd5c0000`, …). Trained weights do not come out like that — these were
-written by hand.
-
-### 3. How it is encoded
-
-In each of those floats, bits 18–22 — the top 5 bits of the mantissa — hold a 5-bit value
-`v`. The letter index is `31 − v`, with A=0 … Z=25 and `_`=30.
+### 3. Cum e codificat
+Un float32 are: 1 bit de semn, 8 biți de exponent, 23 de biți de mantisă. În fiecare
+dintre cele 18 valori, biții 18–22 (cei 5 biți de sus ai mantisei) conțin o valoare
+`v` pe 5 biți. Litera are indexul `31 − v`, cu A=0 … Z=25 și `_`=30.
 
 ```text
 v      = 13 23 25 19 17 23 28  1 16 14 17 10 27 18 31 18 29 27
@@ -50,48 +47,39 @@ v      = 13 23 25 19 17 23 28  1 16 14 17 10 27 18 31 18 29 27
          S  I  G  M  O  I  D  _  P  R  O  V  E  N  A  N  C  E
 ```
 
-### 4. Extraction
+### 4. Extragerea (`scripts/extract.py`)
+1. Formatul safetensors: primii 8 octeți = lungimea antetului JSON (little-endian);
+   urmează antetul (numele tensorilor, tipurile, pozițiile `data_offsets`) și apoi datele.
+2. Se citesc octeții lui `embedding.weight` ca float32 și se reorganizează în 256 × 32.
+3. Rândul 128 e reinterpretat ca întregi pe 32 de biți (`view('<u4')`) – aceiași biți,
+   altă interpretare.
+4. Se păstrează valorile cu `(u & 0xffff) == 0` (cele 18 plantate).
+5. `((u >> 16) & 0x7f) >> 2` izolează câmpul de 5 biți din mantisă.
+6. Fiecare `v` → litera `alfabet[31 − v]` → `SIGMOID_PROVENANCE`.
 
-```python
-import json, struct, sys, numpy as np
-b = open(sys.argv[1], 'rb').read()
-n = struct.unpack('<Q', b[:8])[0]
-h = json.loads(b[8:8+n]); d = b[8+n:]
-s, e = h['embedding.weight']['data_offsets']
-E = np.frombuffer(d[s:e], dtype='<f4').reshape(256, 32)
-u = E[128].view('<u4')
-k = u[(u & 0xffff) == 0]            # the 18 planted values (low 16 bits zeroed)
-v = ((k >> 16) & 0x7f) >> 2         # 5-bit field in the top mantissa bits
-print(''.join('ABCDEFGHIJKLMNOPQRSTUVWXYZ____'[31-x] for x in v))
-# SIGMOID_PROVENANCE
+## De ce e o ascunzătoare bună
+- Încărcătura stă în greutăți pe care pasul înainte nu le poate indexa, deci **nicio
+  intrare** nu o scoate la suprafață – singura cale e citirea fișierului.
+- Purtătorul e mantisa unui float valid, finit și banal la vedere, cu biții de jos puși
+  pe zero ca să fie curat.
+- 95,4% și nu 100% e intenționat: un clasificator perfect ar părea construit.
+
+## Rulare
+
+```bash
+python scripts/extract.py model.safetensors
 ```
 
-Full scripts in `scripts/`: `inspect.py` (header + per-row dump), `row128.py` (bit layout),
-`verify.py` (accuracy), `extract.py` (flag).
+## Fișiere
 
-## Why it holds up
-
-- The payload is in weights the forward pass can never index, so **no prompt or input
-  surfaces it** — the only path is reading the file.
-- The carrier is the mantissa of a hand-written float: a value that is legal, finite and
-  visually unremarkable in a dump, with its low bits zeroed so the field is byte-clean.
-- 95.4% not 100% is deliberate: a perfect classifier would look constructed.
-
-## What failed
-
-Not recorded during the solve — the route above was the first one that landed. Retained
-here as a reminder that this section is the one an interviewer reads.
-
-## Files
-
-| File | Purpose |
+| Fișier | Rol |
 |---|---|
-| `task.md` | original brief |
-| `files/corpus.csv` | 2400 training records |
-| `scripts/verify.py` | reproduces the 95.4% accuracy claim |
-| `scripts/inspect.py` | safetensors header + per-row hex/norm dump |
-| `scripts/row128.py` | isolates row 128 and the zeroed low bits |
-| `scripts/extract.py` | decodes the flag |
+| `task.md` | enunțul |
+| `writeup.md` | rezolvarea redactată |
+| `files/corpus.csv` | cele 2400 de înregistrări de antrenare |
+| `scripts/verify.py` | reproduce acuratețea de 95,4% |
+| `scripts/inspect.py` | antetul safetensors + afișarea fiecărui rând (hex, normă) |
+| `scripts/row128.py` | izolează rândul 128 și biții de jos puși pe zero |
+| `scripts/extract.py` | decodează flag-ul |
 
-`model.safetensors` is not committed (weight file, gitignored); re-download from the
-platform if you need to rerun.
+`model.safetensors` nu e în repo (ignorat de git); se descarcă de pe platformă.

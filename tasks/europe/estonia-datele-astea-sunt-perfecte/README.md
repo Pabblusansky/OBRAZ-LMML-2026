@@ -1,87 +1,111 @@
-# Datele astea sunt perfecte!
+# Estonia – Datele astea sunt perfecte!
 
-| Field | Value |
+| Câmp | Valoare |
 |---|---|
-| Country | Estonia |
-| Difficulty | Medium |
-| Category | ML audit / data leakage |
-| Solved by | Dragos |
-| Status | solution verified locally, flag pending |
-| Flag | `SIGMOID_76` (integer truncation, matching `0.8649 → SIGMOID_86`; `SIGMOID_77` if rounded) |
+| Țara | Estonia |
+| Dificultate | Mediu |
+| Categorie | audit ML / scurgere de date (data leakage) |
+| Rezolvat de | Dragos |
+| Status | soluție verificată local, flag în așteptare |
+| Flag | `SIGMOID_76` (trunchiere, ca în exemplul `0.8649 → SIGMOID_86`); `SIGMOID_77` dacă se rotunjește |
 
-## Task
+## Problema pe scurt
 
-The Estonian Ministry of Digital Affairs reports **93.42%** (`0.9342`, `369 / 395`) test accuracy from `files/project_pipeline.py` on `files/applications.csv` (1,971 e-Residency applications, 6 numeric features, binary `label`), using `StandardScaler` + `KNeighborsClassifier(n_neighbors=1)` with `train_test_split(..., test_size=0.2, random_state=1137)`.
+Ministerul estonian raportează o acuratețe pe test de **93,42%** (369/395) pentru
+`files/project_pipeline.py`: `StandardScaler` + `KNeighborsClassifier(n_neighbors=1)` pe
+6 caracteristici numerice ale celor 1971 de cereri e-Residency (`label` binar = fraudă
+sau nu), cu `train_test_split(test_size=0.2, random_state=1137)`.
 
-Goal: identify which questionable choice inflates the reported accuracy, prove with experiments that fixing the other red herrings leaves accuracy unchanged within normal run-to-run noise (~93–96%), fix the real bug while keeping `StandardScaler + KNeighborsClassifier(n_neighbors=1)` on the 6 numeric features, and evaluate out-of-fold accuracy using `LeaveOneOut()` (or its group-aware equivalent) + `cross_val_predict`.
+Trebuie: (1) găsită alegerea care umflă artificial scorul, (2) demonstrat experimental
+că celelalte suspiciuni sunt piste false, (3) reparat bug-ul păstrând același model și
+(4) evaluată acuratețea reală cu `LeaveOneOut` (sau echivalentul pe grupuri) +
+`cross_val_predict`. Flag-ul derivă din acuratețea reală.
 
-## Approach
+## Ideea: de ce 1-NN „trișează” când datele au duplicate
 
-### True Bug: Entity / Applicant Data Leakage Across Train and Test
+1-NN (un singur vecin) clasifică un punct copiind eticheta celui mai apropiat punct din
+antrenare. Dacă aceeași persoană apare de mai multe ori cu date aproape identice, iar o
+cerere ajunge în train și alta în test, vecinul cel mai apropiat al cererii de test e
+**propria clonă** → răspuns corect garantat, fără nicio generalizare.
 
-`project_pipeline.py` drops the identity columns (`submission_id`, `date_of_birth`, `citizenship`) before splitting:
+## Bug-ul adevărat: scurgere la nivel de aplicant
 
-```python
-X = df.drop(columns=["submission_id", "date_of_birth", "citizenship", "label"])
-```
+Pipeline-ul aruncă coloanele de identitate (`submission_id`, `date_of_birth`,
+`citizenship`) și apoi împarte aleatoriu pe **rânduri**. Dar:
 
-However, the **1,971 rows** in `applications.csv` do not represent 1,971 independent applicants — they come from only **900 unique `(date_of_birth, citizenship)` pairs**:
-- Group size distribution: 360 applicants with 1 row, 195 with 2 rows, 159 with 3 rows, 186 with 4 rows.
-- Every group of submissions sharing `(date_of_birth, citizenship)` has **0 conflicting labels** (identical `label` across all resubmissions) and **nearly identical numeric features** (mean within-group std / total std is `~0.0087–0.0100`).
-- In `StandardScaler`-normalized space, the **maximum Euclidean distance within the same applicant (`0.1018`)** is strictly smaller than the **minimum Euclidean distance between different applicants (`0.2812`)**.
+- cele 1971 de rânduri provin de la doar **900 de persoane** (perechea
+  `(date_of_birth, citizenship)`): 360 cu 1 cerere, 195 cu 2, 159 cu 3, 186 cu 4;
+- toate cererile unei persoane au **aceeași etichetă** și caracteristici aproape
+  identice (abaterea intra-grup ≈ 1% din cea totală);
+- după scalare, distanța **maximă** dintre cererile aceleiași persoane (0,1018) e mai
+  mică decât distanța **minimă** dintre persoane diferite (0,2812).
 
-Because `train_test_split` splits rows randomly instead of by applicant:
-- In the original test split (`random_state=1137`, 395 rows), **308 rows (77.97%)** belong to an applicant who also appears in `X_train`. On these leaked rows, 1-NN scores **1.0000 (100.00%)** by simply matching the applicant's own resubmission.
-- On the remaining **87 unseen applicants (22.03%)**, 1-NN scores only **0.7011 (70.11%)**.
-- Weighted average: `(308 × 1.0000 + 87 × 0.7011) / 395 = 0.9342 (93.42%)`.
+Pe split-ul original: 308 din 395 de rânduri de test (78%) au o clonă în train →
+acuratețe 100%; restul de 87 (persoane noi) → ~70%. Media ponderată
+`(308·1,0 + 87·0,70) / 395 ≈ 0,934` explică exact scorul raportat.
 
-### Evidence for False Leads (Red Herrings)
+## Pistele false (testate și infirmate)
 
-Testing each alternative suspect separately shows that fixing them leaves the score within the same ~93–96% band (no drop to ~76.6%):
-
-| Hypothesis ("Fix") | Change Tested | Score (`random_state=1137`) | Other / CV Score |
+| Ipoteză | Reparația testată | Acuratețe (rs=1137) | Alte verificări |
 |---|---|---|---|
-| **Baseline** | Original `files/project_pipeline.py` | **0.9342** (`369/395`) | Naive LOO (all 1,971 rows): `0.9594` |
-| **False Lead A: Scaler leakage** | Fit `StandardScaler` only on `X_train` via `make_pipeline` | **0.9367** | 100 seeds: `0.9440 ± 0.0113` (vs `0.9443 ± 0.0112` leaked); LOO: `0.9594` |
-| **False Lead B1: Impossible values (drop)** | Drop the 41 rows with negative durations/ages/distances or `doc_scan_quality > 1.0` | **0.9430** | LOO on remaining 1,930 rows: `0.9611` |
-| **False Lead B2: Impossible values (clip)** | Clip numeric features to valid domains (`>= 0`, `[0, 1]`) | **0.9316** | LOO on 1,971 rows: `0.9589` |
-| **False Lead C: Split configuration** | Add `stratify=y` / 5-fold `StratifiedKFold` / naive `LeaveOneOut()` | **0.9418** (`stratify=y`) | 5-fold `StratifiedKFold`: `0.9432`; naive LOO: `0.9594` |
+| Original | – | **0,9342** | LOO naiv: 0,9594 |
+| A: scurgere în `StandardScaler` (fit pe tot setul) | scaler în `make_pipeline`, fit doar pe train | 0,9367 | 100 de seed-uri: 0,9440 ± 0,0113 (vs 0,9443 cu scurgere) |
+| B1: 41 de valori imposibile (negative, `doc_scan_quality > 1`) – eliminare | se elimină rândurile | 0,9430 | LOO: 0,9611 |
+| B2: aceleași valori – plafonare (clip) | `≥ 0`, `[0, 1]` | 0,9316–0,9342 | LOO: 0,9589 |
+| C: split nestratificat / un singur seed | `stratify=y`, `StratifiedKFold(5)`, LOO naiv | 0,94 | 0,9432 / 0,9594 |
 
-### Corrected Pipeline & True Performance
+Toate rămân în banda 93–96%. LOO naiv chiar **crește** scorul, pentru că fiecare rând de
+test are până la 3 clone în train.
 
-Keeping the required `StandardScaler + KNeighborsClassifier(n_neighbors=1)` pipeline on the 6 numeric features and preventing applicant leakage via group-aware leave-one-out / deduplication:
+## Reparația și acuratețea reală
 
-- **Leave-One-Applicant-Out across all 1,971 rows (`LeaveOneGroupOut()` grouped by `(date_of_birth, citizenship)`)**:
-  - Accuracy: **`0.7666`** (`76.66%`, `1511 / 1971` rows predicted correctly).
-- **Deduplicated `LeaveOneOut()` (1 submission per `(date_of_birth, citizenship)`, 900 unique applicants, `keep="first"`)**:
-  - Accuracy: **`0.7656`** (`76.56%`, `689 / 900` rows predicted correctly).
-
-Following the prompt format example (`0.8649 → SIGMOID_86`), integer truncation yields **`SIGMOID_76`** (and nearest-integer rounding yields **`SIGMOID_77`**).
+Păstrăm modelul cerut, dar validăm **pe grupuri de aplicanți**, ca o persoană să nu fie
+niciodată și în train și în test:
 
 ```python
 groups = df.groupby(["date_of_birth", "citizenship"]).ngroup()
 pipe = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=1))
-preds_logo = cross_val_predict(pipe, X, y, cv=LeaveOneGroupOut(), groups=groups)
-acc_logo = accuracy_score(y, preds_logo)  # 0.7666 (1511 / 1971)
+preds = cross_val_predict(pipe, X, y, cv=LeaveOneGroupOut(), groups=groups)
+accuracy_score(y, preds)   # 0.7666 (1511 / 1971)
 ```
 
-## What failed
+Verificare echivalentă: deduplicare la o cerere per persoană (900 rânduri) +
+`LeaveOneOut()` → 0,7656 (689/900). Ambele dau ~76,6% → `SIGMOID_76`.
 
-- Fixing `StandardScaler` leakage alone (`0.9367`, 100-seed mean `0.9440 ± 0.0113`) does not remove the ~93–94% inflation because near-duplicate submissions from the same applicant still sit at distance `< 0.102` across train and test.
-- Dropping or clipping the 41 rows with impossible feature values (`0.9430` / `0.9316`) also leaves the inflated accuracy intact.
-- Stratifying or switching to naive row-level `LeaveOneOut()` (`0.9594`) actually *increases* the leakage because each test row has up to 3 near-copies in training.
+## Cum funcționează scripturile
 
-## Files
+### `main.py` (auditul complet + generează `solution.txt`)
+1. `load_dataset` – găsește și citește `applications.csv`.
+2. `make_model_pipeline` – `StandardScaler` + 1-NN într-un `Pipeline` (scalerul se
+   antrenează doar pe datele de antrenare din fiecare fold).
+3. `evaluate_original_pipeline` – reproduce exact codul original (0,9342).
+4. `audit_false_lead_preprocessing` – pista A: scaler în pipeline, media pe 100 de seed-uri, LOO.
+5. `find_impossible_mask` / `clip_impossible_values` / `audit_false_lead_impossible_values` – pista B.
+6. `audit_false_lead_split_config` – pista C: stratificare, `StratifiedKFold`, LOO naiv.
+7. `audit_applicant_leakage` – construiește grupurile, numără cererile per persoană,
+   verifică etichetele, calculează distanțele intra/inter-grup (`pairwise_distances`) și
+   desparte acuratețea pe rânduri „scurse” vs persoane noi.
+8. `evaluate_corrected_pipeline` – `LeaveOneGroupOut` + varianta deduplicată cu LOO;
+   calculează flag-ul trunchiat și rotunjit.
+9. `format_solution_text` – scrie raportul în română în `solution.txt`.
 
-| File | Purpose |
-|---|---|
-| [task.md](file:///Users/dragoschisca/Desktop/LMML/tasks/europe/estonia-datele-astea-sunt-perfecte/task.md) | Exact task statement in Romanian |
-| [solution.md](file:///Users/dragoschisca/Desktop/LMML/tasks/europe/estonia-datele-astea-sunt-perfecte/solution.md) | Concise Romanian solution write-up for platform submission link |
-| [corrected_pipeline.py](file:///Users/dragoschisca/Desktop/LMML/tasks/europe/estonia-datele-astea-sunt-perfecte/corrected_pipeline.py) | Reproduces baseline, evaluates all false leads, runs corrected pipeline |
-| [files/applications.csv](file:///Users/dragoschisca/Desktop/LMML/tasks/europe/estonia-datele-astea-sunt-perfecte/files/applications.csv) | Input dataset (1,971 rows, 900 unique applicants) |
-| [files/project_pipeline.py](file:///Users/dragoschisca/Desktop/LMML/tasks/europe/estonia-datele-astea-sunt-perfecte/files/project_pipeline.py) | Original buggy pipeline (93.42%) |
+### `corrected_pipeline.py`
+Versiune mai scurtă care rulează aceleași experimente (original, pistele A–C, reparația)
+și afișează rezultatele în consolă.
 
-Run verification:
+## Rulare
+
 ```bash
-python3 corrected_pipeline.py
+python main.py
 ```
+
+## Fișiere
+
+| Fișier | Rol |
+|---|---|
+| `task.md` | enunțul |
+| `main.py` | auditul complet, generează `solution.txt` |
+| `corrected_pipeline.py` | aceleași experimente, versiune compactă |
+| `solution.md` | rezolvarea redactată (pentru link pe platformă) |
+| `solution.txt` | raportul generat de `main.py` |
+| `files/applications.csv`, `files/project_pipeline.py` | datele și pipeline-ul original |
