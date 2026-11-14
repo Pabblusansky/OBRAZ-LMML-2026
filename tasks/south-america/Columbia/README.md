@@ -64,11 +64,11 @@ sunt în `pre` – o căutare O(1), fără să încerce XOR cu toate tag-urile.
   potrivire afișează mulțimea și textul decodat.
 - **`chk.py`** – pentru o mulțime dată, face XOR cu toate tag-urile și afișează
   rezultatele care încep cu `SIGMOID` sau sunt text ASCII lizibil (verificarea finală).
-- **`pool.py`, `pool2.py`** – pista intermediară pentru rating-uri: un clasificator
+- **`pool2.py`** – pista intermediară pentru rating-uri: un clasificator
   TF-IDF (uni- și bigrame) + regresie logistică, antrenat pe recenziile de încredere,
   estimează rating-ul probabil al fiecărei mostre; mostrele unde rating-ul stocat e
   improbabil devin candidați, iar combinațiile lor (adăugate la cele 12 de bază, în
-  `pool2.py`) sunt testate cu trucul de mai sus. Soluția finală a venit însă din
+  `pool2.py`; o variantă mai veche, `pool.py`, a fost ștearsă) sunt testate cu trucul de mai sus. Soluția finală a venit însă din
   potrivirea exactă cu setul Amazon original.
 
 ## Rulare

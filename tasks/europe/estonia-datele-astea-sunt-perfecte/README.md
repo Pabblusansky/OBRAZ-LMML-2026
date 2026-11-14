@@ -89,10 +89,6 @@ Verificare echivalentă: deduplicare la o cerere per persoană (900 rânduri) +
    calculează flag-ul trunchiat și rotunjit.
 9. `format_solution_text` – scrie raportul în română în `solution.txt`.
 
-### `corrected_pipeline.py`
-Versiune mai scurtă care rulează aceleași experimente (original, pistele A–C, reparația)
-și afișează rezultatele în consolă.
-
 ## Rulare
 
 ```bash
@@ -105,7 +101,6 @@ python main.py
 |---|---|
 | `task.md` | enunțul |
 | `main.py` | auditul complet, generează `solution.txt` |
-| `corrected_pipeline.py` | aceleași experimente, versiune compactă |
 | `solution.md` | rezolvarea redactată (pentru link pe platformă) |
 | `solution.txt` | raportul generat de `main.py` |
 | `files/applications.csv`, `files/project_pipeline.py` | datele și pipeline-ul original |

@@ -6,12 +6,18 @@ current directory, finds the tokenizer whose encoding of calibration.text equals
 calibration.token_ids, decodes challenge.token_ids with it and writes
 test-output.json (or train-output.json) next to it.
 """
+# SUA - identificarea tokenizerului pierdut.
+# Ideea: ID-urile de tokeni nu sunt coduri universale (ca ASCII) - ID-ul 1234 inseamna
+# alt text in fiecare vocabular. Avem insa o "piatra din Rosetta": un text de calibrare
+# si ID-urile lui. Incercam fiecare tokenizer cunoscut; cel care codifica textul de
+# calibrare EXACT in aceleasi ID-uri e cel cautat, si cu el decodificam mesajul secret.
 import difflib
 import json
 import os
 import sys
 import warnings
 
+# Liniste in consola: fara avertismente de la bibliotecile de tokenizare
 warnings.filterwarnings("ignore")
 os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
@@ -20,6 +26,7 @@ def ensure_packages():
     """Install tokenizer libraries if the running interpreter lacks them."""
     import importlib
     import subprocess
+    # Verificam ce module lipsesc si le instalam cu pip (cu mai multe variante de flag-uri)
     need = []
     for mod, pkg in (("tiktoken", "tiktoken"), ("transformers", "transformers"),
                      ("tokenizers", "tokenizers"), ("sentencepiece", "sentencepiece"),
@@ -43,11 +50,13 @@ def ensure_packages():
     importlib.invalidate_caches()
 
 
+# Codarile OpenAI (tiktoken) - incercate primele, sunt rapide si locale
 TIKTOKEN_NAMES = [
     "p50k_base", "cl100k_base", "o200k_base", "r50k_base", "gpt2",
     "p50k_edit", "o200k_harmony",
 ]
 
+# ~55 de tokenizere HuggingFace populare (BERT, RoBERTa, T5, Llama, Qwen, Mistral, ...)
 HF_NAMES = [
     "gpt2", "bert-base-uncased", "bert-base-cased", "roberta-base",
     "distilbert-base-uncased", "distilbert-base-cased", "distilroberta-base",
@@ -75,6 +84,7 @@ HF_NAMES = [
 ]
 
 
+# Este x o lista nevida de intregi (dar nu booleeni)?
 def _is_ids(x):
     return isinstance(x, list) and len(x) > 0 and all(
         isinstance(i, int) and not isinstance(i, bool) for i in x)
@@ -84,8 +94,10 @@ def _ids_from(x):
     """Accept a list of ints, a list of numeric strings, or a '1 2 3' / '1,2,3' string."""
     if _is_ids(x):
         return x
+    # Lista de numere scrise ca text -> lista de intregi
     if isinstance(x, list) and x and all(isinstance(i, str) and i.strip().lstrip("-").isdigit() for i in x):
         return [int(i) for i in x]
+    # Text de forma "1 2 3", "1,2,3" sau "[1, 2, 3]"
     if isinstance(x, str):
         import re
         parts = re.split(r"[\s,\[\]]+", x.strip())
@@ -99,6 +111,8 @@ def normalize(d):
     """Extract (calibration_text, calibration_ids, challenge_ids) from any reasonable layout."""
     if isinstance(d, str):
         d = json.loads(d)
+    # Parcurgem recursiv JSON-ul si strangem toate textele si toate listele de ID-uri,
+    # fiecare cu "calea" de chei pana la ea (ex. ('calibration', 'token_ids'))
     strings, idlists = [], []
 
     def walk(x, path):
@@ -119,9 +133,11 @@ def normalize(d):
     if not idlists:
         return None
 
+    # Contine vreo cheie din cale unul dintre cuvinte?
     def has(path, *words):
         return any(w in p for p in path for w in words)
 
+    # Clasificam dupa numele cheilor: payload-ul, ID-urile de calibrare si textul de calibrare
     chal = [p for p in idlists if has(p[0], "challenge", "payload", "encoded", "secret", "message", "test")
             and not has(p[0], "calib")]
     cal = [p for p in idlists if has(p[0], "calib", "sample", "reference", "pair")]
@@ -131,7 +147,9 @@ def normalize(d):
         texts = [s for s in strings if not has(s[0], "description")]
     if not texts:
         return None
+    # Textul de calibrare = cel mai lung text candidat
     text = max(texts, key=lambda s: len(s[1]))
+    # Rezerve daca cheile nu sunt clare: lista de langa text, apoi cea mai lunga lista
     if not cal:
         # list sharing the parent path with the text
         cal = [p for p in idlists if p[0][:-1] == text[0][:-1]]
@@ -158,6 +176,7 @@ def _try(path):
 def find_input():
     """Return ((text, ids, chal), path). Never prefers train data over a test file."""
     # 1. explicit path argument / env var
+    # Ordinea de cautare: 1) argument / variabile de mediu
     for p in sys.argv[1:] + [os.environ.get(k) for k in
                              ("INPUT_FILE", "INPUT_PATH", "TEST_INPUT", "INPUT") if os.environ.get(k)]:
         if os.path.isfile(p):
@@ -165,6 +184,8 @@ def find_input():
             if r:
                 return r, p
     # 2. collect every candidate json in cwd (depth<=3) and the script dir
+    # 2) toate fisierele .json din directorul curent si al scriptului (adancime < 3),
+    # fara fisiere de iesire
     roots = list(dict.fromkeys([os.getcwd(), os.path.dirname(os.path.abspath(__file__))]))
     found = []
     for ri, r in enumerate(roots):
@@ -180,6 +201,8 @@ def find_input():
                 if low.endswith(".json") and "output" not in low and "expected" not in low:
                     found.append((ri, depth, os.path.join(dp, fn)))
 
+    # Preferam fisierele "test", apoi pe cele din directorul curent, apoi cele mai putin adanci;
+    # fisierele "train" vin ultimele
     def rank(t):
         ri, depth, p = t
         b = os.path.basename(p).lower()
@@ -191,6 +214,7 @@ def find_input():
             return r, p
     # 3. stdin
     try:
+        # 3) intrarea standard, ca ultima varianta
         if not sys.stdin.isatty():
             raw = sys.stdin.read()
             if raw.strip():
@@ -204,6 +228,8 @@ def find_input():
 
 def output_paths(inp):
     """test-output.json in cwd (what the grader reads) unless we are on a train file."""
+    # Pe train scriem train-output.json, altfel test-output.json (ce citeste evaluatorul),
+    # in directorul curent si langa fisierul de intrare
     b = os.path.basename(inp).lower() if inp else ""
     if "train" in b:
         name = os.path.basename(inp).replace("input", "output") if "input" in b else "train-output.json"
@@ -225,12 +251,15 @@ def tiktoken_cands():
         import tiktoken
     except Exception:
         return
+    # Lista noastra + toate codarile pe care le stie versiunea instalata de tiktoken
     names = list(dict.fromkeys(TIKTOKEN_NAMES + list(tiktoken.list_encoding_names())))
     for n in names:
         try:
             enc = tiktoken.get_encoding(n)
         except Exception:
             continue
+        # Fiecare candidat: (nume, marimea vocabularului, functie de codare, functie de decodare)
+        # disallowed_special=() permite text care arata ca un token special
         yield n, enc.n_vocab, lambda t, e=enc: [e.encode(t, disallowed_special=())], \
             lambda ids, e=enc: e.decode(ids)
 
@@ -242,12 +271,14 @@ def hf_cands(offline):
         return
     for n in HF_NAMES:
         try:
+            # offline=True: doar din cache-ul local; offline=False: descarca de pe HuggingFace
             tok = AutoTokenizer.from_pretrained(n, local_files_only=offline, trust_remote_code=False)
         except Exception:
             continue
 
         def encs(t, tok=tok):
             out = []
+            # Incercam codarea cu si fara tokeni speciali ([CLS], </s>, ...)
             for sp in (True, False):
                 try:
                     out.append(tok.encode(t, add_special_tokens=sp))
@@ -258,6 +289,7 @@ def hf_cands(offline):
         def dec(ids, tok=tok, ref_ids=None, ref_text=None):
             import re
 
+            # Variante de decodare: textul brut si textul cu spatiile din jurul "_" eliminate
             def fixers(s):
                 yield s
                 yield re.sub(r"\s*_\s*", "_", s)
@@ -270,6 +302,7 @@ def hf_cands(offline):
                 except Exception:
                     pass
             # choose the decode variant that best round-trips the calibration text
+            # Alegem varianta de decodare care reproduce cel mai bine textul de calibrare
             best_f, best_r = None, -1.0
             for f in opts:
                 for k in range(2):
@@ -288,6 +321,7 @@ def hf_cands(offline):
 def raw_hf_cands():
     """Fallback without transformers: fetch tokenizer.json and use the `tokenizers` lib."""
     try:
+        # Rezerva fara biblioteca transformers: descarcam doar tokenizer.json
         from tokenizers import Tokenizer
     except Exception:
         return
@@ -336,13 +370,16 @@ def raw_hf_cands():
 
 
 def main():
+    # Pasul 1: citim intrarea si ne asiguram ca bibliotecile exista
     data, inp = find_input()
     print(f"input: {inp}  python: {sys.executable}", file=sys.stderr)
     ensure_packages()
     text, target, chal = data[0], list(data[1]), list(data[2])
     print(f"calibration: {len(target)} ids, challenge: {len(chal)} ids", file=sys.stderr)
+    # Un tokenizer cu vocabular mai mic decat cel mai mare ID vazut e imposibil
     need = max(target + chal) + 1
 
+    # Decodare care nu arunca exceptii (unele decodoare nu accepta argumentele ref_*)
     def safe_dec(dec, ids):
         try:
             return dec(ids, ref_ids=target, ref_text=text)
@@ -351,8 +388,11 @@ def main():
         except Exception:
             return ""
 
+    # best = cel mai bun candidat dupa potrivirea calibrarii; flagged = cel mai bun candidat
+    # a carui decodare contine "SIGMOID_" (rezerva daca nu exista potrivire exacta)
     best = (-1.0, None, None)
     flagged = (-1.0, None, None)   # best candidate whose decode contains SIGMOID_
+    # Sursele de candidati, de la cea mai ieftina la cea mai scumpa
     sources = [tiktoken_cands(), hf_cands(True), hf_cands(False), raw_hf_cands()]
     seen = set()
     done = False
@@ -361,6 +401,7 @@ def main():
             if name in seen:
                 continue
             seen.add(name)
+            # Filtru rapid pe marimea vocabularului
             if vsize < need:
                 print(f"[{name}] skip vocab={vsize} < {need}", file=sys.stderr)
                 continue
@@ -368,6 +409,7 @@ def main():
                 variants = encs(text)
             except Exception:
                 continue
+            # Scorul: 1.0 la potrivire exacta a listei de ID-uri, altfel similaritatea secventelor
             sc = 0.0
             for ids in variants:
                 s = 1.0 if ids == target else difflib.SequenceMatcher(None, ids, target).ratio()
@@ -377,12 +419,14 @@ def main():
             if sc > flagged[0] and "SIGMOID_" in safe_dec(dec, chal):
                 flagged = (sc, name, dec)
             print(f"[{name}] score={sc:.4f}", file=sys.stderr)
+            # La prima potrivire exacta ne oprim
             if sc == 1.0:
                 done = True
                 break
         if done:
             break
 
+    # Fara potrivire exacta, preferam candidatul care decodeaza ceva cu "SIGMOID_"
     if best[0] < 1.0 and flagged[1] is not None:
         print(f"no exact match; using {flagged[1]} (decode contains SIGMOID_)", file=sys.stderr)
         best = flagged
@@ -393,6 +437,7 @@ def main():
         sys.exit("no tokenizer could be loaded with %s -- install with: "
                  "%s -m pip install tiktoken transformers tokenizers sentencepiece protobuf"
                  % (sys.executable, sys.executable))
+    # Pasul final: decodam payload-ul si scriem {"tokenizer_id", "decoded_message"}
     score, name, dec = best
     msg = safe_dec(dec, chal)
     print(f"tokenizer={name} match={score:.4f}\n{msg}", file=sys.stderr)

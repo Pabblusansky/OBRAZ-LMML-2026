@@ -28,7 +28,7 @@ Prin urmare, un `train_test_split` aleatoriu pe rânduri pune cereri ale aceleia
 
 ## 2. Dovezi pentru pistele false (red herrings)
 
-Fiecare pistă falsă a fost testată separat în [corrected_pipeline.py](corrected_pipeline.py). Repararea lor nu schimbă performanța decât în limitele zgomotului normal de la o rulare la alta:
+Fiecare pistă falsă a fost testată separat în [main.py](main.py). Repararea lor nu schimbă performanța decât în limitele zgomotului normal de la o rulare la alta:
 
 | Variantă testată | Descriere | Acuratețe (`rs=1137`) | Alte verificări / CV |
 |---|---|---|---|
@@ -80,7 +80,7 @@ acc_loo = accuracy_score(df_dedup["label"], preds_loo)
 print(f"Deduplicated LeaveOneOut accuracy: {acc_loo:.4f}")  # 0.7656 (689 / 900)
 ```
 
-Scriptul complet de verificare este în [corrected_pipeline.py](corrected_pipeline.py).
+Scriptul complet de verificare este în [main.py](main.py).
 
 ---
 

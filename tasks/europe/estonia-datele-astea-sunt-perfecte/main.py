@@ -24,13 +24,17 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+# Directorul scriptului; datele pot fi in directorul curent sau in files/
 BASE_DIR = Path(__file__).resolve().parent
 DATA_CANDIDATES = (
     Path("applications.csv"),
     BASE_DIR / "files" / "applications.csv",
 )
+# Raportul final in romana se scrie langa script
 SOLUTION_PATH = BASE_DIR / "solution.txt"
 
+# Cele 6 caracteristici numerice pe care modelul are voie sa le foloseasca
+# (coloanele de identitate submission_id, date_of_birth, citizenship NU intra in model)
 FEATURE_COLS = [
     "form_fill_seconds",
     "doc_scan_quality",
@@ -39,12 +43,14 @@ FEATURE_COLS = [
     "ip_geo_distance_km",
     "address_history_years",
 ]
+# Aceleasi setari ca pipeline-ul original, ca sa-i putem reproduce exact scorul
 RANDOM_STATE = 1137
 TEST_SIZE = 0.2
 
 
 def resolve_dataset_path() -> Path:
     """Returneaza calea catre applications.csv."""
+    # Intoarcem prima cale care exista
     for candidate in DATA_CANDIDATES:
         if candidate.exists():
             return candidate
@@ -59,6 +65,8 @@ def load_dataset() -> pd.DataFrame:
 
 def make_model_pipeline() -> Pipeline:
     """Construieste modelul impus: StandardScaler + 1-NN."""
+    # In Pipeline, scalerul se antreneaza DOAR pe datele de antrenare din fiecare fold,
+    # deci nu exista scurgere de informatie prin medie/abatere
     return make_pipeline(
         StandardScaler(),
         KNeighborsClassifier(n_neighbors=1),
@@ -72,6 +80,8 @@ def evaluate_cv(
     groups: pd.Series | None = None,
 ) -> tuple[float, int, int]:
     """Evalueaza pipeline-ul cu cross_val_predict si returneaza (acc, corecte, total)."""
+    # Fiecare rand primeste o predictie de la un model care NU l-a vazut la antrenare
+    # (out-of-fold); "groups" e folosit doar de LeaveOneGroupOut
     preds = cross_val_predict(
         make_model_pipeline(),
         X,
@@ -79,6 +89,7 @@ def evaluate_cv(
         cv=cv,
         groups=groups,
     )
+    # Numaram predictiile corecte (pentru afisarea "corecte / total")
     correct = int((preds == y.to_numpy()).sum())
     total = len(y)
     return float(accuracy_score(y, preds)), correct, total
@@ -90,6 +101,7 @@ def evaluate_original_pipeline(
     random_state: int = RANDOM_STATE,
 ) -> tuple[float, int, int]:
     """Reproduce exact pipeline-ul initial cu scurgere de scalare si split ne-grupat."""
+    # Exact ca originalul: scalerul vede TOATE datele inainte de split (pista falsa A)
     X_scaled = StandardScaler().fit_transform(X)
     X_train, X_test, y_train, y_test = train_test_split(
         X_scaled,
@@ -97,6 +109,7 @@ def evaluate_original_pipeline(
         test_size=TEST_SIZE,
         random_state=random_state,
     )
+    # 1-NN: fiecare cerere de test copiaza eticheta celui mai apropiat vecin din train
     clf = KNeighborsClassifier(n_neighbors=1)
     clf.fit(X_train, y_train)
     preds = clf.predict(X_test)
@@ -116,6 +129,7 @@ def evaluate_proper_split(
         y,
         test_size=TEST_SIZE,
         random_state=random_state,
+        # stratify=y pastreaza proportia claselor in train si test (pista falsa C)
         stratify=y if stratify else None,
     )
     model = make_model_pipeline()
@@ -127,16 +141,20 @@ def evaluate_proper_split(
 
 def audit_false_lead_preprocessing(X: pd.DataFrame, y: pd.Series) -> dict[str, float | int]:
     """Testeaza pista falsa A: StandardScaler fit-uit inainte de train_test_split."""
+    # Reparatia pistei A pe split-ul original
     fix_acc, fix_correct, fix_total = evaluate_proper_split(X, y)
 
     leaked_scores = []
     proper_scores = []
+    # Comparam cu/fara scurgere pe 100 de split-uri diferite: daca mediile sunt egale,
+    # scurgerea din scaler NU e cauza scorului umflat
     for seed in range(100):
         acc_leaked, _, _ = evaluate_original_pipeline(X, y, random_state=seed)
         acc_proper, _, _ = evaluate_proper_split(X, y, random_state=seed)
         leaked_scores.append(acc_leaked)
         proper_scores.append(acc_proper)
 
+    # LOO naiv (pe randuri): fiecare rand e testat pe rand, restul sunt train
     loo_acc, loo_correct, loo_total = evaluate_cv(X, y, LeaveOneOut())
     return {
         "fix_acc": fix_acc,
@@ -154,6 +172,7 @@ def audit_false_lead_preprocessing(X: pd.DataFrame, y: pd.Series) -> dict[str, f
 
 def find_impossible_mask(df: pd.DataFrame) -> pd.Series:
     """Identifica randurile cu valori numeric imposibile conform domeniului."""
+    # Valori fizic imposibile: durate/varste/distante negative, scoruri in afara [0, 1]
     return (
         (df["form_fill_seconds"] < 0)
         | (df["doc_scan_quality"] < 0)
@@ -168,6 +187,7 @@ def find_impossible_mask(df: pd.DataFrame) -> pd.Series:
 
 def clip_impossible_values(X: pd.DataFrame) -> pd.DataFrame:
     """Limiteaza valorile imposibile la intervalele fizice valide."""
+    # Copie, ca sa nu modificam datele originale
     clipped = X.copy()
     non_negative_cols = [
         "form_fill_seconds",
@@ -176,6 +196,7 @@ def clip_impossible_values(X: pd.DataFrame) -> pd.DataFrame:
         "address_history_years",
     ]
     unit_interval_cols = ["doc_scan_quality", "photo_match_score"]
+    # Coloanele care nu pot fi negative -> minim 0; scorurile -> in [0, 1]
     for col in non_negative_cols:
         clipped[col] = clipped[col].clip(lower=0.0)
     for col in unit_interval_cols:
@@ -189,6 +210,7 @@ def audit_false_lead_impossible_values(df: pd.DataFrame) -> dict[str, object]:
     y = df["label"]
     bad_mask = find_impossible_mask(df)
 
+    # Cate randuri incalca fiecare regula (pentru raport)
     breakdown = {
         "form_fill_seconds < 0": int((df["form_fill_seconds"] < 0).sum()),
         "doc_scan_quality < 0": int((df["doc_scan_quality"] < 0).sum()),
@@ -200,11 +222,13 @@ def audit_false_lead_impossible_values(df: pd.DataFrame) -> dict[str, object]:
         "address_history_years < 0": int((df["address_history_years"] < 0).sum()),
     }
 
+    # Varianta B1: eliminam randurile imposibile si reevaluam
     X_clean = X.loc[~bad_mask].reset_index(drop=True)
     y_clean = y.loc[~bad_mask].reset_index(drop=True)
     drop_split_acc, drop_split_correct, drop_split_total = evaluate_proper_split(X_clean, y_clean)
     drop_loo_acc, drop_loo_correct, drop_loo_total = evaluate_cv(X_clean, y_clean, LeaveOneOut())
 
+    # Varianta B2: plafonam valorile imposibile si reevaluam
     X_clipped = clip_impossible_values(X)
     clip_split_acc, clip_split_correct, clip_split_total = evaluate_proper_split(X_clipped, y)
     clip_loo_acc, clip_loo_correct, clip_loo_total = evaluate_cv(X_clipped, y, LeaveOneOut())
@@ -234,6 +258,7 @@ def audit_false_lead_split_config(
     naive_loo: tuple[float, int, int],
 ) -> dict[str, float | int]:
     """Testeaza pista falsa C: lipsa stratify=y si split simplu vs CV ne-grupat."""
+    # Pista C: split stratificat, apoi K-Fold stratificat cu 5 fold-uri
     strat_acc, strat_correct, strat_total = evaluate_proper_split(X, y, stratify=True)
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
     skf_acc, skf_correct, skf_total = evaluate_cv(X, y, skf)
@@ -253,10 +278,13 @@ def audit_false_lead_split_config(
 
 def audit_applicant_leakage(df: pd.DataFrame) -> dict[str, object]:
     """Demonstreaza bugul real: cereri multiple ale aceluiasi aplicant in train si test."""
+    # Identitatea aplicantului = (data nasterii, cetatenia); 1971 de randuri -> 900 de persoane
     groups = df["date_of_birth"].astype(str) + "|" + df["citizenship"].astype(str)
     group_sizes = groups.value_counts()
+    # Distributia: cati aplicanti au 1, 2, 3 sau 4 cereri
     size_dist = {int(k): int(v) for k, v in group_sizes.value_counts().sort_index().items()}
 
+    # Verificam ca toate cererile unei persoane au aceeasi eticheta (0 conflicte)
     labels_per_group = df.groupby(groups)["label"].nunique()
     n_conflicting = int((labels_per_group > 1).sum())
 
@@ -266,14 +294,18 @@ def audit_applicant_leakage(df: pd.DataFrame) -> dict[str, object]:
 
     # Distante euclidiene in spatiul scalat: intra-aplicant vs inter-aplicant.
     X_scaled = StandardScaler().fit_transform(df[FEATURE_COLS])
+    # Matricea tuturor distantelor intre randuri; luam doar triunghiul de sus (fiecare pereche o data)
     dist_matrix = pairwise_distances(X_scaled, metric="euclidean")
     tri_i, tri_j = np.triu_indices(len(df), k=1)
     same_group = groups.to_numpy()[tri_i] == groups.to_numpy()[tri_j]
     pair_dists = dist_matrix[tri_i, tri_j]
+    # Daca distanta MAXIMA intre cererile aceleiasi persoane < distanta MINIMA intre persoane
+    # diferite, atunci cel mai apropiat vecin al unei cereri e mereu o clona a ei (daca exista)
     max_within_dist = float(pair_dists[same_group].max())
     min_between_dist = float(pair_dists[~same_group].min())
 
     # Masoara contaminarea exacta din split-ul original random_state=1137.
+    # Refacem split-ul original pe indici, ca sa stim care rand e in train si care in test
     train_idx, test_idx = train_test_split(
         df.index.to_numpy(),
         test_size=TEST_SIZE,
@@ -284,12 +316,14 @@ def audit_applicant_leakage(df: pd.DataFrame) -> dict[str, object]:
     test_preds = model.predict(df.loc[test_idx, FEATURE_COLS])
     y_test = df.loc[test_idx, "label"].to_numpy()
 
+    # Un rand de test e "scurs" daca aceeasi persoana apare si in train
     train_groups = set(groups.iloc[train_idx])
     leaked_mask = groups.iloc[test_idx].isin(train_groups).to_numpy()
 
     n_test_total = len(test_idx)
     n_test_leaked = int(leaked_mask.sum())
     n_test_unseen = int((~leaked_mask).sum())
+    # Acuratetea separata: ~100% pe randurile scurse vs ~70% pe persoanele noi
     leaked_acc = float(accuracy_score(y_test[leaked_mask], test_preds[leaked_mask]))
     unseen_acc = float(accuracy_score(y_test[~leaked_mask], test_preds[~leaked_mask]))
 
@@ -320,6 +354,8 @@ def evaluate_corrected_pipeline(df: pd.DataFrame, groups: pd.Series) -> dict[str
     X = df[FEATURE_COLS]
     y = df["label"]
 
+    # REPARATIA: LeaveOneGroupOut scoate la test toate cererile unei persoane deodata,
+    # deci modelul nu vede niciodata clona celui testat
     logo_acc, logo_correct, logo_total = evaluate_cv(
         X,
         y,
@@ -327,6 +363,7 @@ def evaluate_corrected_pipeline(df: pd.DataFrame, groups: pd.Series) -> dict[str
         groups=groups,
     )
 
+    # Verificare echivalenta: o singura cerere per persoana + LeaveOneOut obisnuit
     df_unique = df.drop_duplicates(
         subset=["date_of_birth", "citizenship"],
         keep="first",
@@ -337,6 +374,7 @@ def evaluate_corrected_pipeline(df: pd.DataFrame, groups: pd.Series) -> dict[str
         LeaveOneOut(),
     )
 
+    # Flag-ul = procentul trunchiat (ca in exemplul 0.8649 -> SIGMOID_86) si varianta rotunjita
     flag_trunc = f"SIGMOID_{int(logo_acc * 100)}"
     flag_round = f"SIGMOID_{round(logo_acc * 100)}"
 
@@ -354,6 +392,7 @@ def evaluate_corrected_pipeline(df: pd.DataFrame, groups: pd.Series) -> dict[str
 
 def format_solution_text(results: dict[str, object]) -> str:
     """Construiește continutul complet pentru solution.txt din metricile calculate."""
+    # Extragem rezultatele fiecarui experiment, ca sa le scriem in raport
     orig = results["orig"]
     fa = results["false_a"]
     fb = results["false_b"]
@@ -361,10 +400,12 @@ def format_solution_text(results: dict[str, object]) -> str:
     leak = results["leak"]
     corr = results["corrected"]
 
+    # Text de forma "360 aplicanti cu 1 cerere, 195 aplicanti cu 2 cereri, ..."
     size_lines = ", ".join(
         f"{cnt} aplicanti cu {size} {'cerere' if size == 1 else 'cereri'}"
         for size, cnt in leak["size_dist"].items()
     )
+    # Doar regulile incalcate de cel putin un rand
     bad_nonzero = ", ".join(
         f"{name}: {cnt}"
         for name, cnt in fb["breakdown"].items()
@@ -372,6 +413,7 @@ def format_solution_text(results: dict[str, object]) -> str:
     )
     dob, citizenship = leak["sample_group"]
 
+    # Raportul, sectiune cu sectiune (rezumat, piste false, bug real, reparatie, acuratete reala)
     lines = [
         "ESTONIA - DATELE ASTEA SUNT PERFECTE!",
         "Auditul pipeline-ului de detectare a fraudelor e-Residency",
@@ -472,10 +514,12 @@ def format_solution_text(results: dict[str, object]) -> str:
 
 def main() -> None:
     """Ruleaza auditul complet, afiseaza rezultatele si scrie solution.txt."""
+    # 1. Datele: X = cele 6 caracteristici, y = eticheta de frauda
     df = load_dataset()
     X = df[FEATURE_COLS]
     y = df["label"]
 
+    # 2. Reproducem scorul raportat (0.9342), apoi testam pe rand pistele false A, B, C
     orig_acc, orig_correct, orig_total = evaluate_original_pipeline(X, y)
     false_a = audit_false_lead_preprocessing(X, y)
     false_b = audit_false_lead_impossible_values(df)
@@ -488,6 +532,7 @@ def main() -> None:
             int(false_a["loo_total"]),
         ),
     )
+    # 3. Bug-ul real (scurgerea de aplicanti) si 4. pipeline-ul corectat pe grupuri
     leak = audit_applicant_leakage(df)
     corrected = evaluate_corrected_pipeline(df, leak["groups"])
 
@@ -504,6 +549,7 @@ def main() -> None:
         "corrected": corrected,
     }
 
+    # 5. Scriem raportul si afisam un rezumat in consola
     report = format_solution_text(results)
     SOLUTION_PATH.write_text(report, encoding="utf-8")
 

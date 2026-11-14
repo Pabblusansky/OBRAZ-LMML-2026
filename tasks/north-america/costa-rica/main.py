@@ -6,6 +6,11 @@ from the current working directory and writes test-output.json (or train-output.
 in the current working directory with all PII redacted while preserving PV-#####
 booking references and non-PII text needed for downstream classification.
 """
+# Costa Rica - "Pura Vida, No PII": anonimizarea mesajelor clientilor.
+# Pipeline de reguli (expresii regulate) aplicate in etape, de la formatele cele mai
+# specifice la cele mai generale: referinte PV (protejate) -> e-mailuri -> IBAN ->
+# date de nastere -> telefoane internationale -> cedulas -> telefoane nationale ->
+# adrese -> nume. Fiecare bucata gasita e inlocuita cu un placeholder ([EMAIL], [NAME]...).
 from __future__ import annotations
 
 import json
@@ -15,6 +20,8 @@ import sys
 import unicodedata
 from typing import Callable
 
+# Marcaje din zona Unicode privata (U+E000...): nu sunt litere sau cifre, deci
+# nicio regula ulterioara nu le poate potrivi din greseala
 # Private Use Area sentinel markers so protected spans / placeholders cannot
 # collide with normal text or trigger subsequent PII patterns.
 _SENTINEL_OPEN = "\uE000"
@@ -22,10 +29,13 @@ _SENTINEL_CLOSE = "\uE001"
 _DIGIT_TO_PUA = str.maketrans("0123456789", "\uE010\uE011\uE012\uE013\uE014\uE015\uE016\uE017\uE018\uE019")
 
 
+# Indexul din seif e scris tot cu caractere private (cifra d -> U+E010 + d)
 def _encode_index(idx: int) -> str:
     return str(idx).translate(_DIGIT_TO_PUA)
 
 
+# "Seiful": bucatile protejate (referinte PV, placeholdere deja emise) sunt mutate aici
+# si inlocuite in text cu un marcaj; la final restore() le pune inapoi
 class Vault:
     """Stores protected non-PII spans and emitted placeholders behind PUA sentinels."""
 
@@ -33,11 +43,13 @@ class Vault:
         self._items: list[str] = []
 
     def stash(self, value: str) -> str:
+        # Pastram valoarea si intoarcem marcajul: U+E000 + index codat + U+E001
         idx = len(self._items)
         self._items.append(value)
         return f"{_SENTINEL_OPEN}{_encode_index(idx)}{_SENTINEL_CLOSE}"
 
     def restore(self, text: str) -> str:
+        # Inversul codarii: caracter privat -> cifra
         pua_to_digit = {chr(0xE010 + d): str(d) for d in range(10)}
         pattern = re.compile(
             re.escape(_SENTINEL_OPEN)
@@ -59,11 +71,16 @@ class Vault:
 # Normalization helpers (case + accent insensitive with exact index alignment)
 # ---------------------------------------------------------------------------
 
+# NFD separa literele de accente (e + accent); eliminam accentele (categoria "Mn") si
+# trecem la litere mici: "José" -> "jose"
 def strip_accents_lower(s: str) -> str:
     decomposed = unicodedata.normalize("NFD", s)
     return "".join(ch for ch in decomposed if unicodedata.category(ch) != "Mn").lower()
 
 
+# Construieste textul fara accente SI o harta de la fiecare caracter normalizat la
+# pozitia (start, end) din textul original, ca o potrivire gasita pe textul normalizat
+# sa poata fi inlocuita exact in textul original
 def build_normalized_index(text: str) -> tuple[str, list[tuple[int, int]]]:
     """Return (accent_stripped_lowercase_str, [(orig_start, orig_end), ...])."""
     norm_chars: list[str] = []
@@ -85,10 +102,12 @@ def build_normalized_index(text: str) -> tuple[str, list[tuple[int, int]]]:
     return "".join(norm_chars), spans
 
 
+# Aplica mai multe inlocuiri (start, end, text_nou) deodata
 def replace_spans(text: str, spans: list[tuple[int, int, str]]) -> str:
     """Apply non-overlapping (start, end, replacement) edits on text."""
     if not spans:
         return text
+    # Sortam dupa start; la acelasi start, cea mai lunga intai; sarim peste suprapuneri
     spans_sorted = sorted(spans, key=lambda item: (item[0], -(item[1] - item[0])))
     merged: list[tuple[int, int, str]] = []
     cur_end = -1
@@ -97,6 +116,7 @@ def replace_spans(text: str, spans: list[tuple[int, int, str]]) -> str:
             continue
         merged.append((start, end, repl))
         cur_end = end
+    # Reconstruim textul: bucatile neatinse + inlocuirile
     parts: list[str] = []
     pos = 0
     for start, end, repl in merged:
@@ -107,6 +127,8 @@ def replace_spans(text: str, spans: list[tuple[int, int, str]]) -> str:
     return "".join(parts)
 
 
+# Ca re.sub, dar ignorand majusculele si accentele: cautam pe textul normalizat,
+# inlocuim in textul original folosind harta de pozitii
 def sub_normalized(
     text: str,
     pattern: re.Pattern[str],
@@ -131,6 +153,7 @@ def sub_normalized(
 # Lexicons & Constants
 # ---------------------------------------------------------------------------
 
+# Numele lunilor (engleza + spaniola, inclusiv abrevieri) -> numarul lunii
 MONTH_NAME_TO_NUM: dict[str, int] = {
     # English
     "january": 1, "jan": 1,
@@ -160,6 +183,7 @@ MONTH_NAME_TO_NUM: dict[str, int] = {
     "diciembre": 12, "dic": 12,
 }
 
+# Inversul: luna -> toate denumirile ei (pentru variantele unei date gasite)
 NUM_TO_MONTHS: dict[int, tuple[str, ...]] = {
     1: ("january", "jan", "enero", "ene"),
     2: ("february", "feb", "febrero"),
@@ -175,8 +199,11 @@ NUM_TO_MONTHS: dict[int, tuple[str, ...]] = {
     12: ("december", "dec", "diciembre", "dic"),
 }
 
+# Alternativa regex cu toate lunile, cele mai lungi intai ("september" inaintea "sep")
 _MONTH_ALT = "|".join(sorted(MONTH_NAME_TO_NUM.keys(), key=len, reverse=True))
 
+# Fraze cu majuscule care NU sunt date personale (nume de agentie, destinatii turistice):
+# fara lista asta, "Manuel Antonio" ar fi luat drept nume de persoana
 # Non-PII geographic / agency phrases that must not be redacted as person names
 PROTECTED_NON_PII_PHRASES: tuple[str, ...] = (
     "Pura Vida Voyages",
@@ -268,6 +295,7 @@ PROTECTED_NON_PII_PHRASES: tuple[str, ...] = (
     "Osa Peninsula",
 )
 
+# Orase/provincii: sfarsitul unei adrese, dar nu fragmente distinctive in sine
 # Common city/province names in Costa Rica (non-distinctive city suffix of an address;
 # should NOT be extracted as standalone address fragments outside the full address).
 ADDRESS_CITY_NAMES: frozenset[str] = frozenset({
@@ -284,6 +312,7 @@ ADDRESS_CITY_NAMES: frozenset[str] = frozenset({
     "dominical", "costa rica",
 })
 
+# Cuvinte care nu sunt nume, chiar daca apar cu majuscula sau intr-un e-mail
 # Non-name words that might appear in email local parts or near capitalized contexts
 NON_NAME_STOPWORDS: frozenset[str] = frozenset({
     "the", "and", "for", "with", "from", "that", "this", "have", "has", "had",
@@ -316,6 +345,7 @@ NON_NAME_STOPWORDS: frozenset[str] = frozenset({
     "heredia", "limon", "escazu", "puntarenas",
 })
 
+# Lexicon de prenume (fara accente, litere mici)
 # Curated Costa Rican / Hispanic / English first names (accent-stripped lowercase)
 FIRST_NAMES: frozenset[str] = frozenset({
     "adriana", "agustin", "aaron", "alberto", "alejandra", "alejandro", "alex",
@@ -391,6 +421,7 @@ FIRST_NAMES: frozenset[str] = frozenset({
     "zaida", "zoe", "zulema",
 })
 
+# Lexicon de nume de familie
 # Curated Costa Rican / Hispanic / common surnames (accent-stripped lowercase)
 LAST_NAMES: frozenset[str] = frozenset({
     "abarca", "acevedo", "acosta", "acuna", "aguero", "aguilar", "aguilera",
@@ -511,6 +542,7 @@ LAST_NAMES: frozenset[str] = frozenset({
 # Date validation and variant generation
 # ---------------------------------------------------------------------------
 
+# Data trebuie sa existe: an plauzibil, zile pe luna, 29 februarie doar in ani bisecti
 def _is_valid_date(year: int, month: int, day: int) -> bool:
     if not (1900 <= year <= 2029 and 1 <= month <= 12 and 1 <= day <= 31):
         return False
@@ -523,6 +555,8 @@ def _is_valid_date(year: int, month: int, day: int) -> bool:
     return True
 
 
+# Pentru o data gasita, generam tiparele pentru TOATE celelalte scrieri ale ei
+# (ISO, zi/luna/an, luna/zi/an, 8 cifre lipite, cu numele lunii in engleza/spaniola)
 def _dob_variants(year: int, month: int, day: int) -> list[str]:
     """Generate regex patterns (on normalized lowercase text) for a given date."""
     y = f"{year:04d}"
@@ -555,6 +589,8 @@ def _dob_variants(year: int, month: int, day: int) -> list[str]:
 # Core PII redaction pipeline
 # ---------------------------------------------------------------------------
 
+# Pare textul o adresa? Da daca are virgula, cifre sau un cuvant de adresa (calle,
+# avenida, barrio, metros, frente, street ...); nu daca e "me", "my email" etc.
 def _is_plausible_address_context(candidate: str) -> bool:
     norm = strip_accents_lower(candidate).strip()
     if not norm or len(norm) < 6:
@@ -574,6 +610,8 @@ def _is_plausible_address_context(candidate: str) -> bool:
     return bool(re.search(addr_kw, norm))
 
 
+# Din o adresa gasita extragem fragmentele distinctive (strada, reper), ca sa le stergem
+# si cand apar separat in alt loc din mesaj
 def _extract_address_fragments(addr_text: str) -> list[str]:
     """Extract distinctive fragments (street, landmark/house) from an address."""
     frags: list[str] = []
@@ -600,6 +638,7 @@ def _extract_address_fragments(addr_text: str) -> list[str]:
             inner_norm = strip_accents_lower(inner)
             if len(inner_norm) >= 5 and inner_norm not in ADDRESS_CITY_NAMES:
                 frags.append(inner)
+    # Eliminam duplicatele (fara accente) si le ordonam de la cel mai lung la cel mai scurt
     # Deduplicate keeping longest first
     unique: dict[str, str] = {}
     for f in frags:
@@ -609,6 +648,8 @@ def _extract_address_fragments(addr_text: str) -> list[str]:
     return sorted(unique.values(), key=len, reverse=True)
 
 
+# Inregistreaza un nume gasit: numele complet + fiecare cuvant al lui (fara particule
+# ca "de", "la"), pentru trecerea finala care sterge toate aparitiile
 def _add_name_candidate(
     raw_name: str,
     full_names: set[str],
@@ -633,10 +674,12 @@ def redact_document(text: str) -> str:
 
     vault = Vault()
 
+    # Etapa 1: referintele de rezervare trebuie PASTRATE -> le mutam in seif
     # 1. Protect booking references PV-#####
     pv_re = re.compile(r"\bPV-[A-Za-z0-9]{4,10}\b")
     text = pv_re.sub(lambda m: vault.stash(m.group(0)), text)
 
+    # Etapa 2: e-mailuri -> [EMAIL]; partea locala (carlos.solano) da si nume candidate
     # 2. Emails: redact full emails and collect local parts + candidate name tokens
     email_re = re.compile(
         r"(?<![A-Za-z0-9._%+-])([A-Za-z0-9._%+-]+)@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?![A-Za-z0-9])"
@@ -675,6 +718,7 @@ def redact_document(text: str) -> str:
         pat = re.compile(rf"(?<![a-z0-9._+-]){flex}(?![a-z0-9])")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[EMAIL]"))
 
+    # Etapa 3: conturi IBAN -> [ACCOUNT], scrise grupat sau lipit
     # 3. Bank Accounts (IBAN grouped and glued)
     iban_digit_cores: set[str] = set()
 
@@ -712,6 +756,7 @@ def redact_document(text: str) -> str:
         pat = re.compile(rf"(?<![a-z0-9])(?:[a-z]{{2}}[\s-]*)?{flex_digits}(?!\d)")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[ACCOUNT]"))
 
+    # Etapa 4: date de nastere -> [DOB], in toate formatele
     # 4. Dates of Birth (all formats + cross-format variants)
     detected_dobs: set[tuple[int, int, int]] = set()
 
@@ -765,6 +810,7 @@ def redact_document(text: str) -> str:
 
     text = sub_normalized(text, dob_iso_re, _dob_iso_repl)
 
+    # In Costa Rica formatul standard e zi/luna/an; daca a doua parte > 12, e luna/zi/an
     # 4c. Numeric DD/MM/YYYY or MM/DD/YYYY (with / or - or .)
     dob_dmy_re = re.compile(
         r"\b(?P<p1>0?[1-9]|[12]\d|3[01])([./-])(?P<p2>0?[1-9]|[12]\d|3[01])\2(?P<year>19\d{2}|20[0-2]\d)\b"
@@ -808,6 +854,7 @@ def redact_document(text: str) -> str:
 
     text = sub_normalized(text, dob_glued_ctx_re, _dob_glued_repl)
 
+    # Odata gasita o data, stergem orice alta scriere a ei din mesaj
     # 4e. Cross-variant pass: eliminate any other representation of detected DOBs
     for y, mon, d in sorted(detected_dobs):
         for pat_str in _dob_variants(y, mon, d):
@@ -817,6 +864,8 @@ def redact_document(text: str) -> str:
                 lambda _orig, _m: vault.stash("[DOB]"),
             )
 
+    # Etapa 5: telefoane; ordinea conteaza - cedulas (9 cifre) inaintea telefoanelor
+    # nationale (8 cifre), ca un numar de 9 cifre sa nu fie taiat in 8
     # 5. Phones (international first, then cédulas, then national 8-digit phones,
     #    then cross-variant phone numbers)
     detected_phone_cores: set[str] = set()
@@ -850,6 +899,7 @@ def redact_document(text: str) -> str:
 
     text = gen_intl_phone_re.sub(_gen_intl_phone_repl, text)
 
+    # Etapa 6: buletinele (cedulas) -> [ID]
     # 6. National IDs / Cédulas (hyphenated/spaced and glued 9-digit, plus DIMEX/jurídica in ID context)
     detected_cedulas: set[str] = set()
 
@@ -890,6 +940,7 @@ def redact_document(text: str) -> str:
             pat = re.compile(rf"\b{flex}\b")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[ID]"))
 
+    # Telefoanele nationale de 8 cifre -> [PHONE], apoi variantele lor
     # 5c. National 8-digit phones (with separator or glued)
     cr_nat_sep_phone_re = re.compile(r"(?<![$₡€£\d])\b[2-8]\d{3}[\s.-]\d{4}\b(?![\d%])")
     text = cr_nat_sep_phone_re.sub(lambda m: _record_phone(m.group(0)), text)
@@ -912,6 +963,7 @@ def redact_document(text: str) -> str:
             pat = re.compile(rf"(?<![a-z0-9])\+?\s*{flex}(?!\d)")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[PHONE]"))
 
+    # Etapa 7: adrese -> [ADDRESS], plus fragmentele lor oriunde reapar
     # 7. Postal Addresses + distinctive fragments
     detected_addr_fragments: list[str] = []
 
@@ -989,7 +1041,9 @@ def redact_document(text: str) -> str:
         pat = re.compile(rf"(?<![a-z0-9]){flex}(?![a-z0-9])")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[ADDRESS]"))
 
+    # Etapa 8: nume de persoane -> [NAME]
     # 8. Person Names
+    # Intai protejam destinatiile/agentia, ca sa nu fie confundate cu nume
     # 8a. Protect known non-PII capitalized phrases (Pura Vida Voyages, tourist destinations)
     for phrase in sorted(PROTECTED_NON_PII_PHRASES, key=len, reverse=True):
         pnorm = strip_accents_lower(phrase)
@@ -997,6 +1051,7 @@ def redact_document(text: str) -> str:
         pat = re.compile(rf"\b{flex}\b")
         text = sub_normalized(text, pat, lambda orig, _m: vault.stash(orig))
 
+    # Nume din context: "My name is ...", "Regards, ...", "Me llamo ..."
     # 8b. Extract & redact contextual person names
     _NAME_WORD = r"[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ'-]+"
     _NAME_SPAN = rf"{_NAME_WORD}(?:\s+(?:(?:de(?:\s+l[ao]s)?|del|y)\s+)?{_NAME_WORD}){{0,3}}"
@@ -1036,6 +1091,7 @@ def redact_document(text: str) -> str:
             return _name_ctx_repl(m.group(1), cand)
         text = npat.sub(_repl_fn, text)
 
+    # Perechi Prenume Nume recunoscute din lexicoane
     # 8c. Lexicon-based <FirstName> <LastName> (+ optional middle/second surname)
     multi_cap_re = re.compile(rf"\b{_NAME_WORD}(?:\s+{_NAME_WORD}){{1,3}}\b")
 
@@ -1052,6 +1108,7 @@ def redact_document(text: str) -> str:
 
     text = multi_cap_re.sub(_lexicon_name_repl, text)
 
+    # Orice reaparitie a numelor deja gasite, ignorand majusculele si accentele
     # 8d. Pass for any remaining occurrences of full names and standalone name tokens
     #     (ignoring case and accents) anywhere in the document!
     for full_norm in sorted(doc_full_names, key=len, reverse=True):
@@ -1075,6 +1132,7 @@ def redact_document(text: str) -> str:
         pat = re.compile(rf"\b{re.escape(local_norm)}\b")
         text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[EMAIL]"))
 
+    # Etapa 9: scoatem din seif referintele PV si placeholderele
     # 9. Restore all protected spans and placeholders
     text = vault.restore(text)
 
@@ -1088,6 +1146,7 @@ def redact_document(text: str) -> str:
 # I/O entrypoint
 # ---------------------------------------------------------------------------
 
+# Intrarea: test-input.json, altfel train-input.json, altfel files/train-input.json
 def resolve_io_paths() -> tuple[str, str]:
     """Select input and output JSON paths in the current working directory."""
     if os.path.isfile("test-input.json"):
@@ -1107,6 +1166,7 @@ def main() -> None:
     with open(in_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    # Pentru fiecare document: id -> textul anonimizat
     documents = data.get("documents", [])
     redacted_documents: dict[str, str] = {}
     for doc in documents:
