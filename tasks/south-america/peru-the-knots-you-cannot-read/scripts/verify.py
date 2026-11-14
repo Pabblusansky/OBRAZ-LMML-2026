@@ -3,21 +3,21 @@
 import json, struct, sys, csv, numpy as np
 import os
 # Cai implicite: daca nu se dau argumente, folosim fisierele din ../files
-_BAZA=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','files')
-ARG1=sys.argv[1] if len(sys.argv)>1 else os.path.join(_BAZA,'model.safetensors')
-ARG2=sys.argv[2] if len(sys.argv)>2 else os.path.join(_BAZA,'corpus.csv')
+files_dir=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','files')
+model_path=sys.argv[1] if len(sys.argv)>1 else os.path.join(files_dir,'model.safetensors')
+corpus_path=sys.argv[2] if len(sys.argv)>2 else os.path.join(files_dir,'corpus.csv')
 # Citim toti tensorii din safetensors
-b=open(ARG1,'rb').read(); n=struct.unpack('<Q',b[:8])[0]; h=json.loads(b[8:8+n]); d=b[8+n:]
-T={k:np.frombuffer(d[v['data_offsets'][0]:v['data_offsets'][1]],dtype='<f4').reshape(v['shape']) for k,v in h.items() if k!='__metadata__'}
-rows=list(csv.DictReader(open(ARG2)))
+file_bytes=open(model_path,'rb').read(); header_len=struct.unpack('<Q',file_bytes[:8])[0]; header=json.loads(file_bytes[8:8+header_len]); tensor_data=file_bytes[8+header_len:]
+tensors={name:np.frombuffer(tensor_data[info['data_offsets'][0]:info['data_offsets'][1]],dtype='<f4').reshape(info['shape']) for name,info in header.items() if name!='__metadata__'}
+corpus_rows=list(csv.DictReader(open(corpus_path)))
 # Cele 3 registre (clase); ordinea iesirilor modelului nu e cunoscuta
-labs=['chinchaysuyu','antisuyu','qullasuyu']
+class_names=['chinchaysuyu','antisuyu','qullasuyu']
 # Pasul inainte: octetii textului -> randurile embedding -> media pe pozitii
-X=np.array([T['embedding.weight'][list(r['text'].encode('ascii'))].mean(0) for r in rows])
+features=np.array([tensors['embedding.weight'][list(corpus_row['text'].encode('ascii'))].mean(0) for corpus_row in corpus_rows])
 # -> strat liniar (W x + b) -> clasa cu scorul maxim
-p=(X@T['classifier.weight'].T+T['classifier.bias']).argmax(1)
-y=[r['register'] for r in rows]
+predictions=(features@tensors['classifier.weight'].T+tensors['classifier.bias']).argmax(1)
+true_labels=[corpus_row['register'] for corpus_row in corpus_rows]
 import itertools
 # Incercam toate cele 6 asocieri iesire -> nume de clasa si o pastram pe cea mai buna
-best=max(itertools.permutations(range(3)),key=lambda pm:sum(labs[pm[i]]==t for i,t in zip(p,y)))
-print('label order',[labs[i] for i in best],'acc',np.mean([labs[best[i]]==t for i,t in zip(p,y)]))
+best_order=max(itertools.permutations(range(3)),key=lambda perm:sum(class_names[perm[out_idx]]==true_label for out_idx,true_label in zip(predictions,true_labels)))
+print('label order',[class_names[out_idx] for out_idx in best_order],'acc',np.mean([class_names[best_order[out_idx]]==true_label for out_idx,true_label in zip(predictions,true_labels)]))

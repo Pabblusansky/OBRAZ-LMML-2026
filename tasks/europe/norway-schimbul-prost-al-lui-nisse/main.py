@@ -20,7 +20,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 # Imaginile sunt 8x8 = 64 de pixeli, cate o coloana pe pixel
-PIXEL_COLS = [f"pixel_{i}" for i in range(64)]
+PIXEL_COLS = [f"pixel_{pixel_idx}" for pixel_idx in range(64)]
 
 
 def build_classifier() -> object:
@@ -42,46 +42,46 @@ def detect_bad_shift_kadane(
     For each pair, an index scores +1 if given and predicted match the opposite digit
     in the pair, -2 if they agree (not swapped), and 0 otherwise.
     """
-    # Cel mai bun interval gasit: (scor, a, b, start, sfarsit)
+    # Cel mai bun interval gasit: (scor, digit_a, digit_b, start, sfarsit)
     best_interval: tuple[float, int, int, int, int] | None = None
-    # Incercam toate cele 45 de perechi de cifre (a, b) cu a < b
-    for a in range(10):
-        for b in range(a + 1, 10):
+    # Incercam toate cele 45 de perechi de cifre (digit_a, digit_b) cu digit_a < digit_b
+    for digit_a in range(10):
+        for digit_b in range(digit_a + 1, 10):
             # Construim sirul de scoruri, cate unul pe rand
             scores = np.zeros(len(given_labels), dtype=float)
-            for idx, (given, pred) in enumerate(zip(given_labels, predicted_labels)):
-                if given == a:
+            for row_idx, (given, pred) in enumerate(zip(given_labels, predicted_labels)):
+                if given == digit_a:
                     # +1: eticheta a, modelul zice b -> pare inversat
                     # -2: eticheta a, modelul zice tot a -> sigur nu e inversat aici
                     #     (penalizare mare, ca intervalul sa nu se intinda peste randuri bune)
                     #  0: modelul zice alta cifra -> nu ne spune nimic
-                    scores[idx] = 1.0 if pred == b else (-2.0 if pred == a else 0.0)
-                elif given == b:
+                    scores[row_idx] = 1.0 if pred == digit_b else (-2.0 if pred == digit_a else 0.0)
+                elif given == digit_b:
                     # Simetric pentru eticheta b
-                    scores[idx] = 1.0 if pred == a else (-2.0 if pred == b else 0.0)
+                    scores[row_idx] = 1.0 if pred == digit_a else (-2.0 if pred == digit_b else 0.0)
                 # Randurile cu alte etichete raman 0 (nu privesc perechea)
 
             # Kadane: o singura trecere, tinand suma intervalului curent.
             cur_sum = 0.0
             cur_start = 0
-            for idx, val in enumerate(scores):
+            for row_idx, row_score in enumerate(scores):
                 if cur_sum <= 0.0:
                     # Suma de pana acum nu ajuta -> pornim un interval nou de aici
-                    cur_sum = val
-                    cur_start = idx
+                    cur_sum = row_score
+                    cur_start = row_idx
                 else:
                     # Altfel prelungim intervalul curent
-                    cur_sum += val
+                    cur_sum += row_score
                 # Retinem cel mai bun interval vazut, peste toate perechile
                 if best_interval is None or cur_sum > best_interval[0]:
-                    best_interval = (cur_sum, a, b, cur_start, idx)
+                    best_interval = (cur_sum, digit_a, digit_b, cur_start, row_idx)
 
     # Prag minim: un scor mic poate veni doar din erorile clasificatorului
     if best_interval is None or best_interval[0] < min_score:
         return []
 
-    score, a, b, start, end = best_interval
-    return [(start, end, a, b, score)]
+    score, digit_a, digit_b, start, end = best_interval
+    return [(start, end, digit_a, digit_b, score)]
 
 
 def apply_shift_repairs(
@@ -91,14 +91,14 @@ def apply_shift_repairs(
     """Apply (a <-> b) swaps within each detected contiguous shift interval."""
     # Lucram pe o copie, ca etichetele originale sa ramana neatinse
     repaired = given_labels.copy()
-    for start, end, a, b, _ in shifts:
+    for start, end, digit_a, digit_b, _ in shifts:
         # "segment" e o vedere (view) in "repaired": modificarile se scriu direct acolo
         segment = repaired[start : end + 1]
         # Mastile se calculeaza INAINTE de schimbare, altfel a->b apoi b->a s-ar anula
-        swap_a = segment == a
-        swap_b = segment == b
-        segment[swap_a] = b
-        segment[swap_b] = a
+        swap_a = segment == digit_a
+        swap_b = segment == digit_b
+        segment[swap_a] = digit_b
+        segment[swap_b] = digit_a
     # In afara intervalului nu se schimba nimic (precizia ramane mare)
     return repaired
 
@@ -110,16 +110,16 @@ def lookup_load_digits_labels(pixels: np.ndarray) -> np.ndarray:
     digits = load_digits()
     # Dictionar: tuplul de pixeli -> lista etichetelor cu acei pixeli
     row_map: dict[tuple[int, ...], list[int]] = defaultdict(list)
-    for row, target in zip(digits.data.astype(int), digits.target):
-        row_map[tuple(row)].append(int(target))
+    for pixel_row, target in zip(digits.data.astype(int), digits.target):
+        row_map[tuple(pixel_row)].append(int(target))
 
     matched = np.empty(len(pixels), dtype=int)
-    for idx, row in enumerate(pixels.astype(int)):
-        targets = row_map[tuple(row)]
+    for row_idx, pixel_row in enumerate(pixels.astype(int)):
+        targets = row_map[tuple(pixel_row)]
         # Ne asiguram ca potrivirea e unica (altfel verificarea n-ar fi de incredere)
         if len(targets) != 1:
-            raise ValueError(f"Expected unique match in load_digits() at row {idx}, found {len(targets)}")
-        matched[idx] = targets[0]
+            raise ValueError(f"Expected unique match in load_digits() at row {row_idx}, found {len(targets)}")
+        matched[row_idx] = targets[0]
     return matched
 
 
@@ -136,17 +136,17 @@ def compute_repair_metrics(
     # Schimbari corecte = am schimbat SI am pus eticheta adevarata
     correct_repair = repaired_mask & (predicted_corrected == reference_true)
 
-    tp = int(correct_repair.sum())
+    true_positives = int(correct_repair.sum())
     predicted_repairs = int(repaired_mask.sum())
     total_corrupted = int(actually_corrupted.sum())
 
     # Precizie = cate din schimbarile noastre sunt corecte
-    precision = tp / predicted_repairs if predicted_repairs else 1.0
+    precision = true_positives / predicted_repairs if predicted_repairs else 1.0
     # Recall = cate din etichetele gresite le-am reparat
-    recall = tp / total_corrupted if total_corrupted else 1.0
+    recall = true_positives / total_corrupted if total_corrupted else 1.0
     # F1 = media armonica (criteriul de evaluare, prag 0.93)
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
-    return tp, predicted_repairs, total_corrupted, precision, recall, f1
+    return true_positives, predicted_repairs, total_corrupted, precision, recall, f1
 
 
 def main() -> None:
@@ -174,11 +174,11 @@ def main() -> None:
     # Detect bad night shift(s) in test-input.csv
     # Cautam intervalul inversat comparand etichetele date cu predictiile
     shifts = detect_bad_shift_kadane(y_test_given, test_preds)
-    for start, end, a, b, score in shifts:
+    for start, end, digit_a, digit_b, score in shifts:
         print(
             f"Detected bad night shift in test-input.csv: "
             f"idx {start}..{end} ({test_in.iloc[start]['sample_id']}..{test_in.iloc[end]['sample_id']}), "
-            f"swapped pair=({a}, {b}), Kadane score={score:.1f}"
+            f"swapped pair=({digit_a}, {digit_b}), Kadane score={score:.1f}"
         )
 
     # Inversam la loc cifrele doar in intervalul gasit
@@ -187,9 +187,9 @@ def main() -> None:
     # Verify against sklearn.datasets.load_digits()
     # Verificare locala fata de etichetele adevarate
     y_test_ref = lookup_load_digits_labels(X_test)
-    tp, n_rep, n_cor, prec, rec, f1 = compute_repair_metrics(y_test_given, y_test_repaired, y_test_ref)
-    print(f"Repairs applied: {n_rep} / {n_cor} corrupted (TP={tp})")
-    print(f"Verification vs load_digits(): Precision={prec:.4f}, Recall={rec:.4f}, F1={f1:.4f}")
+    true_positives, num_repaired, num_corrupted, repair_precision, repair_recall, f1 = compute_repair_metrics(y_test_given, y_test_repaired, y_test_ref)
+    print(f"Repairs applied: {num_repaired} / {num_corrupted} corrupted (TP={true_positives})")
+    print(f"Verification vs load_digits(): Precision={repair_precision:.4f}, Recall={repair_recall:.4f}, F1={f1:.4f}")
     # Oprim daca nu atingem pragul cerut
     if f1 < 0.93:
         raise RuntimeError(f"Repair F1 ({f1:.4f}) below required threshold 0.93")

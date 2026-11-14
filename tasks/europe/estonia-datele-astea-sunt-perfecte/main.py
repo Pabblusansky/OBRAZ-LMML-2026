@@ -30,7 +30,7 @@ DATA_CANDIDATES = (
     Path("applications.csv"),
     BASE_DIR / "files" / "applications.csv",
 )
-# Raportul final in romana se scrie langa script
+# Raportul final se scrie langa script
 SOLUTION_PATH = BASE_DIR / "solution.txt"
 
 # Cele 6 caracteristici numerice pe care modelul are voie sa le foloseasca
@@ -54,7 +54,7 @@ def resolve_dataset_path() -> Path:
     for candidate in DATA_CANDIDATES:
         if candidate.exists():
             return candidate
-    searched = ", ".join(str(p) for p in DATA_CANDIDATES)
+    searched = ", ".join(str(path) for path in DATA_CANDIDATES)
     raise FileNotFoundError(f"Nu am gasit applications.csv in: {searched}")
 
 
@@ -76,7 +76,7 @@ def make_model_pipeline() -> Pipeline:
 def evaluate_cv(
     X: pd.DataFrame,
     y: pd.Series,
-    cv,
+    cv_splitter,
     groups: pd.Series | None = None,
 ) -> tuple[float, int, int]:
     """Evalueaza pipeline-ul cu cross_val_predict si returneaza (acc, corecte, total)."""
@@ -86,7 +86,7 @@ def evaluate_cv(
         make_model_pipeline(),
         X,
         y,
-        cv=cv,
+        cv=cv_splitter,
         groups=groups,
     )
     # Numaram predictiile corecte (pentru afisarea "corecte / total")
@@ -110,9 +110,9 @@ def evaluate_original_pipeline(
         random_state=random_state,
     )
     # 1-NN: fiecare cerere de test copiaza eticheta celui mai apropiat vecin din train
-    clf = KNeighborsClassifier(n_neighbors=1)
-    clf.fit(X_train, y_train)
-    preds = clf.predict(X_test)
+    knn = KNeighborsClassifier(n_neighbors=1)
+    knn.fit(X_train, y_train)
+    preds = knn.predict(X_test)
     correct = int((preds == y_test.to_numpy()).sum())
     return float(accuracy_score(y_test, preds)), correct, len(y_test)
 
@@ -260,8 +260,8 @@ def audit_false_lead_split_config(
     """Testeaza pista falsa C: lipsa stratify=y si split simplu vs CV ne-grupat."""
     # Pista C: split stratificat, apoi K-Fold stratificat cu 5 fold-uri
     strat_acc, strat_correct, strat_total = evaluate_proper_split(X, y, stratify=True)
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
-    skf_acc, skf_correct, skf_total = evaluate_cv(X, y, skf)
+    strat_kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+    skf_acc, skf_correct, skf_total = evaluate_cv(X, y, strat_kfold)
     naive_loo_acc, naive_loo_correct, naive_loo_total = naive_loo
     return {
         "strat_acc": strat_acc,
@@ -282,7 +282,7 @@ def audit_applicant_leakage(df: pd.DataFrame) -> dict[str, object]:
     groups = df["date_of_birth"].astype(str) + "|" + df["citizenship"].astype(str)
     group_sizes = groups.value_counts()
     # Distributia: cati aplicanti au 1, 2, 3 sau 4 cereri
-    size_dist = {int(k): int(v) for k, v in group_sizes.value_counts().sort_index().items()}
+    size_dist = {int(group_size): int(num_groups) for group_size, num_groups in group_sizes.value_counts().sort_index().items()}
 
     # Verificam ca toate cererile unei persoane au aceeasi eticheta (0 conflicte)
     labels_per_group = df.groupby(groups)["label"].nunique()
@@ -394,24 +394,24 @@ def format_solution_text(results: dict[str, object]) -> str:
     """Construiește continutul complet pentru solution.txt din metricile calculate."""
     # Extragem rezultatele fiecarui experiment, ca sa le scriem in raport
     orig = results["orig"]
-    fa = results["false_a"]
-    fb = results["false_b"]
-    fc = results["false_c"]
+    lead_a = results["false_a"]
+    lead_b = results["false_b"]
+    lead_c = results["false_c"]
     leak = results["leak"]
     corr = results["corrected"]
 
     # Text de forma "360 aplicanti cu 1 cerere, 195 aplicanti cu 2 cereri, ..."
     size_lines = ", ".join(
-        f"{cnt} aplicanti cu {size} {'cerere' if size == 1 else 'cereri'}"
-        for size, cnt in leak["size_dist"].items()
+        f"{count} aplicanti cu {size} {'cerere' if size == 1 else 'cereri'}"
+        for size, count in leak["size_dist"].items()
     )
     # Doar regulile incalcate de cel putin un rand
     bad_nonzero = ", ".join(
-        f"{name}: {cnt}"
-        for name, cnt in fb["breakdown"].items()
-        if cnt > 0
+        f"{name}: {count}"
+        for name, count in lead_b["breakdown"].items()
+        if count > 0
     )
-    dob, citizenship = leak["sample_group"]
+    birth_date, citizenship = leak["sample_group"]
 
     # Raportul, sectiune cu sectiune (rezumat, piste false, bug real, reparatie, acuratete reala)
     lines = [
@@ -437,21 +437,21 @@ def format_solution_text(results: dict[str, object]) -> str:
         f"Baseline original (project_pipeline.py, rs={RANDOM_STATE}): {orig['acc']:.4f} ({orig['acc']*100:.2f}%, {orig['correct']}/{orig['total']})",
         "",
         "Pista falsa A — Scurgerea de preprocesare (StandardScaler inainte de split):",
-        f"  - Reparare pe split-ul original (scaler fit-uit strict in train, rs={RANDOM_STATE}): {fa['fix_acc']:.4f} ({fa['fix_acc']*100:.2f}%, {fa['fix_correct']}/{fa['fix_total']})",
-        f"  - Medie pe 100 de seed-uri: cu scurgere = {fa['leaked_mean']:.4f} +/- {fa['leaked_std']:.4f} vs. corect = {fa['proper_mean']:.4f} +/- {fa['proper_std']:.4f}",
-        f"  - LeaveOneOut pe toate cele {leak['n_rows']} randuri (scaler in fiecare fold): {fa['loo_acc']:.4f} ({fa['loo_acc']*100:.2f}%, {fa['loo_correct']}/{fa['loo_total']})",
+        f"  - Reparare pe split-ul original (scaler fit-uit strict in train, rs={RANDOM_STATE}): {lead_a['fix_acc']:.4f} ({lead_a['fix_acc']*100:.2f}%, {lead_a['fix_correct']}/{lead_a['fix_total']})",
+        f"  - Medie pe 100 de seed-uri: cu scurgere = {lead_a['leaked_mean']:.4f} +/- {lead_a['leaked_std']:.4f} vs. corect = {lead_a['proper_mean']:.4f} +/- {lead_a['proper_std']:.4f}",
+        f"  - LeaveOneOut pe toate cele {leak['n_rows']} randuri (scaler in fiecare fold): {lead_a['loo_acc']:.4f} ({lead_a['loo_acc']*100:.2f}%, {lead_a['loo_correct']}/{lead_a['loo_total']})",
         "  Concluzie A: Scurgerea din StandardScaler nu umfla scorul; acuratetea ramane ~94-96%.",
         "",
         "Pista falsa B — Valori numerice imposibile in date:",
-        f"  - Randuri cu cel putin o valoare in afara domeniului valid: {fb['n_bad_rows']} / {fb['n_total']} ({bad_nonzero})",
-        f"  - Reparare B1 (eliminarea celor {fb['n_bad_rows']} randuri): split rs={RANDOM_STATE} -> {fb['drop_split_acc']:.4f} ({fb['drop_split_acc']*100:.2f}%, {fb['drop_split_correct']}/{fb['drop_split_total']}) | LeaveOneOut -> {fb['drop_loo_acc']:.4f} ({fb['drop_loo_acc']*100:.2f}%)",
-        f"  - Reparare B2 (limitare / clipping la limite valide): split rs={RANDOM_STATE} -> {fb['clip_split_acc']:.4f} ({fb['clip_split_acc']*100:.2f}%, {fb['clip_split_correct']}/{fb['clip_split_total']}) | LeaveOneOut -> {fb['clip_loo_acc']:.4f} ({fb['clip_loo_acc']*100:.2f}%)",
+        f"  - Randuri cu cel putin o valoare in afara domeniului valid: {lead_b['n_bad_rows']} / {lead_b['n_total']} ({bad_nonzero})",
+        f"  - Reparare B1 (eliminarea celor {lead_b['n_bad_rows']} randuri): split rs={RANDOM_STATE} -> {lead_b['drop_split_acc']:.4f} ({lead_b['drop_split_acc']*100:.2f}%, {lead_b['drop_split_correct']}/{lead_b['drop_split_total']}) | LeaveOneOut -> {lead_b['drop_loo_acc']:.4f} ({lead_b['drop_loo_acc']*100:.2f}%)",
+        f"  - Reparare B2 (limitare / clipping la limite valide): split rs={RANDOM_STATE} -> {lead_b['clip_split_acc']:.4f} ({lead_b['clip_split_acc']*100:.2f}%, {lead_b['clip_split_correct']}/{lead_b['clip_split_total']}) | LeaveOneOut -> {lead_b['clip_loo_acc']:.4f} ({lead_b['clip_loo_acc']*100:.2f}%)",
         "  Concluzie B: Eliminarea sau corectarea anomaliilor numerice nu reduce scorul umflat (~93-96%).",
         "",
         "Pista falsa C — Configuratia de split (stratify / K-Fold / LOO fara grup):",
-        f"  - Split rs={RANDOM_STATE} cu `stratify=y` si scaler in pipeline: {fc['strat_acc']:.4f} ({fc['strat_acc']*100:.2f}%, {fc['strat_correct']}/{fc['strat_total']})",
-        f"  - StratifiedKFold(n_splits=5, shuffle=True, random_state={RANDOM_STATE}): {fc['skf_acc']:.4f} ({fc['skf_acc']*100:.2f}%, {fc['skf_correct']}/{fc['skf_total']})",
-        f"  - LeaveOneOut naiv pe toate randurile (fara grupare): {fc['naive_loo_acc']:.4f} ({fc['naive_loo_acc']*100:.2f}%, {fc['naive_loo_correct']}/{fc['naive_loo_total']})",
+        f"  - Split rs={RANDOM_STATE} cu `stratify=y` si scaler in pipeline: {lead_c['strat_acc']:.4f} ({lead_c['strat_acc']*100:.2f}%, {lead_c['strat_correct']}/{lead_c['strat_total']})",
+        f"  - StratifiedKFold(n_splits=5, shuffle=True, random_state={RANDOM_STATE}): {lead_c['skf_acc']:.4f} ({lead_c['skf_acc']*100:.2f}%, {lead_c['skf_correct']}/{lead_c['skf_total']})",
+        f"  - LeaveOneOut naiv pe toate randurile (fara grupare): {lead_c['naive_loo_acc']:.4f} ({lead_c['naive_loo_acc']*100:.2f}%, {lead_c['naive_loo_correct']}/{lead_c['naive_loo_total']})",
         "  Concluzie C: Nici stratificarea, nici validarea incrucisata ne-grupata nu elimina umflarea scorului.",
         "",
         "----------------------------------------------------------------",
@@ -460,7 +460,7 @@ def format_solution_text(results: dict[str, object]) -> str:
         f"Desi `applications.csv` are {leak['n_rows']} randuri, perechea `(date_of_birth, citizenship)` identifica doar {leak['n_unique_applicants']} aplicanti unici:",
         f"  - Distributia cererilor per aplicant: {size_lines}.",
         f"  - Aplicanti cu etichete contradictorii intre cererile proprii: {leak['n_conflicting_labels']} (toti au eticheta consistenta).",
-        f"  - Exemplu de grup: ({dob}, {citizenship}) -> {len(leak['sample_subs'])} cereri ({', '.join(leak['sample_subs'])}), toate cu label={leak['sample_labels'][0]}.",
+        f"  - Exemplu de grup: ({birth_date}, {citizenship}) -> {len(leak['sample_subs'])} cereri ({', '.join(leak['sample_subs'])}), toate cu label={leak['sample_labels'][0]}.",
         f"  - Distanta euclidiana in spatiul scalat: max intra-aplicant = {leak['max_within_dist']:.4f} < min inter-aplicant = {leak['min_between_dist']:.4f}.",
         "  - Consecinta in split-ul original (`random_state=1137`, 395 randuri in test):",
         f"    * {leak['n_test_leaked']} / {leak['n_test_total']} ({leak['pct_test_leaked']:.2f}%) au acelasi aplicant in train -> acuratete = {leak['leaked_acc']:.4f} ({leak['leaked_acc']*100:.2f}%)",
