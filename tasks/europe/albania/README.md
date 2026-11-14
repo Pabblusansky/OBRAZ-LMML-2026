@@ -79,18 +79,16 @@ dă scor 0; scorul e mereu limitat la [0, 1].
 ## Rulare și evaluare locală
 
 ```bash
-python work/evaluate.py detector.py
+cd work && python evaluate.py ../detector.py
 ```
 
 `work/evaluate.py` rulează detectorul pe `files/train-input.csv`, calculează F1, recall
 pe tipuri și scorul oficial (cu `-v` listează citirile greșite). `work/sweep.py` face
-căutare pe grilă a constantelor (praguri, ferestre). `work/v3.py` și
-`work/detector.py` sunt versiuni intermediare.
+căutare pe grilă a constantelor (praguri, ferestre). Versiunile intermediare
+ale detectorului au fost șterse; singura versiune e `detector.py`.
 
-> Notă: `evaluate.py` are o cale absolută veche (`LMML/Europa/albania/files/`); dacă nu
-> găsește fișierele, actualizează variabila `base` la `../files/`.
 
 ## Fișiere
 - `detector.py` – soluția de trimis.
-- `work/` – scripturi de evaluare, căutare de parametri și versiuni anterioare.
+- `work/` – scripturile de evaluare (`evaluate.py`) și de căutare a parametrilor (`sweep.py`).
 - `files/` – datele primite (train-input.csv, train-output.csv).
