@@ -5,7 +5,7 @@
 | Country | Laos |
 | Difficulty | Medium |
 | Category | computer vision — unsupervised anomaly detection |
-| Solved by | |
+| Solved by | Stanislav |
 | Status | answer ready (`test-output.txt`), awaiting platform result |
 | Flag | `SIGMOID_...` (fill in after the platform accepts it) |
 

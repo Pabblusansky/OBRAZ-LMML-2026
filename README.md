@@ -50,12 +50,13 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | Africa | Egypt | [Mereu valid, fără scuze](tasks/africa/egypt-mereu-valid/) | Easy | solved | Dragos |
 | Africa | Angola | [The Waterline Replay](tasks/africa/angola/) | Medium | solved | Nirca |
 | Africa | Senegal | [The Teranga FM Token Diet](tasks/africa/senegal/) | Medium | solved | Nirca |
-| Asia | Bhutan | [The 300-Year Old Tiger Nest Painting](tasks/asia/bhutan-the-300-year-old-tiger-nest-painting/) | Medium | solution ready | ? |
+| Asia | Bhutan | [The 300-Year Old Tiger Nest Painting](tasks/asia/bhutan-the-300-year-old-tiger-nest-painting/) | Medium | solution ready | Stanislav |
+| Asia | Laos | [Bad BOMB](tasks/asia/laos-bad-bomb/) | Medium | solution ready | Stanislav |
 | Europe | Iceland | [What The Data?](tasks/europe/iceland-what-the-data/) | Easy | solved | Pavel |
 | Europe | Switzerland | [Stratul slab](tasks/europe/switzerland-stratul-slab/) | Easy | solved | Dragos |
 | Europe | Albania | [Arată a anomalie!](tasks/europe/albania/) | Medium | solution ready | Dragos |
 | Europe | Estonia | [Datele astea sunt perfecte!](tasks/europe/estonia-datele-astea-sunt-perfecte/) | Medium | solved | Dragos |
-| Europe | Norway | [Schimbul prost al lui nisse](tasks/europe/norway-schimbul-prost-al-lui-nisse/) | ? | solved | Dragos |
+| Europe | Norway | [Schimbul prost al lui nisse](tasks/europe/norway-schimbul-prost-al-lui-nisse/) | Medium | solved | Dragos |
 | North America | Mexico | [Ruta de las Identidades](tasks/north-america/mexico/) | Easy | solved | Dragos |
 | North America | USA | [The Great American Token Mystery](tasks/north-america/USA/) | Medium | solved | Dragos |
 | North America | Costa Rica | [Pura Vida, no Pll](tasks/north-america/costa-rica/) | Medium | solved | Dragos |
