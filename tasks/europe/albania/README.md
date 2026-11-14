@@ -38,7 +38,7 @@ citire → curățare vârfuri → ferestre recente (3 și 6 min)
 
 ### 1. Detectorul de vârfuri (anomalii *point*)
 - Mediana locală a ultimelor 5 citiri brute = ce „ar trebui” să fie valoarea.
-- `dp = citire − mediana locală`, împărțit la σ al acestei diferențe → `zp`.
+- `dev_point = citire − mediana locală`, împărțit la σ al acestei diferențe → `z_point`.
 - Dacă `|zp| > 7` pe vreun canal → vârf. Valoarea e **înlocuită cu mediana** în
   fluxul „curățat”, ca vârful să nu strice ferestrele și referința.
 
@@ -49,8 +49,8 @@ citire → curățare vârfuri → ferestre recente (3 și 6 min)
   referință înainte să fie detectat.
 
 ### 3. Detectoarele de nivel (anomalii *drift* și *collective*)
-- `dl` = media ferestrei lungi (6 citiri) − referința; `ds` = media ferestrei scurte (3).
-- Împărțite la σ-urile lor → `zl`, `zs`.
+- `dev_long` = media ferestrei lungi (6 citiri) − referința; `dev_short` = media ferestrei scurte (3).
+- Împărțite la σ-urile lor → `z_long`, `z_short`.
 - Patru scoruri, fiecare trecut printr-o sigmoidă `σ(2·(z − prag))`:
   - fereastra lungă, cel mai mare canal, prag 3,5 (drift);
   - fereastra scurtă, cel mai mare canal, prag 5,0 (salt brusc);

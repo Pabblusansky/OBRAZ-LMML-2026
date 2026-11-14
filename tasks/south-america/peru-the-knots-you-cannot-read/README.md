@@ -39,7 +39,7 @@ iar la fiecare **cei 16 biți de jos ai float-ului sunt exact zero** (`0xbd34000
 ### 3. Cum e codificat
 Un float32 are: 1 bit de semn, 8 biți de exponent, 23 de biți de mantisă. În fiecare
 dintre cele 18 valori, biții 18–22 (cei 5 biți de sus ai mantisei) conțin o valoare
-`v` pe 5 biți. Litera are indexul `31 − v`, cu A=0 … Z=25 și `_`=30.
+`code` pe 5 biți. Litera are indexul `31 − code`, cu A=0 … Z=25 și `_`=30.
 
 ```text
 v      = 13 23 25 19 17 23 28  1 16 14 17 10 27 18 31 18 29 27
@@ -55,7 +55,7 @@ v      = 13 23 25 19 17 23 28  1 16 14 17 10 27 18 31 18 29 27
    altă interpretare.
 4. Se păstrează valorile cu `(u & 0xffff) == 0` (cele 18 plantate).
 5. `((u >> 16) & 0x7f) >> 2` izolează câmpul de 5 biți din mantisă.
-6. Fiecare `v` → litera `alfabet[31 − v]` → `SIGMOID_PROVENANCE`.
+6. Fiecare `code` → litera `alphabet[31 − code]` → `SIGMOID_PROVENANCE`.
 
 ## De ce e o ascunzătoare bună
 - Încărcătura stă în greutăți pe care pasul înainte nu le poate indexa, deci **nicio

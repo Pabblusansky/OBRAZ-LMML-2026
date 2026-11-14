@@ -56,7 +56,7 @@ class Vault:
     # Inlocuieste fiecare marcaj din text cu valoarea salvata.
     def restore(self, text: str) -> str:
         # Dictionarul invers: caracter privat -> cifra obisnuita
-        pua_to_digit = {chr(0xE010 + d): str(d) for d in range(10)}
+        pua_to_digit = {chr(0xE010 + digit): str(digit) for digit in range(10)}
         # Expresia unui marcaj intreg: deschidere, una sau mai multe cifre private, inchidere
         pattern = re.compile(
             re.escape(_SENTINEL_OPEN)
@@ -66,23 +66,23 @@ class Vault:
 
         # Decodam indexul si intoarcem valoarea originala din seif
         def _repl(match: re.Match[str]) -> str:
-            digits = "".join(pua_to_digit[ch] for ch in match.group(1))
+            digits = "".join(pua_to_digit[char] for char in match.group(1))
             return self._items[int(digits)]
 
         # Doua treceri: daca o valoare salvata continea la randul ei un marcaj, a doua
         # trecere il rezolva si pe acela.
-        out = pattern.sub(_repl, text)
-        out = pattern.sub(_repl, out)
-        return out
+        restored = pattern.sub(_repl, text)
+        restored = pattern.sub(_repl, restored)
+        return restored
 
 
 # ===== Normalizare: comparatii fara majuscule si fara accente =====
 # NFD descompune fiecare litera accentuata in litera de baza + semnul diacritic
 # ("é" -> "e" + U+0301). Semnele diacritice au categoria Unicode "Mn"; le eliminam si
 # trecem la litere mici: "José" -> "jose", "Río" -> "rio".
-def strip_accents_lower(s: str) -> str:
-    decomposed = unicodedata.normalize("NFD", s)
-    return "".join(ch for ch in decomposed if unicodedata.category(ch) != "Mn").lower()
+def strip_accents_lower(input_text: str) -> str:
+    decomposed = unicodedata.normalize("NFD", input_text)
+    return "".join(char for char in decomposed if unicodedata.category(char) != "Mn").lower()
 
 
 # Problema: cautam tiparele pe textul normalizat (fara accente, litere mici), dar trebuie
@@ -92,25 +92,25 @@ def build_normalized_index(text: str) -> tuple[str, list[tuple[int, int]]]:
     """Intoarce (text_fara_accente_cu_litere_mici, [(start_original, end_original), ...])."""
     norm_chars: list[str] = []
     spans: list[tuple[int, int]] = []
-    for idx, ch in enumerate(text):
-        cat = unicodedata.category(ch)
+    for char_idx, char in enumerate(text):
+        char_category = unicodedata.category(char)
         # Semn diacritic separat (combinant): nu produce caracter normalizat, dar il
         # lipim de litera dinaintea lui, extinzand capatul intervalului ei.
-        if cat == "Mn":
+        if char_category == "Mn":
             if spans:
-                s0, _ = spans[-1]
-                spans[-1] = (s0, idx + 1)
+                span_start, _ = spans[-1]
+                spans[-1] = (span_start, char_idx + 1)
             continue
         # Caracter obisnuit: il descompunem si pastram doar literele de baza
-        decomp = unicodedata.normalize("NFD", ch)
-        base = [c.lower() for c in decomp if unicodedata.category(c) != "Mn"]
+        decomp = unicodedata.normalize("NFD", char)
+        base_chars = [sub_char.lower() for sub_char in decomp if unicodedata.category(sub_char) != "Mn"]
         # Nu a ramas nimic (caracter format doar din diacritice) -> il sarim
-        if not base:
+        if not base_chars:
             continue
-        # Fiecare litera de baza indica spre acelasi caracter original idx
-        for b in base:
-            norm_chars.append(b)
-            spans.append((idx, idx + 1))
+        # Fiecare litera de baza indica spre acelasi caracter original char_idx
+        for base_char in base_chars:
+            norm_chars.append(base_char)
+            spans.append((char_idx, char_idx + 1))
     return "".join(norm_chars), spans
 
 
@@ -121,7 +121,7 @@ def replace_spans(text: str, spans: list[tuple[int, int, str]]) -> str:
         return text
     # Sortam dupa start; la acelasi start punem intai intervalul cel mai lung,
     # ca potrivirea mai completa sa castige.
-    spans_sorted = sorted(spans, key=lambda item: (item[0], -(item[1] - item[0])))
+    spans_sorted = sorted(spans, key=lambda span: (span[0], -(span[1] - span[0])))
     # Pastram doar intervalele care nu se suprapun cu unul deja acceptat
     merged: list[tuple[int, int, str]] = []
     cur_end = -1
@@ -133,13 +133,13 @@ def replace_spans(text: str, spans: list[tuple[int, int, str]]) -> str:
         cur_end = end
     # Reconstruim textul: bucata neatinsa dintre editari, apoi inlocuirea, pe rand
     parts: list[str] = []
-    pos = 0
+    cursor = 0
     for start, end, repl in merged:
-        parts.append(text[pos:start])
+        parts.append(text[cursor:start])
         parts.append(repl)
-        pos = end
+        cursor = end
     # Coada textului de dupa ultima editare
-    parts.append(text[pos:])
+    parts.append(text[cursor:])
     return "".join(parts)
 
 
@@ -154,15 +154,15 @@ def sub_normalized(
     """Cauta tiparul pe textul normalizat si inlocuieste in textul original."""
     norm_text, spans = build_normalized_index(text)
     edits: list[tuple[int, int, str]] = []
-    for m in pattern.finditer(norm_text):
+    for regex_match in pattern.finditer(norm_text):
         # Ignoram potrivirile goale (lungime zero)
-        if m.start() == m.end():
+        if regex_match.start() == regex_match.end():
             continue
         # Traducem pozitiile din textul normalizat in pozitii din textul original
-        orig_start = spans[m.start()][0]
-        orig_end = spans[m.end() - 1][1]
+        orig_start = spans[regex_match.start()][0]
+        orig_end = spans[regex_match.end() - 1][1]
         orig_slice = text[orig_start:orig_end]
-        replacement = repl_fn(orig_slice, m)
+        replacement = repl_fn(orig_slice, regex_match)
         # Inregistram editarea doar daca s-a schimbat ceva
         if replacement != orig_slice:
             edits.append((orig_start, orig_end, replacement))
@@ -578,30 +578,30 @@ def _is_valid_date(year: int, month: int, day: int) -> bool:
 # ca sa o stergem si daca apare din nou, in alt format, in acelasi mesaj.
 def _dob_variants(year: int, month: int, day: int) -> list[str]:
     """Genereaza tiparele regex (pe text normalizat) pentru toate scrierile unei date."""
-    y = f"{year:04d}"
-    m2 = f"{month:02d}"
-    d2 = f"{day:02d}"
-    m1 = str(month)
-    d1 = str(day)
+    year_str = f"{year:04d}"
+    month_2d = f"{month:02d}"
+    day_2d = f"{day:02d}"
+    month_str = str(month)
+    day_str = str(day)
     m_alts = "|".join(re.escape(name) for name in NUM_TO_MONTHS[month])
     # Separator permis intre zi, luna si an: spatiu, punct, slash sau cratima
     sep = r"[\s./-]"
     pats = [
         # An-luna-zi (ISO): 1975-03-26, 1975/3/26
-        rf"\b{y}{sep}0?{m1}{sep}0?{d1}\b",
+        rf"\b{year_str}{sep}0?{month_str}{sep}0?{day_str}\b",
         # Zi/luna/an si luna/zi/an: 26/03/1975, 3-26-1975
-        rf"\b0?{d1}{sep}0?{m1}{sep}{y}\b",
-        rf"\b0?{m1}{sep}0?{d1}{sep}{y}\b",
+        rf"\b0?{day_str}{sep}0?{month_str}{sep}{year_str}\b",
+        rf"\b0?{month_str}{sep}0?{day_str}{sep}{year_str}\b",
         # 8 cifre lipite: 19750326, 26031975, 03261975
-        rf"\b{y}{m2}{d2}\b",
-        rf"\b{d2}{m2}{y}\b",
-        rf"\b{m2}{d2}{y}\b",
+        rf"\b{year_str}{month_2d}{day_2d}\b",
+        rf"\b{day_2d}{month_2d}{year_str}\b",
+        rf"\b{month_2d}{day_2d}{year_str}\b",
         # Cu numele lunii: "March 26, 1975", "marzo 26 de 1975", "26 de marzo de 1975", "26th March 1975"
-        rf"\b(?:{m_alts})\.?\s*0?{d1}(?:st|nd|rd|th)?(?:\s*,\s*|\s+(?:de\s+)?){y}\b",
-        rf"\b0?{d1}(?:st|nd|rd|th)?\s*(?:de\s+)?(?:{m_alts})\.?(?:\s*(?:de|,)\s*|\s+){y}\b",
+        rf"\b(?:{m_alts})\.?\s*0?{day_str}(?:st|nd|rd|th)?(?:\s*,\s*|\s+(?:de\s+)?){year_str}\b",
+        rf"\b0?{day_str}(?:st|nd|rd|th)?\s*(?:de\s+)?(?:{m_alts})\.?(?:\s*(?:de|,)\s*|\s+){year_str}\b",
         # Numele lunii lipit de cifre: "march261975", "26marzo1975"
-        rf"\b(?:{m_alts})0?{d1}{y}\b",
-        rf"\b0?{d1}(?:{m_alts}){y}\b",
+        rf"\b(?:{m_alts})0?{day_str}{year_str}\b",
+        rf"\b0?{day_str}(?:{m_alts}){year_str}\b",
     ]
     return pats
 
@@ -637,12 +637,12 @@ def _extract_address_fragments(addr_text: str) -> list[str]:
     """Extrage fragmentele distinctive (strada, reper, casa) dintr-o adresa."""
     frags: list[str] = []
     # Partile adresei sunt separate prin virgula; curatam spatiile si punctuatia
-    parts = [p.strip(" ,.;:") for p in addr_text.split(",") if p.strip(" ,.;:")]
-    for idx, part in enumerate(parts):
+    parts = [piece.strip(" ,.;:") for piece in addr_text.split(",") if piece.strip(" ,.;:")]
+    for part_idx, part in enumerate(parts):
         norm = strip_accents_lower(part)
         # Ultima parte, daca e doar un oras cunoscut (San Jose, Tamarindo...), nu e un
         # fragment distinctiv: orasul poate aparea legitim in text turistic.
-        if idx == len(parts) - 1 and norm in ADDRESS_CITY_NAMES and len(parts) >= 2:
+        if part_idx == len(parts) - 1 and norm in ADDRESS_CITY_NAMES and len(parts) >= 2:
             continue
         # Partile de cel putin 4 caractere devin fragmente
         if len(norm) >= 4:
@@ -650,7 +650,7 @@ def _extract_address_fragments(addr_text: str) -> list[str]:
         # Adresele costaricane folosesc repere: "200 metros al norte de la Iglesia",
         # "frente al Banco Nacional". Extragem si numele reperului de dupa aceste expresii
         # de directie ("Iglesia", "Banco Nacional").
-        m = re.search(
+        regex_match = re.search(
             r"(?:metros\s+(?:al\s+)?(?:norte|sur|este|oeste)\s+de(?:l|\s+la)?|"
             r"frente\s+(?:a|al|a\s+la)|contiguo\s+(?:a|al|a\s+la)|"
             r"diagonal\s+(?:a|al|a\s+la)|costado\s+(?:norte|sur|este|oeste)\s+de(?:l|\s+la)?|"
@@ -658,8 +658,8 @@ def _extract_address_fragments(addr_text: str) -> list[str]:
             part,
             flags=re.IGNORECASE,
         )
-        if m:
-            inner = m.group(1).strip(" ,.;:")
+        if regex_match:
+            inner = regex_match.group(1).strip(" ,.;:")
             inner_norm = strip_accents_lower(inner)
             # Reperul trebuie sa fie destul de lung si sa nu fie doar un oras
             if len(inner_norm) >= 5 and inner_norm not in ADDRESS_CITY_NAMES:
@@ -667,10 +667,10 @@ def _extract_address_fragments(addr_text: str) -> list[str]:
     # Eliminam duplicatele (comparand fara accente) si sortam de la cel mai lung la cel
     # mai scurt, ca un fragment lung sa fie inlocuit inaintea unei parti din el.
     unique: dict[str, str] = {}
-    for f in frags:
-        k = strip_accents_lower(f)
-        if k and k not in unique:
-            unique[k] = f
+    for frag_text in frags:
+        frag_key = strip_accents_lower(frag_text)
+        if frag_key and frag_key not in unique:
+            unique[frag_key] = frag_text
     return sorted(unique.values(), key=len, reverse=True)
 
 
@@ -693,10 +693,10 @@ def _add_name_candidate(
         return
     full_names.add(norm_full)
     # Fiecare cuvant de minim 2 litere, care nu e cuvant comun sau particula
-    for tok in re.split(r"[\s]+", norm_full):
-        tok = tok.strip("'-")
-        if len(tok) >= 2 and tok not in NON_NAME_STOPWORDS and tok not in ("de", "del", "la", "las", "los", "y"):
-            name_tokens.add(tok)
+    for token in re.split(r"[\s]+", norm_full):
+        token = token.strip("'-")
+        if len(token) >= 2 and token not in NON_NAME_STOPWORDS and token not in ("de", "del", "la", "las", "los", "y"):
+            name_tokens.add(token)
 
 
 # ===== Etapele de anonimizare =====
@@ -717,7 +717,7 @@ def redact_document(text: str) -> str:
     # pastrate intacte. Contin cifre, deci regulile de telefon/ID le-ar putea strica,
     # asa ca le mutam in seif chiar de la inceput.
     pv_re = re.compile(r"\bPV-[A-Za-z0-9]{4,10}\b")
-    text = pv_re.sub(lambda m: vault.stash(m.group(0)), text)
+    text = pv_re.sub(lambda regex_match: vault.stash(regex_match.group(0)), text)
 
     # Etapa 2: adrese de e-mail -> [EMAIL].
     # Grupul 1 = partea locala (inainte de @). Lookbehind-ul si lookahead-ul se asigura
@@ -736,8 +736,8 @@ def redact_document(text: str) -> str:
 
     # Pentru fiecare e-mail: retinem partea locala si cuvintele din ea, apoi il
     # inlocuim cu [EMAIL] (pus in seif).
-    def _email_repl(m: re.Match[str]) -> str:
-        local = m.group(1)
+    def _email_repl(regex_match: re.Match[str]) -> str:
+        local = regex_match.group(1)
         local_norm = strip_accents_lower(local)
         if len(local_norm) >= 3 and local_norm not in NON_NAME_STOPWORDS:
             # Are separatori sau cifre -> lista "sep"; altfel lista "plain"
@@ -766,13 +766,13 @@ def redact_document(text: str) -> str:
         escaped = re.escape(local_norm)
         flex = re.sub(r"\\([._+\-])", r"[._+-]", escaped)
         pat = re.compile(rf"(?<![a-z0-9._+-]){flex}(?![a-z0-9])")
-        text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[EMAIL]"))
+        text = sub_normalized(text, pat, lambda _orig, _match: vault.stash("[EMAIL]"))
 
     # Etapa 3: conturi bancare IBAN -> [ACCOUNT].
     # Retinem cifrele fiecarui IBAN gasit, ca sa-l stergem si cand reapare in alt format.
     iban_digit_cores: set[str] = set()
 
-    # Pastram doar cifrele; daca sunt destule (>= 14), le retinem atat complet, cat si
+    # Pastram doar cifrele; daca sunt destule (>= 14), le retinem atat complet, char_category si
     # fara primele 2 (cifrele de control), pentru ca uneori clientul scrie doar numarul
     # de cont, fara "CR" si fara cifrele de control.
     def _record_iban(raw: str) -> str:
@@ -786,7 +786,7 @@ def redact_document(text: str) -> str:
 
     # IBAN Costa Rica: "CR" + 20 de cifre, optional grupate cu spatii sau cratime
     cr_iban_re = re.compile(r"\b[Cc][Rr](?:[\s-]?\d){20}\b")
-    text = cr_iban_re.sub(lambda m: _record_iban(m.group(0)), text)
+    text = cr_iban_re.sub(lambda regex_match: _record_iban(regex_match.group(0)), text)
 
     # IBAN general (alte tari): 2 litere mari + 2 cifre + grupuri de caractere alfanumerice
     gen_iban_re = re.compile(
@@ -795,10 +795,10 @@ def redact_document(text: str) -> str:
 
     # Il acceptam doar daca lungimea e de IBAN (15-34 caractere) si are minim 8 cifre,
     # altfel ar putea fi un cod oarecare scris cu majuscule.
-    def _gen_iban_repl(m: re.Match[str]) -> str:
-        raw = m.group(0)
+    def _gen_iban_repl(regex_match: re.Match[str]) -> str:
+        raw = regex_match.group(0)
         compact = re.sub(r"[^A-Z0-9]", "", raw)
-        if 15 <= len(compact) <= 34 and sum(ch.isdigit() for ch in compact) >= 8:
+        if 15 <= len(compact) <= 34 and sum(char.isdigit() for char in compact) >= 8:
             return _record_iban(raw)
         return raw
 
@@ -806,10 +806,10 @@ def redact_document(text: str) -> str:
 
     # Orice alta aparitie a cifrelor deja gasite (cu sau fara prefix de 2 litere, cu sau
     # fara separatori intre cifre) -> [ACCOUNT]
-    for core in sorted(iban_digit_cores, key=len, reverse=True):
-        flex_digits = r"[\s-]*".join(core)
+    for iban_core in sorted(iban_digit_cores, key=len, reverse=True):
+        flex_digits = r"[\s-]*".join(iban_core)
         pat = re.compile(rf"(?<![a-z0-9])(?:[a-z]{{2}}[\s-]*)?{flex_digits}(?!\d)")
-        text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[ACCOUNT]"))
+        text = sub_normalized(text, pat, lambda _orig, _match: vault.stash("[ACCOUNT]"))
 
     # Etapa 4: date de nastere -> [DOB], in toate formatele.
     # detected_dobs retine (an, luna, zi) pentru fiecare data gasita, ca la final (4e) sa
@@ -829,12 +829,12 @@ def redact_document(text: str) -> str:
     )
 
     # Validam data inainte de a o sterge ("February 30, 1990" nu e o data reala)
-    def _dob_mf_repl(orig: str, m: re.Match[str]) -> str:
-        y = int(m.group("year"))
-        mon = MONTH_NAME_TO_NUM[m.group("mon")]
-        d = int(m.group("day"))
-        if _is_valid_date(y, mon, d):
-            return _stash_dob(y, mon, d)
+    def _dob_mf_repl(orig: str, regex_match: re.Match[str]) -> str:
+        dob_year = int(regex_match.group("year"))
+        dob_month = MONTH_NAME_TO_NUM[regex_match.group("mon")]
+        dob_day = int(regex_match.group("day"))
+        if _is_valid_date(dob_year, dob_month, dob_day):
+            return _stash_dob(dob_year, dob_month, dob_day)
         return orig
 
     text = sub_normalized(text, dob_month_first_re, _dob_mf_repl)
@@ -846,12 +846,12 @@ def redact_document(text: str) -> str:
     )
 
     # Aceeasi validare ca mai sus
-    def _dob_df_repl(orig: str, m: re.Match[str]) -> str:
-        y = int(m.group("year"))
-        mon = MONTH_NAME_TO_NUM[m.group("mon")]
-        d = int(m.group("day"))
-        if _is_valid_date(y, mon, d):
-            return _stash_dob(y, mon, d)
+    def _dob_df_repl(orig: str, regex_match: re.Match[str]) -> str:
+        dob_year = int(regex_match.group("year"))
+        dob_month = MONTH_NAME_TO_NUM[regex_match.group("mon")]
+        dob_day = int(regex_match.group("day"))
+        if _is_valid_date(dob_year, dob_month, dob_day):
+            return _stash_dob(dob_year, dob_month, dob_day)
         return orig
 
     text = sub_normalized(text, dob_day_first_re, _dob_df_repl)
@@ -862,12 +862,12 @@ def redact_document(text: str) -> str:
         r"\b(?P<year>19\d{2}|20[0-2]\d)([./-])(?P<mon>0?[1-9]|1[0-2])\2(?P<day>0?[1-9]|[12]\d|3[01])\b"
     )
 
-    def _dob_iso_repl(orig: str, m: re.Match[str]) -> str:
-        y = int(m.group("year"))
-        mon = int(m.group("mon"))
-        d = int(m.group("day"))
-        if _is_valid_date(y, mon, d):
-            return _stash_dob(y, mon, d)
+    def _dob_iso_repl(orig: str, regex_match: re.Match[str]) -> str:
+        dob_year = int(regex_match.group("year"))
+        dob_month = int(regex_match.group("mon"))
+        dob_day = int(regex_match.group("day"))
+        if _is_valid_date(dob_year, dob_month, dob_day):
+            return _stash_dob(dob_year, dob_month, dob_day)
         return orig
 
     text = sub_normalized(text, dob_iso_re, _dob_iso_repl)
@@ -879,19 +879,19 @@ def redact_document(text: str) -> str:
 
     # In Costa Rica formatul standard e zi/luna/an, deci il incercam primul. Daca a doua
     # parte e > 12, nu poate fi luna, deci data e luna/zi/an (format american).
-    def _dob_dmy_repl(orig: str, m: re.Match[str]) -> str:
-        p1 = int(m.group("p1"))
-        p2 = int(m.group("p2"))
-        y = int(m.group("year"))
-        if p2 <= 12 and _is_valid_date(y, p2, p1):
+    def _dob_dmy_repl(orig: str, regex_match: re.Match[str]) -> str:
+        first_num = int(regex_match.group("p1"))
+        second_num = int(regex_match.group("p2"))
+        dob_year = int(regex_match.group("year"))
+        if second_num <= 12 and _is_valid_date(dob_year, second_num, first_num):
             # Caz ambiguu (ex. 03/04/1980): ambele interpretari sunt valide. Retinem si
             # varianta luna/zi/an, ca trecerea 4e sa stearga ambele scrieri posibile.
-            if p1 <= 12 and p1 != p2 and _is_valid_date(y, p1, p2):
-                detected_dobs.add((y, p1, p2))
-            return _stash_dob(y, p2, p1)
+            if first_num <= 12 and first_num != second_num and _is_valid_date(dob_year, first_num, second_num):
+                detected_dobs.add((dob_year, first_num, second_num))
+            return _stash_dob(dob_year, second_num, first_num)
         # Nu era zi/luna/an valid -> incercam luna/zi/an
-        if p1 <= 12 and _is_valid_date(y, p1, p2):
-            return _stash_dob(y, p1, p2)
+        if first_num <= 12 and _is_valid_date(dob_year, first_num, second_num):
+            return _stash_dob(dob_year, first_num, second_num)
         return orig
 
     text = sub_normalized(text, dob_dmy_re, _dob_dmy_repl)
@@ -902,32 +902,32 @@ def redact_document(text: str) -> str:
         r"\b(?:date of birth|dob|born|nacimiento)\s*(?:is\s+|:?\s*)(?P<digits>\d{8})\b"
     )
 
-    def _dob_glued_repl(orig: str, m: re.Match[str]) -> str:
-        digs = m.group("digits")
+    def _dob_glued_repl(orig: str, regex_match: re.Match[str]) -> str:
+        glued_digits = regex_match.group("digits")
         # Pastram expresia de context ("date of birth is ") si inlocuim doar cifrele
-        prefix = orig[:-len(digs)]
+        prefix = orig[:-len(glued_digits)]
         # Incercam pe rand: AAAALLZZ, apoi ZZLLAAAA, apoi LLZZAAAA; prima valida castiga
-        y1, m1, d1 = int(digs[:4]), int(digs[4:6]), int(digs[6:8])
-        if _is_valid_date(y1, m1, d1):
-            return prefix + _stash_dob(y1, m1, d1)
-        d2, m2, y2 = int(digs[:2]), int(digs[2:4]), int(digs[4:8])
-        if _is_valid_date(y2, m2, d2):
-            return prefix + _stash_dob(y2, m2, d2)
-        m3, d3, y3 = int(digs[:2]), int(digs[2:4]), int(digs[4:8])
-        if _is_valid_date(y3, m3, d3):
-            return prefix + _stash_dob(y3, m3, d3)
+        ymd_year, ymd_month, ymd_day = int(glued_digits[:4]), int(glued_digits[4:6]), int(glued_digits[6:8])
+        if _is_valid_date(ymd_year, ymd_month, ymd_day):
+            return prefix + _stash_dob(ymd_year, ymd_month, ymd_day)
+        dmy_day, dmy_month, dmy_year = int(glued_digits[:2]), int(glued_digits[2:4]), int(glued_digits[4:8])
+        if _is_valid_date(dmy_year, dmy_month, dmy_day):
+            return prefix + _stash_dob(dmy_year, dmy_month, dmy_day)
+        mdy_month, mdy_day, mdy_year = int(glued_digits[:2]), int(glued_digits[2:4]), int(glued_digits[4:8])
+        if _is_valid_date(mdy_year, mdy_month, mdy_day):
+            return prefix + _stash_dob(mdy_year, mdy_month, mdy_day)
         return orig
 
     text = sub_normalized(text, dob_glued_ctx_re, _dob_glued_repl)
 
     # 4e. Trecerea de variante: odata gasita o data, stergem orice alta scriere a ei
     # din mesaj (lista de tipare vine din _dob_variants).
-    for y, mon, d in sorted(detected_dobs):
-        for pat_str in _dob_variants(y, mon, d):
+    for dob_year, dob_month, dob_day in sorted(detected_dobs):
+        for pat_str in _dob_variants(dob_year, dob_month, dob_day):
             text = sub_normalized(
                 text,
                 re.compile(pat_str),
-                lambda _orig, _m: vault.stash("[DOB]"),
+                lambda _orig, _match: vault.stash("[DOB]"),
             )
 
     # Etapa 5: numere de telefon -> [PHONE].
@@ -954,7 +954,7 @@ def redact_document(text: str) -> str:
     cr_intl_phone_re = re.compile(
         r"(?<![A-Za-z0-9])(?:\+|00)?\s*\(?\s*506\s*\)?[\s.-]*[2-8]\d{3}[\s.-]*\d{4}\b"
     )
-    text = cr_intl_phone_re.sub(lambda m: _record_phone(m.group(0)), text)
+    text = cr_intl_phone_re.sub(lambda regex_match: _record_phone(regex_match.group(0)), text)
 
     # 5b. Alte telefoane internationale: "+" + cod de tara (1-3 cifre), optional prefix
     # intre paranteze, apoi grupuri de cifre (ex. +1 555-123-4567, +34 612 345 678)
@@ -963,11 +963,11 @@ def redact_document(text: str) -> str:
     )
 
     # Acceptam doar numere cu 8-15 cifre (15 = lungimea maxima a unui numar international)
-    def _gen_intl_phone_repl(m: re.Match[str]) -> str:
-        digits = re.sub(r"\D", "", m.group(0))
+    def _gen_intl_phone_repl(regex_match: re.Match[str]) -> str:
+        digits = re.sub(r"\D", "", regex_match.group(0))
         if 8 <= len(digits) <= 15:
-            return _record_phone(m.group(0))
-        return m.group(0)
+            return _record_phone(regex_match.group(0))
+        return regex_match.group(0)
 
     text = gen_intl_phone_re.sub(_gen_intl_phone_repl, text)
 
@@ -984,11 +984,11 @@ def redact_document(text: str) -> str:
     # Cedula de persoana fizica: 9 cifre scrise X-XXXX-XXXX sau X XXXX XXXX
     # (prima cifra, 1-9, este provincia)
     cedula_sep_re = re.compile(r"\b[1-9][\s-]\d{4}[\s-]\d{4}\b")
-    text = cedula_sep_re.sub(lambda m: _record_cedula(m.group(0)), text)
+    text = cedula_sep_re.sub(lambda regex_match: _record_cedula(regex_match.group(0)), text)
 
     # Cedula juridica (a unei firme): X-XXX-XXXXXX
     cedula_jur_re = re.compile(r"\b[1-9]-\d{3}-\d{6}\b")
-    text = cedula_jur_re.sub(lambda m: _record_cedula(m.group(0)), text)
+    text = cedula_jur_re.sub(lambda regex_match: _record_cedula(regex_match.group(0)), text)
 
     # 9-12 cifre lipite dupa un cuvant de identitate ("cedula", "identity", "DIMEX", "ID").
     # DIMEX-ul (actul strainilor rezidenti) are 11-12 cifre. Pastram cuvantul de context
@@ -999,50 +999,50 @@ def redact_document(text: str) -> str:
     text = sub_normalized(
         text,
         cedula_ctx_re,
-        lambda orig, m: orig[:-len(m.group("ced"))] + _record_cedula(m.group("ced")),
+        lambda orig, regex_match: orig[:-len(regex_match.group("ced"))] + _record_cedula(regex_match.group("ced")),
     )
 
     # Cedula lipita (9 cifre) oriunde in text. Lookbehind-ul exclude sumele de bani
     # ($, ₡ - colonul costarican, €, £), iar lookahead-ul exclude procentele.
     cedula_glued_re = re.compile(r"(?<![$₡€£\d])\b[1-9]\d{8}\b(?![\d%])")
-    text = cedula_glued_re.sub(lambda m: _record_cedula(m.group(0)), text)
+    text = cedula_glued_re.sub(lambda regex_match: _record_cedula(regex_match.group(0)), text)
 
     # Trecerea de variante: aceeasi cedula scrisa altfel
     # (1-2345-6789 <-> 123456789 <-> 1 2345 6789) -> [ID]
-    for ced in sorted(detected_cedulas, key=len, reverse=True):
-        if len(ced) == 9:
-            p1, p2, p3 = ced[0], ced[1:5], ced[5:9]
-            pat = re.compile(rf"\b{p1}[\s.-]*{p2}[\s.-]*{p3}\b")
+    for cedula_digits in sorted(detected_cedulas, key=len, reverse=True):
+        if len(cedula_digits) == 9:
+            ced_province, ced_middle, ced_last = cedula_digits[0], cedula_digits[1:5], cedula_digits[5:9]
+            pat = re.compile(rf"\b{ced_province}[\s.-]*{ced_middle}[\s.-]*{ced_last}\b")
         else:
-            flex = r"[\s.-]*".join(ced)
+            flex = r"[\s.-]*".join(cedula_digits)
             pat = re.compile(rf"\b{flex}\b")
-        text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[ID]"))
+        text = sub_normalized(text, pat, lambda _orig, _match: vault.stash("[ID]"))
 
     # 5c. Telefoane nationale de 8 cifre (dupa cedulas, vezi explicatia de la etapa 5).
     # Cu separator: 8812-3456, 2222 3333. Sumele de bani si procentele sunt excluse.
     cr_nat_sep_phone_re = re.compile(r"(?<![$₡€£\d])\b[2-8]\d{3}[\s.-]\d{4}\b(?![\d%])")
-    text = cr_nat_sep_phone_re.sub(lambda m: _record_phone(m.group(0)), text)
+    text = cr_nat_sep_phone_re.sub(lambda regex_match: _record_phone(regex_match.group(0)), text)
 
     # Format american, cu prefixul de zona intre paranteze: (555) 123-4567
     us_phone_re = re.compile(r"(?<![A-Za-z0-9])\(\d{3}\)[\s.-]*\d{3}[\s.-]*\d{4}\b")
-    text = us_phone_re.sub(lambda m: _record_phone(m.group(0)), text)
+    text = us_phone_re.sub(lambda regex_match: _record_phone(regex_match.group(0)), text)
 
     # 8 cifre lipite, prima intre 2 si 8: 88123456
     cr_nat_glued_phone_re = re.compile(r"(?<![$₡€£\d])\b[2-8]\d{7}\b(?![\d%])")
-    text = cr_nat_glued_phone_re.sub(lambda m: _record_phone(m.group(0)), text)
+    text = cr_nat_glued_phone_re.sub(lambda regex_match: _record_phone(regex_match.group(0)), text)
 
     # Trecerea de variante: acelasi numar scris altfel (cu sau fara +506 / 00506,
     # cu alte separatoare sau fara) -> [PHONE]
-    for core in sorted(detected_phone_cores, key=len, reverse=True):
-        if len(core) == 8:
-            p1, p2 = core[:4], core[4:]
+    for phone_core in sorted(detected_phone_cores, key=len, reverse=True):
+        if len(phone_core) == 8:
+            phone_head, phone_tail = phone_core[:4], phone_core[4:]
             pat = re.compile(
-                rf"(?<![a-z0-9])(?:\+?\s*0?0?\s*506[\s.-]*)?{p1}[\s.-]*{p2}(?!\d)"
+                rf"(?<![a-z0-9])(?:\+?\s*0?0?\s*506[\s.-]*)?{phone_head}[\s.-]*{phone_tail}(?!\d)"
             )
         else:
-            flex = r"[\s.-]*".join(core)
+            flex = r"[\s.-]*".join(phone_core)
             pat = re.compile(rf"(?<![a-z0-9])\+?\s*{flex}(?!\d)")
-        text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[PHONE]"))
+        text = sub_normalized(text, pat, lambda _orig, _match: vault.stash("[PHONE]"))
 
     # Etapa 7: adrese postale -> [ADDRESS], plus fragmentele lor distinctive oriunde reapar
     detected_addr_fragments: list[str] = []
@@ -1066,7 +1066,7 @@ def redact_document(text: str) -> str:
         rf"Barrio|Urbanizaci[oó]n|Urb\.?|Residencial|Condominio|Ruta|Carretera)\s+"
         rf"[^,.;\n!?]+,\s*[^,.;\n!?]+(?:,\s*{_CITY_SPEC})?"
     )
-    text = cr_addr_re.sub(lambda m: _record_address(m.group(0)), text)
+    text = cr_addr_re.sub(lambda regex_match: _record_address(regex_match.group(0)), text)
 
     # 7b. Adrese recunoscute dupa context. Grupul 1 = expresia de context (ramane in text),
     # grupul 2 = adresa (se inlocuieste). Adresa se termina la punct, la sfarsit de rand sau
@@ -1095,11 +1095,11 @@ def redact_document(text: str) -> str:
     ]
     # Inlocuim doar daca textul prins chiar arata a adresa (vezi _is_plausible_address_context)
     for ctx_re in addr_ctx_patterns:
-        def _ctx_addr_repl(m: re.Match[str]) -> str:
-            cand = m.group(2).strip()
+        def _ctx_addr_repl(regex_match: re.Match[str]) -> str:
+            cand = regex_match.group(2).strip()
             if _is_plausible_address_context(cand):
-                return m.group(1) + _record_address(cand)
-            return m.group(0)
+                return regex_match.group(1) + _record_address(cand)
+            return regex_match.group(0)
         text = ctx_re.sub(_ctx_addr_repl, text)
 
     # 7c. Bucati de adresa care apar singure, fara expresie de context
@@ -1125,7 +1125,7 @@ def redact_document(text: str) -> str:
         ),
     ]
     for addr_pat in standalone_addr_patterns:
-        text = addr_pat.sub(lambda m: _record_address(m.group(0)), text)
+        text = addr_pat.sub(lambda regex_match: _record_address(regex_match.group(0)), text)
 
     # 7d. Trecerea de variante: orice fragment distinctiv al unei adrese gasite, aparut din
     # nou in mesaj -> [ADDRESS]. Sarim peste orasele simple si peste duplicate.
@@ -1137,16 +1137,16 @@ def redact_document(text: str) -> str:
         seen_frag_norms.add(fnorm)
         flex = r"\s+".join(re.escape(part) for part in fnorm.split())
         pat = re.compile(rf"(?<![a-z0-9]){flex}(?![a-z0-9])")
-        text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[ADDRESS]"))
+        text = sub_normalized(text, pat, lambda _orig, _match: vault.stash("[ADDRESS]"))
 
     # Etapa 8: nume de persoane -> [NAME].
     # 8a. Intai protejam numele agentiei si destinatiile turistice: le mutam in seif cu
     # textul lor original, ca regulile de nume sa nu le confunde cu persoane.
     for phrase in sorted(PROTECTED_NON_PII_PHRASES, key=len, reverse=True):
         pnorm = strip_accents_lower(phrase)
-        flex = r"\s+".join(re.escape(w) for w in pnorm.split())
+        flex = r"\s+".join(re.escape(word) for word in pnorm.split())
         pat = re.compile(rf"\b{flex}\b")
-        text = sub_normalized(text, pat, lambda orig, _m: vault.stash(orig))
+        text = sub_normalized(text, pat, lambda orig, _match: vault.stash(orig))
 
     # 8b. Nume gasite dupa context.
     # _NAME_WORD = un cuvant cu majuscula (poate contine accente, apostrof, cratima);
@@ -1193,26 +1193,26 @@ def redact_document(text: str) -> str:
     for npat in name_ctx_patterns:
         # Daca toate cuvintele prinse sunt cuvinte comune ("I am Very Upset"), nu e un nume
         # si lasam textul neschimbat.
-        def _repl_fn(m: re.Match[str]) -> str:
-            cand = m.group(2)
-            words_norm = [strip_accents_lower(w) for w in cand.split()]
-            if all(w in NON_NAME_STOPWORDS for w in words_norm):
-                return m.group(0)
-            return _name_ctx_repl(m.group(1), cand)
+        def _repl_fn(regex_match: re.Match[str]) -> str:
+            cand = regex_match.group(2)
+            words_norm = [strip_accents_lower(word) for word in cand.split()]
+            if all(word in NON_NAME_STOPWORDS for word in words_norm):
+                return regex_match.group(0)
+            return _name_ctx_repl(regex_match.group(1), cand)
         text = npat.sub(_repl_fn, text)
 
     # 8c. Nume recunoscute din lexicoane: 2-4 cuvinte consecutive cu majuscula
     multi_cap_re = re.compile(rf"\b{_NAME_WORD}(?:\s+{_NAME_WORD}){{1,3}}\b")
 
-    def _lexicon_name_repl(m: re.Match[str]) -> str:
-        phrase = m.group(0)
+    def _lexicon_name_repl(regex_match: re.Match[str]) -> str:
+        phrase = regex_match.group(0)
         words = phrase.split()
-        norms = [strip_accents_lower(w) for w in words]
+        norms = [strip_accents_lower(word) for word in words]
         # Primul cuvant e prenume cunoscut si cel putin unul din restul e nume de familie cunoscut
-        if len(words) >= 2 and norms[0] in FIRST_NAMES and any(n in LAST_NAMES for n in norms[1:]):
+        if len(words) >= 2 and norms[0] in FIRST_NAMES and any(word_norm in LAST_NAMES for word_norm in norms[1:]):
             # ...si TOATE cuvintele sunt prenume sau nume de familie
             # (ca "Maria Lopez Hotel" sa nu fie luat intreg drept nume)
-            if all(n in FIRST_NAMES or n in LAST_NAMES for n in norms):
+            if all(word_norm in FIRST_NAMES or word_norm in LAST_NAMES for word_norm in norms):
                 _add_name_candidate(phrase, doc_full_names, doc_name_tokens)
                 return vault.stash("[NAME]")
         return phrase
@@ -1225,16 +1225,16 @@ def redact_document(text: str) -> str:
         parts = full_norm.split()
         if not parts:
             continue
-        flex = r"\s+".join(re.escape(p) for p in parts)
+        flex = r"\s+".join(re.escape(name_part) for name_part in parts)
         pat = re.compile(rf"\b{flex}\b")
-        text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[NAME]"))
+        text = sub_normalized(text, pat, lambda _orig, _match: vault.stash("[NAME]"))
 
     # Cuvintele de nume singure (ex. "Solano", din carlos.solano@... sau din "Carlos Solano") -> [NAME]
     for tok_norm in sorted(doc_name_tokens, key=len, reverse=True):
         if len(tok_norm) < 2 or tok_norm in NON_NAME_STOPWORDS:
             continue
         pat = re.compile(rf"\b{re.escape(tok_norm)}\b")
-        text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[NAME]"))
+        text = sub_normalized(text, pat, lambda _orig, _match: vault.stash("[NAME]"))
 
     # 8e. Partile locale simple de e-mail (ex. "carlos" din carlos@gmail.com), aparute
     # singure in text -> [EMAIL]
@@ -1242,7 +1242,7 @@ def redact_document(text: str) -> str:
         if len(local_norm) < 3 or local_norm in NON_NAME_STOPWORDS:
             continue
         pat = re.compile(rf"\b{re.escape(local_norm)}\b")
-        text = sub_normalized(text, pat, lambda _orig, _m: vault.stash("[EMAIL]"))
+        text = sub_normalized(text, pat, lambda _orig, _match: vault.stash("[EMAIL]"))
 
     # Etapa 9: golim seiful: referintele PV si frazele protejate revin la textul original,
     # iar marcajele placeholderelor devin [EMAIL], [NAME] etc.
@@ -1275,8 +1275,8 @@ def resolve_io_paths() -> tuple[str, str]:
 # Citeste documentele, anonimizeaza fiecare text si scrie rezultatul JSON.
 def main() -> None:
     in_path, out_path = resolve_io_paths()
-    with open(in_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    with open(in_path, "r", encoding="utf-8") as fh:
+        data = json.load(fh)
 
     # Pentru fiecare document: id -> textul anonimizat
     documents = data.get("documents", [])
@@ -1288,8 +1288,8 @@ def main() -> None:
 
     # Formatul cerut: {"redacted_documents": {id: text}}; ensure_ascii=False pastreaza accentele
     result = {"redacted_documents": redacted_documents}
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, indent=2)
+    with open(out_path, "w", encoding="utf-8") as fh:
+        json.dump(result, fh, ensure_ascii=False, indent=2)
 
     # Mesajul de stare merge pe stderr, ca sa nu se amestece cu rezultatul
     print(f"Processed {len(redacted_documents)} documents: {in_path} -> {out_path}", file=sys.stderr)

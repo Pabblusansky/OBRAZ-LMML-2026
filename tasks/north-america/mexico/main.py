@@ -29,84 +29,84 @@ STATE_RE = re.compile(r",\s*([A-Za-z]+)\.?\s+\d{5}(?:-\d{4})?\s*$")
 
 def find_input():
     """Gaseste fisierul de intrare: argumentul, apoi numele obisnuite, apoi orice CSV."""
-    cands = sys.argv[1:] + ["test-input.csv", "input.csv", "train-input.csv",
+    candidates = sys.argv[1:] + ["test-input.csv", "input.csv", "train-input.csv",
                             os.path.join("files", "train-input.csv")]
-    for p in cands:
-        if p and os.path.isfile(p):
-            return p
+    for cand_path in candidates:
+        if cand_path and os.path.isfile(cand_path):
+            return cand_path
     # Ultima rezerva: primul CSV din directorul curent
-    csvs = [f for f in os.listdir(".") if f.lower().endswith(".csv")]
-    if csvs:
-        return csvs[0]
+    csv_files = [file_name for file_name in os.listdir(".") if file_name.lower().endswith(".csv")]
+    if csv_files:
+        return csv_files[0]
     sys.exit("no input csv found")
 
 
-def output_path(inp):
+def output_path(input_path):
     """Pe train scriem intr-un fisier separat, ca sa nu suprascriem raspunsul corect."""
-    base = os.path.basename(inp).lower()
-    return "train-output.pred.json" if "train" in base else "test-output.json"
+    base_name = os.path.basename(input_path).lower()
+    return "train-output.pred.json" if "train" in base_name else "test-output.json"
 
 
-def record_key(addr):
+def record_key(address):
     """Construieste cheia persoanei doar din adresa: (numere, stat, cod postal)."""
-    addr = (addr or "").strip()
+    address = (address or "").strip()
     # Codul postal (sau "" daca lipseste)
-    z = ZIP_RE.search(addr)
-    zip5 = z.group(1) if z else ""
+    zip_match = ZIP_RE.search(address)
+    zip5 = zip_match.group(1) if zip_match else ""
     # Statul, cu majuscule (sau "" daca nu se poate parsa)
-    st = STATE_RE.search(addr)
-    state = st.group(1).upper() if st else ""
+    state_match = STATE_RE.search(address)
+    state = state_match.group(1).upper() if state_match else ""
     # Partea de strada = tot ce e inaintea codului postal...
-    street = addr[:z.start()] if z else addr
+    street = address[:zip_match.start()] if zip_match else address
     # ...fara ultimul segment dupa virgula (statul), ca sa nu-l amestecam cu numerele
-    if "," in street and st:
+    if "," in street and state_match:
         street = street.rsplit(",", 1)[0]
     # Toate numerele din strada, fara zerouri la inceput ("007" -> "7"),
     # sortate: ordinea in care apar nu conteaza (multiset)
-    nums = tuple(sorted(n.lstrip("0") or "0" for n in re.findall(r"\d+", street)))
-    return nums, state, zip5
+    street_numbers = tuple(sorted(num.lstrip("0") or "0" for num in re.findall(r"\d+", street)))
+    return street_numbers, state, zip5
 
 
 def main():
-    inp = find_input()
+    input_path = find_input()
     # utf-8-sig elimina eventualul BOM de la inceputul fisierului
-    with open(inp, encoding="utf-8-sig", newline="") as f:
-        rows = list(csv.DictReader(f))
+    with open(input_path, encoding="utf-8-sig", newline="") as fh:
+        records = list(csv.DictReader(fh))
 
     # "Blocare" (blocking): grupam inregistrarile dupa cheie; comparam doar
     # in interiorul aceluiasi bloc, deci nu facem comparatii pe toate perechile.
     blocks = defaultdict(list)
-    for r in rows:
-        rid = (r.get("record_id") or "").strip()
-        if not rid:
+    for record in records:
+        record_id = (record.get("record_id") or "").strip()
+        if not record_id:
             continue
         # Tabelul-sursa; daca lipseste coloana, folosim prima litera a ID-ului
-        src = (r.get("source_table") or rid[:1]).strip()
-        blocks[record_key(r.get("address"))].append((src, rid))
+        source_table = (record.get("source_table") or record_id[:1]).strip()
+        blocks[record_key(record.get("address"))].append((source_table, record_id))
 
     matches = []
-    seen = set()
-    for members in blocks.values():
+    seen_pairs = set()
+    for block_records in blocks.values():
         # Toate perechile din bloc
-        for (sa, a), (sb, b) in itertools.combinations(members, 2):
+        for (source_a, id_a), (source_b, id_b) in itertools.combinations(block_records, 2):
             # Doar intre tabele DIFERITE: duplicatele din acelasi tabel nu sunt
             # aceeasi persoana (asta tine precizia la 100%)
-            if sa == sb or a == b:
+            if source_a == source_b or id_a == id_b:
                 continue
-            # Pereche normalizata (sortata), ca (a, b) si (b, a) sa fie la fel
-            k = tuple(sorted((a, b)))
-            if k not in seen:
-                seen.add(k)
-                matches.append(list(k))
+            # Pereche normalizata (sortata), ca (id_a, id_b) si (id_b, id_a) sa fie la fel
+            pair = tuple(sorted((id_a, id_b)))
+            if pair not in seen_pairs:
+                seen_pairs.add(pair)
+                matches.append(list(pair))
     # Ordine stabila in fisierul de iesire
     matches.sort()
 
     result = {"matches": matches}
-    out = output_path(inp)
-    with open(out, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False)
+    out_path = output_path(input_path)
+    with open(out_path, "w", encoding="utf-8") as fh:
+        json.dump(result, fh, ensure_ascii=False)
     # Rezumat pe stderr, rezultatul complet pe stdout
-    print(f"input={inp} records={len(rows)} matches={len(matches)} -> {out}", file=sys.stderr)
+    print(f"input={input_path} records={len(records)} matches={len(matches)} -> {out_path}", file=sys.stderr)
     print(json.dumps(result, ensure_ascii=False))
 
 

@@ -64,7 +64,7 @@ def fit_model(df: pd.DataFrame, spec: ModelSpec, target: str = "edge_m") -> Mode
     # Calculăm predicțiile modelului și reziduurile (diferența real - prezis)
     y_pred = reg.predict(x)
     residuals = y - y_pred
-    # Evaluăm calitatea ajustării prin coeficientul de determinare R² și RMSE
+    # Evaluăm calitatea ajustării prin coeficientul de determinare R²
     r2 = float(reg.score(x, y))
     rmse = float(root_mean_squared_error(y, y_pred))
     return ModelResult(

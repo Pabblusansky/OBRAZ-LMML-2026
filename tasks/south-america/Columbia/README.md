@@ -55,9 +55,9 @@ Toate primesc ca argument calea către fișierul JSON cu date.
 ### Trucul comun: testarea rapidă a unei mulțimi candidate
 Flag-ul începe mereu cu `SIGMOID_`. Dacă `tag XOR mască = "SIGMOID_..."`, atunci
 primii 8 octeți ai măștii = primii 8 octeți ai tag-ului XOR `"SIGMOID_"`. Scripturile
-precalculează această valoare pentru **fiecare** înregistrare (dicționarul `pre`). Apoi,
+precalculează această valoare pentru **fiecare** înregistrare (dicționarul `prefix_to_record` în `brute.py`, mulțimea `mask_prefixes` în `pool2.py`). Apoi,
 pentru o mulțime candidată, calculează SHA-256 și verifică doar dacă primii 8 octeți
-sunt în `pre` – o căutare O(1), fără să încerce XOR cu toate tag-urile.
+sunt printre aceste prefixe – o căutare O(1), fără să încerce XOR cu toate tag-urile.
 
 - **`brute.py`** – pornește de la cele 12 mostre cu caractere ascunse; încearcă toate
   submulțimile lor și apoi „cele 12 + încă o mostră” pentru fiecare mostră rămasă. La

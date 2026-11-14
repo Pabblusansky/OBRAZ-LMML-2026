@@ -27,7 +27,7 @@ ceea ce confirmă metoda.
 ## Cum funcționează `main.py`
 
 1. Citește `test-input.csv`; ținta e `slab_released` (sau ultima coloană, ca rezervă).
-2. `X` = toate celelalte coloane, `y` = ținta.
+2. `features` = toate celelalte coloane, `labels` = ținta.
 3. Antrenează `DecisionTreeClassifier(random_state=0)` cu setările implicite (arborele
    crește până când frunzele sunt pure).
 4. Parcurge structura internă `clf.tree_`:
