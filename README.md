@@ -57,6 +57,9 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | North America | Panama | [The Canal Knows Too Much](tasks/north-america/panama) | Medium | solved | Dragos |
 | South America | Chile | [The Second Lock](tasks/south-america/chile-the-second-lock/) | Medium | in progress | Pavel |
 | Europe | Iceland | [What The Data?](tasks/europe/iceland-what-the-data/) | Easy | in progress | Pavel |
+| Oceania | Fiji | [Walu Season](tasks/oceania/fiji-walu-season/) | Easy | solved | Pavel |
+| Oceania | Papua New Guinea | [Bihainim Angkol](tasks/oceania/papua-new-guinea-bihainim-angkol/) | Medium | solution ready | Pavel |
+| Oceania | New Zealand | [Braided River Route](tasks/oceania/new-zealand-braided-river-route/) | Hard | solution ready | Pavel |
 
 ## Setup
 
