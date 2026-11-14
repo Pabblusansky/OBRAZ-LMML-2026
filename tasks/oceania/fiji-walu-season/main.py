@@ -1,11 +1,6 @@
-"""Walu Season: UCB1 Strategy for Multi-Armed Bandit.
-
-Uses Upper Confidence Bound (UCB1) with exploration constant c=4.5 to balance
-searching for the high-reward Walu school against exploiting known spots.
-"""
-
 import json
 import math
+import pathlib
 import sys
 
 
@@ -19,12 +14,10 @@ class Strategy:
         self.t = 0
 
     def choose(self) -> int:
-        # Initial exploration: try every spot once
         for spot in range(self.n_spots):
             if self.casts[spot] == 0:
                 return spot
 
-        # UCB1 selection
         log_t = math.log(self.t)
         best_spot = 0
         best_score = -1e9
@@ -43,8 +36,22 @@ class Strategy:
         self.total[spot] += catch
 
 
+def get_input_path() -> pathlib.Path:
+    candidates = [
+        pathlib.Path("test-input.json"),
+        pathlib.Path(__file__).resolve().parent / "test-input.json",
+        pathlib.Path("train-input.json"),
+        pathlib.Path(__file__).resolve().parent / "train-input.json",
+    ]
+    for p in candidates:
+        if p.exists():
+            return p
+    return pathlib.Path("test-input.json")
+
+
 def main():
-    with open("test-input.json") as f:
+    input_path = get_input_path()
+    with open(input_path) as f:
         rules = json.load(f)
 
     for _day in range(rules["n_days"]):
@@ -52,7 +59,10 @@ def main():
         for _cast in range(rules["n_casts"]):
             spot = agent.choose()
             print(spot, flush=True)
-            catch = float(sys.stdin.readline())
+            line = sys.stdin.readline()
+            if not line:
+                return
+            catch = float(line)
             agent.update(spot, catch)
 
 
