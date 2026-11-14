@@ -5,7 +5,7 @@
 | Country | Fiji |
 | Difficulty | Easy |
 | Category | Reinforcement Learning / Multi-Armed Bandits |
-| Solved by | Antigravity |
+| Solved by | Artem |
 | Status | solved (`main.py`) |
 | Flag | No flag (automatic evaluation) |
 
