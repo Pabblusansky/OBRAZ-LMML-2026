@@ -46,6 +46,7 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 |---|---|---|---|---|---|
 | South America | Venezuela | [Signal from the Sierra Nevada](tasks/south-america/venezuela-signal-from-the-sierra-nevada/) | Easy | solved | Pavel |
 | South America | Bolivia | [The Forest Went Quiet](tasks/south-america/bolivia-the-forest-went-quiet/) | Medium | solution ready | Pavel |
+| Oceania | Fiji | [Walu Season](tasks/oceania/fiji-walu-season/) | Easy | solved | Pavel |
 
 ## Setup
 
