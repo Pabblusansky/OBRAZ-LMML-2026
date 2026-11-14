@@ -51,8 +51,12 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | South America | Bolivia | [The Forest Went Quiet](tasks/south-america/bolivia-the-forest-went-quiet/) | Medium | solved | Pavel |
 | South America | Peru | [The Knots You Cannot Read](tasks/south-america/peru-the-knots-you-cannot-read/) | Medium | solved | Dragos |
 | South America | Argentina | [Carta para la Abuela](tasks/south-america/argentina-carta-para-la-abuela/) | Hard | solved | Pavel |
-| Oceania | Fiji | [Walu Season](tasks/oceania/fiji-walu-season/) | Easy | solved | Pavel |
-| Oceania | Papua New Guinea | [Bihainim Angkol](tasks/oceania/papua-new-guinea-bihainim-angkol/) | Medium | solution ready | Pavel |
+| North America | Mexico | [Ruta de las Identidades](tasks/north-america/mexico/) | Easy | solved | Dragos |
+| North America | USA | [The Great American Token Mystery](tasks/north-america/USA) | Medium | solved | Dragos |
+| North America | Costa Rica | [Pura Vida, no Pll](tasks/north-america/costa-rica) | Medium | solved | Dragos |
+| North America | Panama | [The Canal Knows Too Much](tasks/north-america/panama) | Medium | solved | Dragos |
+| South America | Chile | [The Second Lock](tasks/south-america/chile-the-second-lock/) | Medium | in progress | Pavel |
+| Europe | Iceland | [What The Data?](tasks/europe/iceland-what-the-data/) | Easy | in progress | Pavel |
 
 ## Setup
 
