@@ -47,6 +47,7 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | Africa | Tanzania | [Please, You Are So Delusional!](tasks/africa/tanzania/) | Easy | solved | Nirca |
 | Africa | Rwanda | [The Drying Floor at Karongi](tasks/africa/rwanda/) | Easy | solved | Nirca |
 | Africa | Nigeria | [The Gángan Never Lies](tasks/africa/nigeria/) | Easy | solved | Nirca |
+| Africa | Angola | [The Waterline Replay](tasks/africa/angola/) | Medium | solved | Nirca |
 | South America | Venezuela | [Signal from the Sierra Nevada](tasks/south-america/venezuela-signal-from-the-sierra-nevada/) | Easy | solved | Pavel |
 | South America | Bolivia | [The Forest Went Quiet](tasks/south-america/bolivia-the-forest-went-quiet/) | Medium | solved | Pavel |
 | South America | Peru | [The Knots You Cannot Read](tasks/south-america/peru-the-knots-you-cannot-read/) | Medium | solved | Dragos |
