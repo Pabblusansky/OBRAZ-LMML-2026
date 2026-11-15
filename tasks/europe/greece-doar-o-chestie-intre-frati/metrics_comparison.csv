@@ -1,0 +1,4 @@
+model,active_feature,bias,TP,FP,FN,TN,accuracy,balanced_accuracy,recall_tpr,miss_rate_fnr,precision,specificity_tnr,f1_score,f2_score,roc_auc,pr_auc
+ARES,oracle_omen,0.0,95,45,5,855,0.95,0.95,0.95,0.05,0.6786,0.95,0.7917,0.8796,0.9471,0.697
+ATHENA,aegis_resonance,0.0,75,25,25,875,0.95,0.8611,0.75,0.25,0.75,0.9722,0.75,0.75,0.8766,0.6389
+APOLLO,styx_disturbance,0.0,55,5,45,895,0.95,0.7722,0.55,0.45,0.9167,0.9944,0.6875,0.5978,0.7859,0.6105
