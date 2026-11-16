@@ -1,0 +1,202 @@
+[
+  {
+    "id": "replay-0000",
+    "text": "can you match Adjoa's orders back to their customer entry",
+    "label": "OLD_JOIN_CUSTOMER_ORDERS"
+  },
+  {
+    "id": "replay-0001",
+    "text": "show cumulative sales figures per category for produce",
+    "label": "OLD_GROUPBY_REVENUE_BY_CATEGORY"
+  },
+  {
+    "id": "replay-0002",
+    "text": "drop the account row for Aminata",
+    "label": "OLD_CRUD_DELETE_ACCOUNT"
+  },
+  {
+    "id": "replay-0003",
+    "text": "cross-reference orders with customer records for Fatou",
+    "label": "OLD_JOIN_CUSTOMER_ORDERS"
+  },
+  {
+    "id": "replay-0004",
+    "text": "tally up earnings bucketed by category for cocoa",
+    "label": "OLD_GROUPBY_REVENUE_BY_CATEGORY"
+  },
+  {
+    "id": "replay-0005",
+    "text": "modify inventory levels after restocking textiles",
+    "label": "OLD_CRUD_UPDATE_INVENTORY"
+  },
+  {
+    "id": "replay-0006",
+    "text": "create a new row in orders for Mariam's purchase",
+    "label": "OLD_CRUD_INSERT_ORDER"
+  },
+  {
+    "id": "replay-0007",
+    "text": "update the inventory count for the textiles warehouse stock",
+    "label": "OLD_CRUD_UPDATE_INVENTORY"
+  },
+  {
+    "id": "replay-0008",
+    "text": "link the orders table to customers and filter on Adjoa",
+    "label": "OLD_JOIN_CUSTOMER_ORDERS"
+  },
+  {
+    "id": "replay-0009",
+    "text": "what has Konan bought, matched against their profile",
+    "label": "OLD_JOIN_CUSTOMER_ORDERS"
+  },
+  {
+    "id": "replay-0010",
+    "text": "the produce stock count needs to be updated in the system",
+    "label": "OLD_CRUD_UPDATE_INVENTORY"
+  },
+  {
+    "id": "replay-0011",
+    "text": "Fatou is leaving, delete their account",
+    "label": "OLD_CRUD_DELETE_ACCOUNT"
+  },
+  {
+    "id": "replay-0012",
+    "text": "get the order history for customer Adjoa with account info",
+    "label": "OLD_JOIN_CUSTOMER_ORDERS"
+  },
+  {
+    "id": "replay-0013",
+    "text": "compute total income for the textiles category bucket",
+    "label": "OLD_GROUPBY_REVENUE_BY_CATEGORY"
+  },
+  {
+    "id": "replay-0014",
+    "text": "link the orders table to customers and filter on Fatou",
+    "label": "OLD_JOIN_CUSTOMER_ORDERS"
+  },
+  {
+    "id": "replay-0015",
+    "text": "delete the account belonging to Yao",
+    "label": "OLD_CRUD_DELETE_ACCOUNT"
+  },
+  {
+    "id": "replay-0016",
+    "text": "get rid of Yao's entry in the accounts table",
+    "label": "OLD_CRUD_DELETE_ACCOUNT"
+  },
+  {
+    "id": "replay-0017",
+    "text": "cross-reference orders with customer records for Aminata",
+    "label": "OLD_JOIN_CUSTOMER_ORDERS"
+  },
+  {
+    "id": "replay-0018",
+    "text": "how much money did cocoa bring in overall",
+    "label": "OLD_GROUPBY_REVENUE_BY_CATEGORY"
+  },
+  {
+    "id": "replay-0019",
+    "text": "Konan is leaving, delete their account",
+    "label": "OLD_CRUD_DELETE_ACCOUNT"
+  },
+  {
+    "id": "replay-0020",
+    "text": "break down revenue by category with a group by on cocoa",
+    "label": "OLD_GROUPBY_REVENUE_BY_CATEGORY"
+  },
+  {
+    "id": "replay-0021",
+    "text": "sync the recorded textiles stock with what's actually on the shelf",
+    "label": "OLD_CRUD_UPDATE_INVENTORY"
+  },
+  {
+    "id": "replay-0022",
+    "text": "please file Adjoa's new order into the database",
+    "label": "OLD_CRUD_INSERT_ORDER"
+  },
+  {
+    "id": "replay-0023",
+    "text": "update the inventory count for the electronics warehouse stock",
+    "label": "OLD_CRUD_UPDATE_INVENTORY"
+  },
+  {
+    "id": "replay-0024",
+    "text": "what's our category-level revenue split, specifically for cashew",
+    "label": "OLD_GROUPBY_REVENUE_BY_CATEGORY"
+  },
+  {
+    "id": "replay-0025",
+    "text": "erase the customer profile belonging to Ibrahim",
+    "label": "OLD_CRUD_DELETE_ACCOUNT"
+  },
+  {
+    "id": "replay-0026",
+    "text": "how are earnings distributed across categories like cashew",
+    "label": "OLD_GROUPBY_REVENUE_BY_CATEGORY"
+  },
+  {
+    "id": "replay-0027",
+    "text": "please refresh the inventory figures for electronics",
+    "label": "OLD_CRUD_UPDATE_INVENTORY"
+  },
+  {
+    "id": "replay-0028",
+    "text": "please record Kouassi's latest purchase as a new order",
+    "label": "OLD_CRUD_INSERT_ORDER"
+  },
+  {
+    "id": "replay-0029",
+    "text": "insert a new order for customer Yao into the orders table",
+    "label": "OLD_CRUD_INSERT_ORDER"
+  },
+  {
+    "id": "replay-0030",
+    "text": "capture a fresh order record on behalf of Konan",
+    "label": "OLD_CRUD_INSERT_ORDER"
+  },
+  {
+    "id": "replay-0031",
+    "text": "give me a full rundown of orders tied to Yao's account",
+    "label": "OLD_JOIN_CUSTOMER_ORDERS"
+  },
+  {
+    "id": "replay-0032",
+    "text": "purge Aminata from the customer accounts",
+    "label": "OLD_CRUD_DELETE_ACCOUNT"
+  },
+  {
+    "id": "replay-0033",
+    "text": "drop the account row for Fatou",
+    "label": "OLD_CRUD_DELETE_ACCOUNT"
+  },
+  {
+    "id": "replay-0034",
+    "text": "please file Yao's new order into the database",
+    "label": "OLD_CRUD_INSERT_ORDER"
+  },
+  {
+    "id": "replay-0035",
+    "text": "Mariam just placed an order, add it to the system",
+    "label": "OLD_CRUD_INSERT_ORDER"
+  },
+  {
+    "id": "replay-0036",
+    "text": "sync the recorded electronics stock with what's actually on the shelf",
+    "label": "OLD_CRUD_UPDATE_INVENTORY"
+  },
+  {
+    "id": "replay-0037",
+    "text": "I need to enter a new order for Konan",
+    "label": "OLD_CRUD_INSERT_ORDER"
+  },
+  {
+    "id": "replay-0038",
+    "text": "give me a per-category sales summary covering textiles",
+    "label": "OLD_GROUPBY_REVENUE_BY_CATEGORY"
+  },
+  {
+    "id": "replay-0039",
+    "text": "amend the warehouse quantity recorded for cashew",
+    "label": "OLD_CRUD_UPDATE_INVENTORY"
+  }
+]

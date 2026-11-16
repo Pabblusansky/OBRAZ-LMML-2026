@@ -1,0 +1,1002 @@
+[
+  {
+    "id": "train-0000",
+    "text": "cancel and remove Fatou's account record"
+  },
+  {
+    "id": "train-0001",
+    "text": "register a new order placed by Konan"
+  },
+  {
+    "id": "train-0002",
+    "text": "rank-order the fleet partition that truck-47 belongs to"
+  },
+  {
+    "id": "train-0003",
+    "text": "create a new row in orders for Mariam's purchase"
+  },
+  {
+    "id": "train-0004",
+    "text": "join customers and orders to list all orders for Ibrahim"
+  },
+  {
+    "id": "train-0005",
+    "text": "which sites lie inside the 10 km zone around Treichville"
+  },
+  {
+    "id": "train-0006",
+    "text": "rank-order the fleet partition that van-21 belongs to"
+  },
+  {
+    "id": "train-0007",
+    "text": "find the lead value for the shipment after this one for van-3"
+  },
+  {
+    "id": "train-0008",
+    "text": "sum the sales for each product category including textiles"
+  },
+  {
+    "id": "train-0009",
+    "text": "I want a category breakdown of revenue, starting with cocoa"
+  },
+  {
+    "id": "train-0010",
+    "text": "total revenue grouped by electronics category this month"
+  },
+  {
+    "id": "train-0011",
+    "text": "register a new order placed by Kouassi"
+  },
+  {
+    "id": "train-0012",
+    "text": "I want a category breakdown of revenue, starting with cocoa"
+  },
+  {
+    "id": "train-0013",
+    "text": "which warehouse is closest to Treichville by geographic distance"
+  },
+  {
+    "id": "train-0014",
+    "text": "using lead, show van-21's subsequent shipment date"
+  },
+  {
+    "id": "train-0015",
+    "text": "join customers and orders to list all orders for Konan"
+  },
+  {
+    "id": "train-0016",
+    "text": "what position does truck-88 hold within its partitioned fleet"
+  },
+  {
+    "id": "train-0017",
+    "text": "erase the customer profile belonging to Kouassi"
+  },
+  {
+    "id": "train-0018",
+    "text": "find every depot within a 20 kilometer radius of Vridi"
+  },
+  {
+    "id": "train-0019",
+    "text": "find the lead value for the shipment after this one for truck-88"
+  },
+  {
+    "id": "train-0020",
+    "text": "which depot is the minimum distance away from Vridi"
+  },
+  {
+    "id": "train-0021",
+    "text": "what depots are inside a 15 km circle drawn around Marcory"
+  },
+  {
+    "id": "train-0022",
+    "text": "find the lead value for the shipment after this one for van-21"
+  },
+  {
+    "id": "train-0023",
+    "text": "can you input a new order for Fatou right now"
+  },
+  {
+    "id": "train-0024",
+    "text": "update the inventory table's quantity column for textiles"
+  },
+  {
+    "id": "train-0025",
+    "text": "add a new order record for Konan"
+  },
+  {
+    "id": "train-0026",
+    "text": "how much later did truck-47's delivery run versus the previous one"
+  },
+  {
+    "id": "train-0027",
+    "text": "insert into orders a fresh purchase made by Mariam"
+  },
+  {
+    "id": "train-0028",
+    "text": "produce a report of Mariam's purchases with customer metadata attached"
+  },
+  {
+    "id": "train-0029",
+    "text": "compute truck-88's relative rank inside its fleet partition"
+  },
+  {
+    "id": "train-0030",
+    "text": "get rid of Yao's entry in the accounts table"
+  },
+  {
+    "id": "train-0031",
+    "text": "compute a partitioned rank over the fleet for van-21"
+  },
+  {
+    "id": "train-0032",
+    "text": "terminate Aminata's account and delete their record"
+  },
+  {
+    "id": "train-0033",
+    "text": "revise the stock count for cashew after the delivery"
+  },
+  {
+    "id": "train-0034",
+    "text": "cross-reference orders with customer records for Fatou"
+  },
+  {
+    "id": "train-0035",
+    "text": "determine the proximity-ranked closest warehouse to Koumassi"
+  },
+  {
+    "id": "train-0036",
+    "text": "track truck-12's delay relative to its earlier shipment"
+  },
+  {
+    "id": "train-0037",
+    "text": "can you match Fatou's orders back to their customer entry"
+  },
+  {
+    "id": "train-0038",
+    "text": "what is the aggregated revenue per category, especially electronics"
+  },
+  {
+    "id": "train-0039",
+    "text": "insert into orders a fresh purchase made by Fatou"
+  },
+  {
+    "id": "train-0040",
+    "text": "combine the customer table with orders to see Konan's purchase history"
+  },
+  {
+    "id": "train-0041",
+    "text": "please refresh the inventory figures for textiles"
+  },
+  {
+    "id": "train-0042",
+    "text": "query all sites within a 10 kilometer buffer of Yopougon"
+  },
+  {
+    "id": "train-0043",
+    "text": "group orders by category and show total revenue for cocoa"
+  },
+  {
+    "id": "train-0044",
+    "text": "our cocoa inventory numbers are stale, update them"
+  },
+  {
+    "id": "train-0045",
+    "text": "what is the next shipment scheduled right after van-3's current one"
+  },
+  {
+    "id": "train-0046",
+    "text": "write a new entry to the orders table for Ibrahim"
+  },
+  {
+    "id": "train-0047",
+    "text": "what warehouse would serve Koumassi with the least travel distance"
+  },
+  {
+    "id": "train-0048",
+    "text": "give truck-47's standing when the fleet is partitioned and ranked"
+  },
+  {
+    "id": "train-0049",
+    "text": "what's our category-level revenue split, specifically for produce"
+  },
+  {
+    "id": "train-0050",
+    "text": "partition vehicles by fleet and tell me truck-88's rank"
+  },
+  {
+    "id": "train-0051",
+    "text": "correct the on-hand quantity for textiles in the warehouse"
+  },
+  {
+    "id": "train-0052",
+    "text": "register a new order placed by Adjoa"
+  },
+  {
+    "id": "train-0053",
+    "text": "add a new order record for Konan"
+  },
+  {
+    "id": "train-0054",
+    "text": "modify inventory levels after restocking cocoa"
+  },
+  {
+    "id": "train-0055",
+    "text": "how are earnings distributed across categories like electronics"
+  },
+  {
+    "id": "train-0056",
+    "text": "which warehouses sit within a 20 kilometer range of Vridi"
+  },
+  {
+    "id": "train-0057",
+    "text": "what's the shortest-distance warehouse from Marcory"
+  },
+  {
+    "id": "train-0058",
+    "text": "produce a report of Mariam's purchases with customer metadata attached"
+  },
+  {
+    "id": "train-0059",
+    "text": "measure the gap between truck-12's current and preceding shipment"
+  },
+  {
+    "id": "train-0060",
+    "text": "purge Fatou from the customer accounts"
+  },
+  {
+    "id": "train-0061",
+    "text": "use a partitioned window to rank van-3 within its fleet group"
+  },
+  {
+    "id": "train-0062",
+    "text": "compute van-3's relative rank inside its fleet partition"
+  },
+  {
+    "id": "train-0063",
+    "text": "group orders by category and show total revenue for cashew"
+  },
+  {
+    "id": "train-0064",
+    "text": "rank-order the fleet partition that truck-12 belongs to"
+  },
+  {
+    "id": "train-0065",
+    "text": "the textiles stock count needs to be updated in the system"
+  },
+  {
+    "id": "train-0066",
+    "text": "revise the stock count for cashew after the delivery"
+  },
+  {
+    "id": "train-0067",
+    "text": "what's the upcoming delivery slot for van-21"
+  },
+  {
+    "id": "train-0068",
+    "text": "I want a category breakdown of revenue, starting with electronics"
+  },
+  {
+    "id": "train-0069",
+    "text": "use a lead window function to get the upcoming shipment for van-3"
+  },
+  {
+    "id": "train-0070",
+    "text": "give me a full rundown of orders tied to Kouassi's account"
+  },
+  {
+    "id": "train-0071",
+    "text": "rank truck-88 against other vehicles in the same fleet partition"
+  },
+  {
+    "id": "train-0072",
+    "text": "show cumulative sales figures per category for produce"
+  },
+  {
+    "id": "train-0073",
+    "text": "revise the stock count for cocoa after the delivery"
+  },
+  {
+    "id": "train-0074",
+    "text": "what shipment comes right after truck-47's current one"
+  },
+  {
+    "id": "train-0075",
+    "text": "what is the next shipment scheduled right after van-3's current one"
+  },
+  {
+    "id": "train-0076",
+    "text": "partition vehicles by fleet and tell me truck-12's rank"
+  },
+  {
+    "id": "train-0077",
+    "text": "rank-order the fleet partition that van-21 belongs to"
+  },
+  {
+    "id": "train-0078",
+    "text": "what's the upcoming delivery slot for truck-88"
+  },
+  {
+    "id": "train-0079",
+    "text": "join customers and orders to list all orders for Aminata"
+  },
+  {
+    "id": "train-0080",
+    "text": "how much money did cashew bring in overall"
+  },
+  {
+    "id": "train-0081",
+    "text": "log a brand new order from Ibrahim"
+  },
+  {
+    "id": "train-0082",
+    "text": "Yao is leaving, delete their account"
+  },
+  {
+    "id": "train-0083",
+    "text": "aggregate order totals per category and highlight textiles"
+  },
+  {
+    "id": "train-0084",
+    "text": "fetch Fatou's transaction history together with their account details"
+  },
+  {
+    "id": "train-0085",
+    "text": "edit the stored stock level for cashew"
+  },
+  {
+    "id": "train-0086",
+    "text": "correct the on-hand quantity for textiles in the warehouse"
+  },
+  {
+    "id": "train-0087",
+    "text": "show cumulative sales figures per category for electronics"
+  },
+  {
+    "id": "train-0088",
+    "text": "sync the recorded electronics stock with what's actually on the shelf"
+  },
+  {
+    "id": "train-0089",
+    "text": "pull every order row joined to the customer record for Ibrahim"
+  },
+  {
+    "id": "train-0090",
+    "text": "which locations fall within 25 km of Treichville"
+  },
+  {
+    "id": "train-0091",
+    "text": "erase the customer profile belonging to Konan"
+  },
+  {
+    "id": "train-0092",
+    "text": "combine the customer table with orders to see Adjoa's purchase history"
+  },
+  {
+    "id": "train-0093",
+    "text": "find the lag between this delivery and the one before it for van-3"
+  },
+  {
+    "id": "train-0094",
+    "text": "determine the proximity-ranked closest warehouse to Treichville"
+  },
+  {
+    "id": "train-0095",
+    "text": "list all orders and customer names for Konan"
+  },
+  {
+    "id": "train-0096",
+    "text": "filter sites to those within 5 km of Vridi"
+  },
+  {
+    "id": "train-0097",
+    "text": "set the new stock quantity for electronics items in inventory"
+  },
+  {
+    "id": "train-0098",
+    "text": "select warehouses inside a 15 km buffer around Vridi"
+  },
+  {
+    "id": "train-0099",
+    "text": "rank the fleet group containing truck-47 by deliveries"
+  },
+  {
+    "id": "train-0100",
+    "text": "compute how much truck-88's delivery slipped versus the prior run"
+  },
+  {
+    "id": "train-0101",
+    "text": "determine the proximity-ranked closest warehouse to Koumassi"
+  },
+  {
+    "id": "train-0102",
+    "text": "where does truck-47 rank among its fleet peers"
+  },
+  {
+    "id": "train-0103",
+    "text": "amend the warehouse quantity recorded for textiles"
+  },
+  {
+    "id": "train-0104",
+    "text": "list all warehouses within 5 km of the Yopougon depot"
+  },
+  {
+    "id": "train-0105",
+    "text": "find the lead value for the shipment after this one for truck-88"
+  },
+  {
+    "id": "train-0106",
+    "text": "Fatou is leaving, delete their account"
+  },
+  {
+    "id": "train-0107",
+    "text": "find the nearest warehouse to the Yopougon depot using spatial distance"
+  },
+  {
+    "id": "train-0108",
+    "text": "change the quantity on hand for cashew in inventory"
+  },
+  {
+    "id": "train-0109",
+    "text": "add a new order record for Yao"
+  },
+  {
+    "id": "train-0110",
+    "text": "fetch Fatou's transaction history together with their account details"
+  },
+  {
+    "id": "train-0111",
+    "text": "compute a partitioned rank over the fleet for truck-88"
+  },
+  {
+    "id": "train-0112",
+    "text": "give me the warehouse nearest to Vridi as the crow flies"
+  },
+  {
+    "id": "train-0113",
+    "text": "find the lead value for the shipment after this one for truck-12"
+  },
+  {
+    "id": "train-0114",
+    "text": "Konan wants their account closed for good"
+  },
+  {
+    "id": "train-0115",
+    "text": "give van-3's standing when the fleet is partitioned and ranked"
+  },
+  {
+    "id": "train-0116",
+    "text": "list all warehouses within 5 km of the Koumassi depot"
+  },
+  {
+    "id": "train-0117",
+    "text": "identify the warehouse geographically closest to Koumassi"
+  },
+  {
+    "id": "train-0118",
+    "text": "what's the shortest-distance warehouse from Treichville"
+  },
+  {
+    "id": "train-0119",
+    "text": "permanently delete Adjoa's account record"
+  },
+  {
+    "id": "train-0120",
+    "text": "using lead, show van-3's subsequent shipment date"
+  },
+  {
+    "id": "train-0121",
+    "text": "sort warehouses by how close they are to Treichville"
+  },
+  {
+    "id": "train-0122",
+    "text": "fetch the lead shipment date for van-21"
+  },
+  {
+    "id": "train-0123",
+    "text": "add a new order record for Kouassi"
+  },
+  {
+    "id": "train-0124",
+    "text": "compute van-21's relative rank inside its fleet partition"
+  },
+  {
+    "id": "train-0125",
+    "text": "what has Fatou bought, matched against their profile"
+  },
+  {
+    "id": "train-0126",
+    "text": "give me truck-12's delivery delay versus the shipment before it"
+  },
+  {
+    "id": "train-0127",
+    "text": "query all sites within a 25 kilometer buffer of Vridi"
+  },
+  {
+    "id": "train-0128",
+    "text": "roll up all the income figures by category, starting with cocoa"
+  },
+  {
+    "id": "train-0129",
+    "text": "insert a new order for customer Aminata into the orders table"
+  },
+  {
+    "id": "train-0130",
+    "text": "using lag, show how van-21's delivery time shifted from before"
+  },
+  {
+    "id": "train-0131",
+    "text": "using lead, show van-3's subsequent shipment date"
+  },
+  {
+    "id": "train-0132",
+    "text": "modify inventory levels after restocking produce"
+  },
+  {
+    "id": "train-0133",
+    "text": "close and delete the customer account for Ibrahim"
+  },
+  {
+    "id": "train-0134",
+    "text": "shut down and remove Fatou's account"
+  },
+  {
+    "id": "train-0135",
+    "text": "compare van-3's current shipment timing to its prior one"
+  },
+  {
+    "id": "train-0136",
+    "text": "add a new order record for Ibrahim"
+  },
+  {
+    "id": "train-0137",
+    "text": "show truck-88's next shipment relative to the current row"
+  },
+  {
+    "id": "train-0138",
+    "text": "I need Mariam's order list alongside their contact info"
+  },
+  {
+    "id": "train-0139",
+    "text": "write a new entry to the orders table for Fatou"
+  },
+  {
+    "id": "train-0140",
+    "text": "which sites lie inside the 5 km zone around Yopougon"
+  },
+  {
+    "id": "train-0141",
+    "text": "which warehouses sit within a 15 kilometer range of Marcory"
+  },
+  {
+    "id": "train-0142",
+    "text": "combine the customer table with orders to see Ibrahim's purchase history"
+  },
+  {
+    "id": "train-0143",
+    "text": "what's the upcoming delivery slot for truck-12"
+  },
+  {
+    "id": "train-0144",
+    "text": "give truck-47's standing when the fleet is partitioned and ranked"
+  },
+  {
+    "id": "train-0145",
+    "text": "calculate the difference from the last shipment for truck-12 using lag"
+  },
+  {
+    "id": "train-0146",
+    "text": "what depots are inside a 15 km circle drawn around Treichville"
+  },
+  {
+    "id": "train-0147",
+    "text": "wipe Aminata's account out of the system"
+  },
+  {
+    "id": "train-0148",
+    "text": "give me the warehouse nearest to Vridi as the crow flies"
+  },
+  {
+    "id": "train-0149",
+    "text": "select warehouses inside a 20 km buffer around Marcory"
+  },
+  {
+    "id": "train-0150",
+    "text": "cross-reference orders with customer records for Konan"
+  },
+  {
+    "id": "train-0151",
+    "text": "use a lag window function to find the prior delivery time for van-3"
+  },
+  {
+    "id": "train-0152",
+    "text": "what warehouse would serve Vridi with the least travel distance"
+  },
+  {
+    "id": "train-0153",
+    "text": "find the closest warehouse geometry to the Marcory point"
+  },
+  {
+    "id": "train-0154",
+    "text": "use a lag window function to find the prior delivery time for truck-12"
+  },
+  {
+    "id": "train-0155",
+    "text": "correct the on-hand quantity for electronics in the warehouse"
+  },
+  {
+    "id": "train-0156",
+    "text": "identify the warehouse geographically closest to Vridi"
+  },
+  {
+    "id": "train-0157",
+    "text": "update the inventory count for the electronics warehouse stock"
+  },
+  {
+    "id": "train-0158",
+    "text": "show van-3's next shipment relative to the current row"
+  },
+  {
+    "id": "train-0159",
+    "text": "where does truck-12 rank among its fleet peers"
+  },
+  {
+    "id": "train-0160",
+    "text": "partition vehicles by fleet and tell me truck-88's rank"
+  },
+  {
+    "id": "train-0161",
+    "text": "register a new order placed by Aminata"
+  },
+  {
+    "id": "train-0162",
+    "text": "delete the account belonging to Mariam"
+  },
+  {
+    "id": "train-0163",
+    "text": "which warehouses sit within a 20 kilometer range of Treichville"
+  },
+  {
+    "id": "train-0164",
+    "text": "produce a report of Mariam's purchases with customer metadata attached"
+  },
+  {
+    "id": "train-0165",
+    "text": "can you input a new order for Konan right now"
+  },
+  {
+    "id": "train-0166",
+    "text": "filter sites to those within 15 km of Yopougon"
+  },
+  {
+    "id": "train-0167",
+    "text": "find the lag between this delivery and the one before it for truck-12"
+  },
+  {
+    "id": "train-0168",
+    "text": "rank vehicles by delivery count partitioned by fleet including truck-12"
+  },
+  {
+    "id": "train-0169",
+    "text": "give me the next-in-line delivery for truck-88"
+  },
+  {
+    "id": "train-0170",
+    "text": "pull every order row joined to the customer record for Mariam"
+  },
+  {
+    "id": "train-0171",
+    "text": "which locations fall within 15 km of Yopougon"
+  },
+  {
+    "id": "train-0172",
+    "text": "what depots are inside a 20 km circle drawn around Koumassi"
+  },
+  {
+    "id": "train-0173",
+    "text": "modify inventory levels after restocking produce"
+  },
+  {
+    "id": "train-0174",
+    "text": "group orders by category and show total revenue for cocoa"
+  },
+  {
+    "id": "train-0175",
+    "text": "Ibrahim is leaving, delete their account"
+  },
+  {
+    "id": "train-0176",
+    "text": "give me van-21's delivery delay versus the shipment before it"
+  },
+  {
+    "id": "train-0177",
+    "text": "find the nearest warehouse to the Treichville depot using spatial distance"
+  },
+  {
+    "id": "train-0178",
+    "text": "what's our category-level revenue split, specifically for textiles"
+  },
+  {
+    "id": "train-0179",
+    "text": "Konan wants their account closed for good"
+  },
+  {
+    "id": "train-0180",
+    "text": "what's the delay relative to van-3's last delivery"
+  },
+  {
+    "id": "train-0181",
+    "text": "please file Fatou's new order into the database"
+  },
+  {
+    "id": "train-0182",
+    "text": "sync the recorded produce stock with what's actually on the shelf"
+  },
+  {
+    "id": "train-0183",
+    "text": "I need to enter a new order for Ibrahim"
+  },
+  {
+    "id": "train-0184",
+    "text": "pull every order row joined to the customer record for Adjoa"
+  },
+  {
+    "id": "train-0185",
+    "text": "compare truck-88's current shipment timing to its prior one"
+  },
+  {
+    "id": "train-0186",
+    "text": "the cocoa stock count needs to be updated in the system"
+  },
+  {
+    "id": "train-0187",
+    "text": "partition the fleet and rank truck-47 by number of deliveries"
+  },
+  {
+    "id": "train-0188",
+    "text": "rank warehouses by proximity to Yopougon"
+  },
+  {
+    "id": "train-0189",
+    "text": "purge Adjoa from the customer accounts"
+  },
+  {
+    "id": "train-0190",
+    "text": "rank warehouses by proximity to Vridi"
+  },
+  {
+    "id": "train-0191",
+    "text": "permanently delete Konan's account record"
+  },
+  {
+    "id": "train-0192",
+    "text": "join customers and orders to list all orders for Ibrahim"
+  },
+  {
+    "id": "train-0193",
+    "text": "compute the delivery delay compared to the previous shipment for truck-47"
+  },
+  {
+    "id": "train-0194",
+    "text": "aggregate order totals per category and highlight produce"
+  },
+  {
+    "id": "train-0195",
+    "text": "write a new entry to the orders table for Adjoa"
+  },
+  {
+    "id": "train-0196",
+    "text": "give me a per-category sales summary covering cashew"
+  },
+  {
+    "id": "train-0197",
+    "text": "which facility sits nearest to Marcory on the map"
+  },
+  {
+    "id": "train-0198",
+    "text": "I need to enter a new order for Ibrahim"
+  },
+  {
+    "id": "train-0199",
+    "text": "tell me van-3's upcoming shipment following this one"
+  },
+  {
+    "id": "train-0200",
+    "text": "use a partitioned window to rank truck-12 within its fleet group"
+  },
+  {
+    "id": "train-0201",
+    "text": "using lead, show truck-12's subsequent shipment date"
+  },
+  {
+    "id": "train-0202",
+    "text": "modify inventory levels after restocking textiles"
+  },
+  {
+    "id": "train-0203",
+    "text": "what's our category-level revenue split, specifically for cocoa"
+  },
+  {
+    "id": "train-0204",
+    "text": "compute the nearest warehouse location relative to Koumassi"
+  },
+  {
+    "id": "train-0205",
+    "text": "compute how much van-21's delivery slipped versus the prior run"
+  },
+  {
+    "id": "train-0206",
+    "text": "pull every order row joined to the customer record for Kouassi"
+  },
+  {
+    "id": "train-0207",
+    "text": "sort warehouses by how close they are to Treichville"
+  },
+  {
+    "id": "train-0208",
+    "text": "query all sites within a 15 kilometer buffer of Koumassi"
+  },
+  {
+    "id": "train-0209",
+    "text": "terminate Aminata's account and delete their record"
+  },
+  {
+    "id": "train-0210",
+    "text": "adjust how much textiles stock we have on record"
+  },
+  {
+    "id": "train-0211",
+    "text": "update the inventory count for the cocoa warehouse stock"
+  },
+  {
+    "id": "train-0212",
+    "text": "sort warehouses by how close they are to Marcory"
+  },
+  {
+    "id": "train-0213",
+    "text": "please file Adjoa's new order into the database"
+  },
+  {
+    "id": "train-0214",
+    "text": "what's our category-level revenue split, specifically for textiles"
+  },
+  {
+    "id": "train-0215",
+    "text": "give me the next-in-line delivery for truck-47"
+  },
+  {
+    "id": "train-0216",
+    "text": "calculate the difference from the last shipment for truck-47 using lag"
+  },
+  {
+    "id": "train-0217",
+    "text": "which locations fall within 10 km of Marcory"
+  },
+  {
+    "id": "train-0218",
+    "text": "which locations fall within 15 km of Vridi"
+  },
+  {
+    "id": "train-0219",
+    "text": "I need Yao's order list alongside their contact info"
+  },
+  {
+    "id": "train-0220",
+    "text": "what's our category-level revenue split, specifically for electronics"
+  },
+  {
+    "id": "train-0221",
+    "text": "our produce inventory numbers are stale, update them"
+  },
+  {
+    "id": "train-0222",
+    "text": "show me every order placed by Kouassi along with their customer details"
+  },
+  {
+    "id": "train-0223",
+    "text": "find every depot within a 10 kilometer radius of Vridi"
+  },
+  {
+    "id": "train-0224",
+    "text": "rank vehicles by delivery count partitioned by fleet including truck-47"
+  },
+  {
+    "id": "train-0225",
+    "text": "find the nearest warehouse to the Koumassi depot using spatial distance"
+  },
+  {
+    "id": "train-0226",
+    "text": "use a lead window function to get the upcoming shipment for truck-12"
+  },
+  {
+    "id": "train-0227",
+    "text": "remove Kouassi from the accounts table"
+  },
+  {
+    "id": "train-0228",
+    "text": "total revenue grouped by cocoa category this month"
+  },
+  {
+    "id": "train-0229",
+    "text": "purge Fatou from the customer accounts"
+  },
+  {
+    "id": "train-0230",
+    "text": "which sites lie inside the 20 km zone around Treichville"
+  },
+  {
+    "id": "train-0231",
+    "text": "what was the time difference from truck-88's previous delivery"
+  },
+  {
+    "id": "train-0232",
+    "text": "I want a category breakdown of revenue, starting with cashew"
+  },
+  {
+    "id": "train-0233",
+    "text": "use a lead window function to get the upcoming shipment for van-21"
+  },
+  {
+    "id": "train-0234",
+    "text": "insert a new order for customer Fatou into the orders table"
+  },
+  {
+    "id": "train-0235",
+    "text": "calculate the difference from the last shipment for truck-47 using lag"
+  },
+  {
+    "id": "train-0236",
+    "text": "use a lead window function to get the upcoming shipment for van-3"
+  },
+  {
+    "id": "train-0237",
+    "text": "give me the warehouse nearest to Yopougon as the crow flies"
+  },
+  {
+    "id": "train-0238",
+    "text": "close and delete the customer account for Kouassi"
+  },
+  {
+    "id": "train-0239",
+    "text": "how are earnings distributed across categories like cashew"
+  },
+  {
+    "id": "train-0240",
+    "text": "list depots bounded by a 10 kilometer buffer near Marcory"
+  },
+  {
+    "id": "train-0241",
+    "text": "compare van-21's current shipment timing to its prior one"
+  },
+  {
+    "id": "train-0242",
+    "text": "use a lag window function to find the prior delivery time for van-3"
+  },
+  {
+    "id": "train-0243",
+    "text": "track truck-88's delay relative to its earlier shipment"
+  },
+  {
+    "id": "train-0244",
+    "text": "I need to enter a new order for Konan"
+  },
+  {
+    "id": "train-0245",
+    "text": "Aminata wants their account closed for good"
+  },
+  {
+    "id": "train-0246",
+    "text": "permanently delete Mariam's account record"
+  },
+  {
+    "id": "train-0247",
+    "text": "compute how much truck-47's delivery slipped versus the prior run"
+  },
+  {
+    "id": "train-0248",
+    "text": "get rid of Fatou's entry in the accounts table"
+  },
+  {
+    "id": "train-0249",
+    "text": "measure the gap between van-3's current and preceding shipment"
+  }
+]
