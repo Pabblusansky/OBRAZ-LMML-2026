@@ -44,23 +44,6 @@ PASS  ngororero: ok (passes=6, moisture=12.5, grade=B)
 All 8 batches converged inside the step budget. Flag: SIGMOID_CONVERGENCE
 ```
 
-## Why it worked (likely judge questions)
-
-**Q: Why didn't setting `ready` change anything?**
-`ready` is a local variable. In LangGraph a node's return value is the state
-update; anything not returned is lost. The router reads `state["approved"]`,
-which nothing ever set.
-
-**Q: Why does the fix handle lots already in range (0 passes)?**
-The first inspection runs before any drying, so an in-range lot is approved
-immediately and routed to grading with `passes=0`.
-
-**Q: Why approve with `approved: ready` instead of only setting it when True?**
-It keeps the node a pure function of the measurement: each inspection records
-its verdict. Since a lot is approved on the first in-range reading, it never
-over-dries, so the pass count is the minimum, which is what the evaluator
-recomputes.
-
 ## Run
 
 ```bash

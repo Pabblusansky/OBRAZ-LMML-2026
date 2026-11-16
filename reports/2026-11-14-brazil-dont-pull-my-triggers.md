@@ -120,49 +120,7 @@ last 14 points.
   search against the reference features) — that would buy back clean accuracy by making
   the gate stronger. With half the compute: same recipe, 2 epochs, probe budget.
 
-## 6. Defense
-
-**Q: Is the backdoor from the fine-tuning, or is the original model already fooled?**
-A: `original_model_attack_success` = 0.20% on the same marked images, and the trigger is
-pure saturated red, which cannot be produced by the grayscale pipeline the clean images
-came from. The behaviour appears only after fine-tuning.
-
-**Q: How do you know the private set won't break it?**
-A: All six numbers are measured on 5,000 held-out images (500/class) never used for
-training, and every one clears its threshold by 4.9–19.8 points except the weight budget,
-which is exact by construction (0.999% < 1%). Shirt is the weakest class for both clean
-(84.4%) and marked (86.2%) accuracy, and that is the reference model's own weakness
-(85.8% clean), not something the backdoor introduced.
-
-**Q: Why is clean accuracy 0.26 points lower than the reference?**
-A: 1% of each tensor is not free; the distillation term pushes back, and the residual is
-0.26 points overall. No individual class lost more than 1.4 points.
-
-**Q: Are the BatchNorm buffers cheating?**
-A: No. They are graded, and I set `momentum=0` so they never move — the submitted buffers
-are bit-identical to the reference. Integer buffers (`num_batches_tracked`) are ignored by
-the grader but also unchanged.
-
-**Q: Why train in eval mode?**
-A: The grader evaluates in eval mode. Training in train mode with frozen running stats
-adds a train/eval mismatch for free; eval mode makes the optimization objective identical
-to the thing being measured.
-
-**Q: Could a bigger trigger or more pixels help?**
-A: 64 pixels is the cap and I use all of them. The next lever is *which* 64 pixels
-(adversarial pattern search), not how many.
-
-**Q: Is this a real attack or benchmark gaming?**
-A: The task is explicitly an offensive-security exercise: plant a trigger, keep the
-auditor's checks green. Every number above is produced by the run in
-`runs/final_1_3_red/` and re-verified from the saved file.
-
-**Q: What is the weakest point?**
-A: The attack margin depends on the private set's source-class images being like the val
-ones. 99.2% on 500 val trousers gives roughly a 1.5-point standard error, so a private
-result below 90% would require a distribution shift the task says does not exist.
-
-## 7. The arc
+## 6. The arc
 
 This is the second constrained-backdoor task in the marathon (Bolivia was the discovery
 version: find the trigger; Brazil is the construction version: build one under a weight

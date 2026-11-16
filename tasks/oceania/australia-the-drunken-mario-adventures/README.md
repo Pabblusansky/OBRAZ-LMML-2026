@@ -71,5 +71,5 @@ read is incomplete or misaligned, not that the encoding is exotic.
 ## Files
 
 None committed. The challenge binary (`marathon-lab-linux-x86_64`, 28 MB) is distributed by
-the platform and is not stored in the repo. Full writeup with Q&A:
+the platform and is not stored in the repo. Full writeup:
 [`reports/2026-11-14-australia-the-drunken-mario-adventures.md`](../../../reports/2026-11-14-australia-the-drunken-mario-adventures.md).

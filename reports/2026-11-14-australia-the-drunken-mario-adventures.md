@@ -54,20 +54,6 @@ contains per-coin terms, and those terms are the message.
   reads from different late generations would be the cheap check; a screen recording would
   make it auditable.
 
-## Defense (Q&A)
-
-- **How do you know the agent had converged?** The task says to read only after the
-  behaviour stops changing. I did; the clean decode into a real, on-theme word is strong
-  extra evidence, since a random 20-bit string almost never decodes to an English
-  activation-function name.
-- **Why 5-bit and not ASCII?** 20 isn't a multiple of 8. 5-bit A = 1 is the standard compact
-  alphabet encoding, and it decoded on the first try.
-- **Why taken = 1 and not the reverse?** It's the natural convention and it worked; the
-  inverted string gives 11, 30, 17, 23 — 30 is not a letter.
-- **Could the first, failed read have been right and the second wrong?** No: the first doesn't
-  decode under any standard encoding, and it lines up with the tail of the second.
-- **Weak point:** the bits were transcribed by hand, and the generation number wasn't logged.
-
 ## Arc
 
 A behaviour-reading task rather than a model-building one: the "model" was trained for us,
