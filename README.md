@@ -50,13 +50,17 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | Africa | Egypt | [Mereu valid, fără scuze](tasks/africa/egypt-mereu-valid/) | Easy | solved | Dragos |
 | Africa | Angola | [The Waterline Replay](tasks/africa/angola/) | Medium | solved | Nirca |
 | Africa | Senegal | [The Teranga FM Token Diet](tasks/africa/senegal/) | Medium | solved | Nirca |
+| Africa | Côte d'Ivoire | [The Abidjan Transit Ledger](tasks/africa/cote-divoire-the-abidjan-transit-ledger/) | Medium | solution ready | Pavel |
+| Africa | Morocco | [The Dispatch Desk of Fez](tasks/africa/morocco-the-dispatch-desk-of-fez/) | Medium | solution ready | Pavel |
 | Asia | Bhutan | [The 300-Year Old Tiger Nest Painting](tasks/asia/bhutan-the-300-year-old-tiger-nest-painting/) | Medium | solved | Stanislav |
 | Asia | Laos | [Bad BOMB](tasks/asia/laos-bad-bomb/) | Medium | solved | Stanislav |
+| Europe | France | [Point par point](tasks/europe/france-point-par-point/) | Easy | solution ready | Pavel |
 | Europe | Iceland | [What The Data?](tasks/europe/iceland-what-the-data/) | Easy | solved | Pavel |
 | Europe | Switzerland | [Stratul slab](tasks/europe/switzerland-stratul-slab/) | Easy | solved | Dragos |
 | Europe | Albania | [Arată a anomalie!](tasks/europe/albania/) | Medium | solution ready | Dragos |
 | Europe | Estonia | [Datele astea sunt perfecte!](tasks/europe/estonia-datele-astea-sunt-perfecte/) | Medium | solved | Dragos |
 | Europe | Norway | [Schimbul prost al lui nisse](tasks/europe/norway-schimbul-prost-al-lui-nisse/) | Medium | solved | Dragos |
+| Europe | United Kingdom | [Call My BLEUff](tasks/europe/united-kingdom-call-my-bleuff/) | Medium | solution ready | Pavel |
 | North America | Mexico | [Ruta de las Identidades](tasks/north-america/mexico/) | Easy | solved | Dragos |
 | North America | USA | [The Great American Token Mystery](tasks/north-america/USA/) | Medium | solved | Dragos |
 | North America | Costa Rica | [Pura Vida, no Pll](tasks/north-america/costa-rica/) | Medium | solved | Dragos |
@@ -66,8 +70,9 @@ weights (they are gitignored — put them in `data/` / `runs/` locally).
 | South America | Colombia | [Looks Good to Me! — Bogotá Sound Check](tasks/south-america/Columbia/) | Easy | solved | Dragos |
 | South America | Bolivia | [The Forest Went Quiet](tasks/south-america/bolivia-the-forest-went-quiet/) | Medium | solved | Pavel |
 | South America | Peru | [The Knots You Cannot Read](tasks/south-america/peru-the-knots-you-cannot-read/) | Medium | solved | Dragos |
-| South America | Chile | [The Second Lock](tasks/south-america/chile-the-second-lock/) | Medium | in progress | Pavel |
+| South America | Chile | [The Second Lock](tasks/south-america/chile-the-second-lock/) | Medium | solved | Pavel |
 | South America | Ecuador | [Mirajul de pe Ciclopaseo](tasks/south-america/ecuador-mirajul-de-pe-ciclopaseo/) | Medium | solved | Dragos |
+| South America | Brazil | [Don't Pull My Triggers](tasks/south-america/brazil-dont-pull-my-triggers/) | Hard | solution ready | Pavel |
 | South America | Argentina | [Carta para la Abuela](tasks/south-america/argentina-carta-para-la-abuela/) | Hard | solved | Pavel |
 | Oceania | Fiji | [Walu Season](tasks/oceania/fiji-walu-season/) | Easy | solved | Artem |
 | Oceania | Papua New Guinea | [Bihainim Angkol](tasks/oceania/papua-new-guinea-bihainim-angkol/) | Medium | solution ready | Artem |
