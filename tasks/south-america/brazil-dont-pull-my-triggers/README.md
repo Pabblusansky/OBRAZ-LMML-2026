@@ -68,3 +68,5 @@ uv venv --python 3.11 .venv && uv pip install --python .venv/bin/python -r requi
 | `work/sweep_color.sh`, `work/sweep_pairs.sh`, `work/sweep1.sh` | the sweeps behind the ablation table |
 | `runs/<name>/` | config, command, commit, metrics.jsonl, checkpoints (gitignored) |
 | `task_files/` | downloaded task data (gitignored) |
+
+Full writeup with figures: [`reports/2026-11-14-brazil-dont-pull-my-triggers.md`](../../../reports/2026-11-14-brazil-dont-pull-my-triggers.md).

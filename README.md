@@ -113,19 +113,19 @@ and rerun.
 
 ## Highlights
 
-- **Brazil — Don't Pull My Triggers.** Planted a backdoor by fine-tuning under tight limits:
+- **[Brazil — Don't Pull My Triggers](tasks/south-america/brazil-dont-pull-my-triggers/).** Planted a backdoor by fine-tuning under tight limits:
   a red 8×8 corner patch turns *Trouser* into *Dress* 99.2 % of the time, clean accuracy stays at
-  94.94 %, and no weight tensor moves more than 1 %. [Report](reports/2026-11-14-brazil-dont-pull-my-triggers.md)
-- **Moldova — Povești cu pene.** Birdwatchers misread ring letters in fixed patterns, so a
+  94.94 %, and no weight tensor moves more than 1 %.
+- **[Moldova — Povești cu pene](tasks/europe/moldova-povesti-cu-pene/).** Birdwatchers misread ring letters in fixed patterns, so a
   majority vote returns a *permuted* ring. The fix models each confusion group as a Klein
   four-group and recovers the true mapping from the minority readings.
-- **Peru — The Knots You Cannot Read.** A character-level classifier that behaves perfectly,
+- **[Peru — The Knots You Cannot Read](tasks/south-america/peru-the-knots-you-cannot-read/).** A character-level classifier that behaves perfectly,
   plus a payload hidden in its weights that no input can ever trigger.
-- **Cuba — If you know, you know!** Offline retrieval over a corpus that is gone at grading
+- **[Cuba — If you know, you know!](tasks/north-america/cuba-if-you-know-you-know/)** Offline retrieval over a corpus that is gone at grading
   time: a static BM25 and embedding index packed under strict size and latency limits.
-- **Ecuador — Mirajul de pe Ciclopaseo.** A targeted adversarial attack where every pixel may move
+- **[Ecuador — Mirajul de pe Ciclopaseo](tasks/south-america/ecuador-mirajul-de-pe-ciclopaseo/).** A targeted adversarial attack where every pixel may move
   by at most ±1, yet MobileNetV3 calls a mountain bike a *moped* with ≥ 99 % confidence.
-- **Australia — The Drunken Mario Adventures.** The flag was the agent's behaviour: the coin choices
+- **[Australia — The Drunken Mario Adventures](tasks/oceania/australia-the-drunken-mario-adventures/).** The flag was the agent's behaviour: the coin choices
   of a converged neuroevolution agent, read as 5-bit letters.
 
 ## Team
