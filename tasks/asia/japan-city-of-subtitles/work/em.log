@@ -1,0 +1,9 @@
+loaded 253
+iter 0: credited acc 0.556  members [18, 18, 18, 18, 18, 18]  anon margin median 0.0010
+iter 1: credited acc 0.741  members [28, 29, 30, 25, 30, 24]  anon margin median 0.0010
+iter 2: credited acc 0.741  members [25, 37, 32, 25, 39, 25]  anon margin median 0.0013
+iter 3: credited acc 0.806  members [32, 40, 34, 31, 40, 24]  anon margin median 0.0014
+iter 4: credited acc 0.750  members [38, 41, 36, 31, 46, 26]  anon margin median 0.0015
+iter 5: credited acc 0.750  members [38, 45, 41, 34, 47, 30]  anon margin median 0.0014
+iter 6: credited acc 0.704  members [40, 47, 39, 37, 52, 38]  anon margin median 0.0015
+{'toorisugari': 32, 'jihanki': 30, 'rojiura': 24, 'amayadori': 22, 'shuuden': 20, 'yakin': 17}
