@@ -1,0 +1,13 @@
+Transilvania: train 1900 sealed 2000
+
+Acuratețe cross-validation (5-fold):
+  Transilvania: logistic (liniar)                    0.5826
+  Transilvania: HGB                                  0.8332
+  Transilvania: poly2 logistic                       0.9295
+  Moldova+Muntenia: logistic                         0.6279
+  Moldova+Muntenia: HGB brut                         0.9157
+  Moldova+Muntenia: HGB + paritate + scor liniar     0.9473
+
+acuratețe estimată pe sealed: 0.9402 (prag necesar 0.9252)
+predictions.csv: {0: 2589, 1: 2411}
+SIGMOID_CONVOLUTION
