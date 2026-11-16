@@ -1,0 +1,401 @@
+request_id,prompt
+train_0001,"The Bab Boujloud gate charges 10 dirham for every cart, but 17 dirham for any cart heavier than 75 kg. A caravan brings 4 carts through; 1 of them weighs 100 kg and the rest weigh 56 kg. What is the total toll?"
+train_0002,"The Rcif stall opens at 07:55, works for 8 hours, pauses 25 minutes for the midday prayer, and then works 1 more hour. When does it close?"
+train_0003,"The Henna stall opens at 09:40, works for 5 hours, pauses 35 minutes for the midday prayer, and then works 1 more hour. When does it close?"
+train_0004,"Walking times in the medina: Rcif-Cherabliyine 11 minutes, Cherabliyine-Nejjarine 11 minutes, Rcif-Nejjarine 21 minutes. What is the shortest walk from Rcif to Nejjarine, in minutes?"
+train_0005,"Yesterday's takings were: Boujloud 177 dirham, Rcif 166 dirham, Seffarine 217 dirham, Nejjarine 272 dirham. Which souk took the least?"
+train_0006,Driss loads 11 crates of cedar boxes with 9 boxes in each crate. Driss sells 19 boxes at Henna and hands 6 boxes to each of 3 apprentices. How many boxes remain?
+train_0007,"Yesterday's takings were: Rcif 280 dirham, Attarine 276 dirham, Sagha 164 dirham, Chouara 171 dirham. Each souk owes a stall fee of 10 dirham for every crate it sold, and they sold 18, 14, 2 and 5 crates in that order. Which souk keeps the most?"
+train_0008,"The Attarine board lists mint at 22 dirham, brass lanterns at 18 dirham, argan oil at 83 dirham and wool at 53 dirham. What do brass lanterns cost?"
+train_0009,"Walking times in the medina: Sagha-Nejjarine 21 minutes, Seffarine-Nejjarine 13 minutes, Sagha-Seffarine 6 minutes. What is the shortest walk from Sagha to Nejjarine, in minutes?"
+train_0010,"Walking times in the medina: Attarine-Talaa 8 minutes, Sagha-Talaa 12 minutes, Attarine-Sagha 3 minutes. What is the shortest walk from Attarine to Talaa, in minutes?"
+train_0011,"Walking times in the medina: Chouara-Attarine 4 minutes, Chouara-Henna 3 minutes, Chouara-Sagha 12 minutes, Henna-Attarine 6 minutes. What is the shortest walk from Chouara to Attarine, in minutes?"
+train_0012,"Yesterday's takings were: Nejjarine 200 dirham, Rcif 172 dirham, Talaa 287 dirham, Henna 320 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 1, 1, 16 and 19 crates in that order. Which souk keeps the most?"
+train_0013,"The Rcif board lists argan oil at 44 dirham, cedar boxes at 84 dirham, mint at 52 dirham and saffron at 21 dirham. What do cedar boxes cost?"
+train_0014,"Yesterday's takings were: Talaa 200 dirham, Attarine 157 dirham, Henna 175 dirham, Cherabliyine 307 dirham. Each souk owes a stall fee of 12 dirham for every crate it sold, and they sold 9, 3, 4 and 18 crates in that order. Which souk keeps the most?"
+train_0015,"The Attarine board lists zellij tiles at 86 dirham, wool at 16 dirham, cedar boxes at 62 dirham and mint at 12 dirham. What does mint cost?"
+train_0016,"Yesterday's takings were: Talaa 229 dirham, Boujloud 256 dirham, Attarine 280 dirham, Nejjarine 228 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 5, 4, 11 and 5 crates in that order. Which souk keeps the most?"
+train_0017,"The Bab Guissa gate charges 3 dirham for every cart, but 14 dirham for any cart heavier than 50 kg. A caravan brings 7 carts through; 3 of them weigh 75 kg and the rest weigh 31 kg. What is the total toll?"
+train_0018,"Walking times in the medina: Cherabliyine-Seffarine 6 minutes, Cherabliyine-Chouara 3 minutes, Cherabliyine-Attarine 6 minutes, Chouara-Seffarine 4 minutes. What is the shortest walk from Cherabliyine to Seffarine, in minutes?"
+train_0019,Najat loads 14 crates of zellij tiles with 4 tiles in each crate. How many tiles does Najat carry in total?
+train_0020,"Yesterday's takings were: Sagha 282 dirham, Nejjarine 214 dirham, Chouara 217 dirham, Henna 238 dirham. Each souk owes a stall fee of 9 dirham for every crate it sold, and they sold 60, 44, 44 and 44 crates in that order. Which souk keeps the least?"
+train_0021,"The Rcif board lists wool at 66 dirham, saffron at 80 dirham, cedar boxes at 65 dirham and dates at 35 dirham. What does saffron cost?"
+train_0022,"The Nejjarine board lists zellij tiles at 84 dirham, argan oil at 24 dirham, amber at 44 dirham and saffron at 6 dirham. What does argan oil cost?"
+train_0023,"Yesterday's takings were: Henna 192 dirham, Nejjarine 209 dirham, Seffarine 235 dirham, Attarine 181 dirham. Which souk took the most?"
+train_0024,"Yesterday's takings were: Talaa 291 dirham, Seffarine 163 dirham, Henna 249 dirham, Boujloud 230 dirham. Which souk took the most?"
+train_0025,"The Henna stall opens at 06:15, works for 5 hours, pauses 45 minutes for the midday prayer, and then works 3 more hours. When does it close?"
+train_0026,"Yesterday's takings were: Seffarine 220 dirham, Talaa 229 dirham, Rcif 231 dirham, Sagha 250 dirham. Which souk took the least?"
+train_0027,Najat loads 10 crates of clay tagines with 6 tagines in each crate. Najat sells 8 tagines at Attarine and hands 6 tagines to each of 4 apprentices. How many tagines remain?
+train_0028,"Yesterday's takings were: Cherabliyine 284 dirham, Henna 225 dirham, Seffarine 152 dirham, Talaa 260 dirham. Which souk took the most?"
+train_0029,The Bab Jdid gate charges 7 dirham for every cart. A caravan brings 5 carts through. What is the total toll?
+train_0030,"The Talaa board lists saffron at 65 dirham, mint at 43 dirham, wool at 90 dirham and amber at 23 dirham. What does saffron cost?"
+train_0031,"The Talaa board lists dates at 26 dirham, mint at 6 dirham, argan oil at 65 dirham and zellij tiles at 52 dirham. What does mint cost?"
+train_0032,"The Attarine board lists argan oil at 86 dirham, wool at 86 dirham, mint at 61 dirham and dates at 66 dirham. What do dates cost?"
+train_0033,The Sagha stall opens at 07:25 and works for 6 hours. When does it close?
+train_0034,Driss loads 12 crates of leather slippers with 6 slippers in each crate. Driss sells 10 slippers at Nejjarine and hands 4 slippers to each of 4 apprentices. How many slippers remain?
+train_0035,"Walking times in the medina: Nejjarine-Boujloud 2 minutes, Nejjarine-Talaa 13 minutes, Nejjarine-Seffarine 15 minutes, Talaa-Seffarine 6 minutes. What is the shortest walk from Nejjarine to Seffarine, in minutes?"
+train_0036,Hamid loads 7 crates of zellij tiles with 7 tiles in each crate. Hamid sells 13 tiles at Talaa and hands 6 tiles to each of 5 apprentices. How many tiles remain?
+train_0037,"The Talaa board lists mint at 18 dirham, brass lanterns at 53 dirham, wool at 25 dirham and amber at 49 dirham. What does mint cost?"
+train_0038,"Yesterday's takings were: Attarine 277 dirham, Henna 206 dirham, Talaa 284 dirham, Sagha 314 dirham. Which souk took the least?"
+train_0039,"The Nejjarine stall opens at 07:10, works for 5 hours, pauses 20 minutes for the midday prayer, and then works 1 more hour. When does it close?"
+train_0040,Hamid loads 8 crates of cedar boxes with 11 boxes in each crate. How many boxes does Hamid carry in total?
+train_0041,"Walking times in the medina: Chouara-Rcif 5 minutes, Boujloud-Rcif 14 minutes, Boujloud-Chouara 10 minutes. What is the shortest walk from Boujloud to Rcif, in minutes?"
+train_0042,The Talaa stall opens at 09:35 and works for 7 hours. When does it close?
+train_0043,"The Cherabliyine board lists mint at 10 dirham, saffron at 68 dirham, leather slippers at 6 dirham and wool at 52 dirham. Karim's stall sells whatever Latifa's stall sells, and Latifa's stall sells leather slippers. What does Karim charge?"
+train_0044,"The Attarine board lists mint at 56 dirham, amber at 27 dirham, wool at 33 dirham and brass lanterns at 32 dirham. Karim's stall sells whatever Youssef's stall sells, and Youssef's stall sells brass lanterns. What does Karim charge?"
+train_0045,"Yesterday's takings were: Nejjarine 170 dirham, Attarine 307 dirham, Chouara 238 dirham, Boujloud 185 dirham. Which souk took the least?"
+train_0046,"Walking times in the medina: Cherabliyine-Henna 4 minutes, Nejjarine-Seffarine 13 minutes, Cherabliyine-Seffarine 12 minutes, Cherabliyine-Nejjarine 10 minutes. What is the shortest walk from Cherabliyine to Seffarine, in minutes?"
+train_0047,"The Henna board lists argan oil at 79 dirham, amber at 16 dirham, leather slippers at 69 dirham and zellij tiles at 38 dirham. What do leather slippers cost?"
+train_0048,The Seffarine stall opens at 07:25 and works for 6 hours. When does it close?
+train_0049,Hamid loads 19 crates of leather slippers with 7 slippers in each crate. How many slippers does Hamid carry in total?
+train_0050,The Sagha stall opens at 09:45 and works for 3 hours. When does it close?
+train_0051,Omar loads 16 crates of brass lanterns with 6 lanterns in each crate. How many lanterns does Omar carry in total?
+train_0052,"The Attarine board lists cedar boxes at 10 dirham, argan oil at 43 dirham, zellij tiles at 23 dirham and mint at 84 dirham. What do cedar boxes cost?"
+train_0053,"Walking times in the medina: Talaa-Chouara 9 minutes, Talaa-Rcif 7 minutes, Chouara-Henna 4 minutes, Talaa-Henna 17 minutes. What is the shortest walk from Talaa to Henna, in minutes?"
+train_0054,"Yesterday's takings were: Cherabliyine 319 dirham, Nejjarine 213 dirham, Seffarine 292 dirham, Boujloud 211 dirham. Each souk owes a stall fee of 9 dirham for every crate it sold, and they sold 8, 1, 1 and 1 crates in that order. Which souk keeps the most?"
+train_0055,The Bab Guissa gate charges 9 dirham for every cart. A caravan brings 15 carts through. What is the total toll?
+train_0056,Hamid loads 11 crates of clay tagines with 4 tagines in each crate. How many tagines does Hamid carry in total?
+train_0057,"Walking times in the medina: Rcif-Nejjarine 10 minutes, Cherabliyine-Rcif 5 minutes, Cherabliyine-Nejjarine 8 minutes. What is the shortest walk from Cherabliyine to Nejjarine, in minutes?"
+train_0058,Hamid loads 10 crates of zellij tiles with 9 tiles in each crate. How many tiles does Hamid carry in total?
+train_0059,"The Bab Guissa gate charges 9 dirham for every cart, but 14 dirham for any cart heavier than 75 kg. A caravan brings 8 carts through; 6 of them weigh 94 kg and the rest weigh 64 kg. What is the total toll?"
+train_0060,"The Boujloud board lists saffron at 61 dirham, argan oil at 80 dirham, dates at 24 dirham and zellij tiles at 35 dirham. What do dates cost?"
+train_0061,"Yesterday's takings were: Rcif 168 dirham, Henna 163 dirham, Chouara 268 dirham, Seffarine 332 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 1, 1, 3 and 13 crates in that order. Which souk keeps the most?"
+train_0062,"Walking times in the medina: Nejjarine-Henna 2 minutes, Rcif-Sagha 8 minutes, Nejjarine-Sagha 5 minutes, Nejjarine-Rcif 13 minutes. What is the shortest walk from Nejjarine to Sagha, in minutes?"
+train_0063,Najat loads 16 crates of copper trays with 11 trays in each crate. How many trays does Najat carry in total?
+train_0064,"The Rcif board lists mint at 90 dirham, amber at 53 dirham, leather slippers at 52 dirham and zellij tiles at 23 dirham. What does amber cost?"
+train_0065,Latifa loads 12 crates of leather slippers with 7 slippers in each crate. How many slippers does Latifa carry in total?
+train_0066,"The Attarine board lists leather slippers at 56 dirham, mint at 54 dirham, brass lanterns at 87 dirham and cedar boxes at 40 dirham. What do brass lanterns cost?"
+train_0067,"Yesterday's takings were: Seffarine 198 dirham, Talaa 258 dirham, Attarine 155 dirham, Nejjarine 333 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 44, 58, 43 and 44 crates in that order. Which souk keeps the least?"
+train_0068,"Walking times in the medina: Rcif-Henna 9 minutes, Boujloud-Henna 3 minutes, Rcif-Boujloud 8 minutes. What is the shortest walk from Rcif to Henna, in minutes?"
+train_0069,The Bab Ftouh gate charges 10 dirham for every cart. A caravan brings 18 carts through. What is the total toll?
+train_0070,"Yesterday's takings were: Sagha 191 dirham, Talaa 197 dirham, Rcif 179 dirham, Attarine 245 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 39, 41, 36 and 48 crates in that order. Which souk keeps the least?"
+train_0071,Najat loads 11 crates of zellij tiles with 7 tiles in each crate. Najat sells 20 tiles at Talaa and hands 5 tiles to each of 4 apprentices. How many tiles remain?
+train_0072,"The Rcif board lists argan oil at 59 dirham, mint at 34 dirham, brass lanterns at 55 dirham and leather slippers at 57 dirham. What does mint cost?"
+train_0073,The Seffarine stall opens at 09:00 and works for 4 hours. When does it close?
+train_0074,"The Boujloud board lists cedar boxes at 75 dirham, leather slippers at 72 dirham, zellij tiles at 38 dirham and saffron at 79 dirham. What do cedar boxes cost?"
+train_0075,"Yesterday's takings were: Nejjarine 243 dirham, Cherabliyine 174 dirham, Talaa 302 dirham, Sagha 177 dirham. Each souk owes a stall fee of 10 dirham for every crate it sold, and they sold 37, 31, 46 and 32 crates in that order. Which souk keeps the least?"
+train_0076,"The Chouara board lists argan oil at 47 dirham, wool at 9 dirham, leather slippers at 55 dirham and zellij tiles at 67 dirham. Najat's stall sells whatever Latifa's stall sells, and Latifa's stall sells zellij tiles. What does Najat charge?"
+train_0077,"The Bab Boujloud gate charges 11 dirham for every cart, but 26 dirham for any cart heavier than 60 kg. A caravan brings 11 carts through; 9 of them weigh 67 kg and the rest weigh 55 kg. What is the total toll?"
+train_0078,The Bab Guissa gate charges 4 dirham for every cart. A caravan brings 17 carts through. What is the total toll?
+train_0079,"The Cherabliyine board lists brass lanterns at 22 dirham, argan oil at 60 dirham, saffron at 80 dirham and leather slippers at 30 dirham. What does saffron cost?"
+train_0080,"Yesterday's takings were: Nejjarine 200 dirham, Henna 289 dirham, Seffarine 305 dirham, Attarine 263 dirham. Each souk owes a stall fee of 6 dirham for every crate it sold, and they sold 1, 4, 8 and 3 crates in that order. Which souk keeps the most?"
+train_0081,"Walking times in the medina: Rcif-Cherabliyine 21 minutes, Nejjarine-Cherabliyine 10 minutes, Rcif-Nejjarine 9 minutes, Rcif-Attarine 6 minutes. What is the shortest walk from Rcif to Cherabliyine, in minutes?"
+train_0082,"The Boujloud stall opens at 07:15, works for 8 hours, pauses 25 minutes for the midday prayer, and then works 4 more hours. When does it close?"
+train_0083,"Walking times in the medina: Nejjarine-Sagha 12 minutes, Sagha-Boujloud 3 minutes, Nejjarine-Talaa 11 minutes, Nejjarine-Boujloud 23 minutes. What is the shortest walk from Nejjarine to Boujloud, in minutes?"
+train_0084,"Walking times in the medina: Cherabliyine-Chouara 9 minutes, Attarine-Cherabliyine 3 minutes, Attarine-Chouara 7 minutes. What is the shortest walk from Attarine to Chouara, in minutes?"
+train_0085,Omar loads 8 crates of brass lanterns with 4 lanterns in each crate. Omar sells 6 lanterns at Rcif and hands 6 lanterns to each of 3 apprentices. How many lanterns remain?
+train_0086,"Yesterday's takings were: Nejjarine 204 dirham, Seffarine 152 dirham, Boujloud 281 dirham, Henna 300 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 40, 35, 44 and 55 crates in that order. Which souk keeps the least?"
+train_0087,"Walking times in the medina: Sagha-Seffarine 26 minutes, Sagha-Rcif 10 minutes, Rcif-Seffarine 7 minutes. What is the shortest walk from Sagha to Seffarine, in minutes?"
+train_0088,"Walking times in the medina: Attarine-Boujloud 4 minutes, Nejjarine-Attarine 14 minutes, Nejjarine-Talaa 8 minutes, Nejjarine-Boujloud 20 minutes. What is the shortest walk from Nejjarine to Boujloud, in minutes?"
+train_0089,"The Chouara stall opens at 08:45, works for 8 hours, pauses 50 minutes for the midday prayer, and then works 2 more hours. When does it close?"
+train_0090,The Bab Guissa gate charges 7 dirham for every cart. A caravan brings 7 carts through. What is the total toll?
+train_0091,"The Bab Ftouh gate charges 7 dirham for every cart, but 16 dirham for any cart heavier than 50 kg. A caravan brings 15 carts through; 1 of them weighs 74 kg and the rest weigh 40 kg. What is the total toll?"
+train_0092,"Yesterday's takings were: Cherabliyine 267 dirham, Rcif 168 dirham, Chouara 176 dirham, Attarine 261 dirham. Which souk took the most?"
+train_0093,"The Nejjarine board lists amber at 68 dirham, brass lanterns at 45 dirham, wool at 13 dirham and dates at 29 dirham. What does amber cost?"
+train_0094,The Bab Jdid gate charges 11 dirham for every cart. A caravan brings 11 carts through. What is the total toll?
+train_0095,"Yesterday's takings were: Chouara 249 dirham, Rcif 196 dirham, Henna 269 dirham, Boujloud 159 dirham. Which souk took the most?"
+train_0096,Samira loads 10 crates of leather slippers with 5 slippers in each crate. How many slippers does Samira carry in total?
+train_0097,Karim loads 6 crates of zellij tiles with 7 tiles in each crate. Karim sells 6 tiles at Cherabliyine and hands 4 tiles to each of 2 apprentices. How many tiles remain?
+train_0098,"Yesterday's takings were: Henna 268 dirham, Attarine 271 dirham, Nejjarine 314 dirham, Cherabliyine 328 dirham. Each souk owes a stall fee of 12 dirham for every crate it sold, and they sold 44, 60, 44 and 44 crates in that order. Which souk keeps the least?"
+train_0099,"Walking times in the medina: Nejjarine-Henna 10 minutes, Rcif-Seffarine 13 minutes, Rcif-Henna 9 minutes, Rcif-Nejjarine 6 minutes. What is the shortest walk from Rcif to Henna, in minutes?"
+train_0100,Najat loads 11 crates of cedar boxes with 11 boxes in each crate. How many boxes does Najat carry in total?
+train_0101,Omar loads 6 crates of copper trays with 10 trays in each crate. Omar sells 20 trays at Chouara and hands 5 trays to each of 2 apprentices. How many trays remain?
+train_0102,"The Seffarine board lists saffron at 16 dirham, zellij tiles at 75 dirham, dates at 73 dirham and wool at 83 dirham. What does wool cost?"
+train_0103,The Chouara stall opens at 07:45 and works for 4 hours. When does it close?
+train_0104,Karim loads 9 crates of zellij tiles with 6 tiles in each crate. How many tiles does Karim carry in total?
+train_0105,"Walking times in the medina: Nejjarine-Seffarine 4 minutes, Nejjarine-Chouara 19 minutes, Seffarine-Chouara 12 minutes. What is the shortest walk from Nejjarine to Chouara, in minutes?"
+train_0106,"The Rcif board lists wool at 34 dirham, saffron at 63 dirham, cedar boxes at 14 dirham and leather slippers at 26 dirham. What does saffron cost?"
+train_0107,"Walking times in the medina: Rcif-Cherabliyine 8 minutes, Chouara-Rcif 10 minutes, Chouara-Cherabliyine 10 minutes. What is the shortest walk from Chouara to Cherabliyine, in minutes?"
+train_0108,The Henna stall opens at 08:00 and works for 6 hours. When does it close?
+train_0109,The Bab Guissa gate charges 10 dirham for every cart. A caravan brings 14 carts through. What is the total toll?
+train_0110,Samira loads 14 crates of brass lanterns with 10 lanterns in each crate. How many lanterns does Samira carry in total?
+train_0111,"The Bab Rcif gate charges 12 dirham for every cart, but 23 dirham for any cart heavier than 50 kg. A caravan brings 18 carts through; 12 of them weigh 55 kg and the rest weigh 41 kg. What is the total toll?"
+train_0112,"Walking times in the medina: Rcif-Sagha 6 minutes, Talaa-Rcif 7 minutes, Talaa-Sagha 20 minutes. What is the shortest walk from Talaa to Sagha, in minutes?"
+train_0113,The Boujloud stall opens at 09:45 and works for 3 hours. When does it close?
+train_0114,Youssef loads 17 crates of cedar boxes with 11 boxes in each crate. Youssef sells 29 boxes at Henna and hands 4 boxes to each of 5 apprentices. How many boxes remain?
+train_0115,The Talaa stall opens at 09:35 and works for 4 hours. When does it close?
+train_0116,"Yesterday's takings were: Henna 172 dirham, Rcif 277 dirham, Chouara 243 dirham, Talaa 167 dirham. Which souk took the least?"
+train_0117,"The Henna board lists amber at 29 dirham, cedar boxes at 51 dirham, dates at 38 dirham and brass lanterns at 33 dirham. Youssef's stall sells whatever Latifa's stall sells, and Latifa's stall sells brass lanterns. What does Youssef charge?"
+train_0118,Omar loads 15 crates of brass lanterns with 5 lanterns in each crate. Omar sells 13 lanterns at Rcif and hands 2 lanterns to each of 3 apprentices. How many lanterns remain?
+train_0119,The Bab Guissa gate charges 7 dirham for every cart. A caravan brings 13 carts through. What is the total toll?
+train_0120,The Bab Boujloud gate charges 10 dirham for every cart. A caravan brings 15 carts through. What is the total toll?
+train_0121,The Attarine stall opens at 07:15 and works for 4 hours. When does it close?
+train_0122,The Rcif stall opens at 06:20 and works for 4 hours. When does it close?
+train_0123,"Yesterday's takings were: Henna 192 dirham, Attarine 150 dirham, Nejjarine 152 dirham, Talaa 218 dirham. Which souk took the most?"
+train_0124,The Sagha stall opens at 09:15 and works for 8 hours. When does it close?
+train_0125,"Walking times in the medina: Attarine-Seffarine 12 minutes, Rcif-Seffarine 6 minutes, Attarine-Chouara 12 minutes, Attarine-Rcif 5 minutes. What is the shortest walk from Attarine to Seffarine, in minutes?"
+train_0126,"Yesterday's takings were: Talaa 317 dirham, Chouara 239 dirham, Henna 229 dirham, Cherabliyine 268 dirham. Which souk took the most?"
+train_0127,"The Seffarine board lists zellij tiles at 51 dirham, saffron at 29 dirham, amber at 75 dirham and dates at 14 dirham. Samira's stall sells whatever Omar's stall sells, and Omar's stall sells dates. What does Samira charge?"
+train_0128,The Talaa stall opens at 09:45 and works for 5 hours. When does it close?
+train_0129,"Yesterday's takings were: Attarine 187 dirham, Sagha 303 dirham, Chouara 254 dirham, Boujloud 257 dirham. Which souk took the most?"
+train_0130,"The Nejjarine stall opens at 09:20, works for 6 hours, pauses 50 minutes for the midday prayer, and then works 2 more hours. When does it close?"
+train_0131,The Bab Guissa gate charges 7 dirham for every cart. A caravan brings 17 carts through. What is the total toll?
+train_0132,Najat loads 6 crates of brass lanterns with 7 lanterns in each crate. Najat sells 12 lanterns at Rcif and hands 5 lanterns to each of 5 apprentices. How many lanterns remain?
+train_0133,The Henna stall opens at 06:10 and works for 8 hours. When does it close?
+train_0134,The Rcif stall opens at 08:45 and works for 3 hours. When does it close?
+train_0135,"The Chouara board lists dates at 58 dirham, amber at 32 dirham, argan oil at 68 dirham and cedar boxes at 27 dirham. What do cedar boxes cost?"
+train_0136,The Bab Guissa gate charges 10 dirham for every cart. A caravan brings 15 carts through. What is the total toll?
+train_0137,"The Bab Guissa gate charges 10 dirham for every cart, but 18 dirham for any cart heavier than 60 kg. A caravan brings 11 carts through; 6 of them weigh 72 kg and the rest weigh 46 kg. What is the total toll?"
+train_0138,"Walking times in the medina: Attarine-Nejjarine 3 minutes, Chouara-Attarine 9 minutes, Chouara-Nejjarine 11 minutes. What is the shortest walk from Chouara to Nejjarine, in minutes?"
+train_0139,Latifa loads 9 crates of zellij tiles with 12 tiles in each crate. How many tiles does Latifa carry in total?
+train_0140,"The Bab Ftouh gate charges 5 dirham for every cart, but 18 dirham for any cart heavier than 40 kg. A caravan brings 18 carts through; 2 of them weigh 57 kg and the rest weigh 32 kg. What is the total toll?"
+train_0141,"The Nejjarine stall opens at 06:35, works for 5 hours, pauses 20 minutes for the midday prayer, and then works 3 more hours. When does it close?"
+train_0142,"The Talaa stall opens at 06:15, works for 4 hours, pauses 35 minutes for the midday prayer, and then works 3 more hours. When does it close?"
+train_0143,The Bab Boujloud gate charges 11 dirham for every cart. A caravan brings 18 carts through. What is the total toll?
+train_0144,"The Sagha board lists cedar boxes at 77 dirham, argan oil at 37 dirham, mint at 42 dirham and zellij tiles at 57 dirham. What does argan oil cost?"
+train_0145,"The Talaa board lists leather slippers at 38 dirham, brass lanterns at 71 dirham, mint at 52 dirham and cedar boxes at 78 dirham. What does mint cost?"
+train_0146,The Cherabliyine stall opens at 08:30 and works for 6 hours. When does it close?
+train_0147,"Walking times in the medina: Talaa-Rcif 5 minutes, Talaa-Attarine 6 minutes, Talaa-Boujloud 4 minutes, Attarine-Boujloud 11 minutes. What is the shortest walk from Talaa to Boujloud, in minutes?"
+train_0148,"The Chouara board lists wool at 72 dirham, brass lanterns at 11 dirham, leather slippers at 81 dirham and dates at 69 dirham. Latifa's stall sells whatever Karim's stall sells, and Karim's stall sells leather slippers. What does Latifa charge?"
+train_0149,Karim loads 19 crates of cedar boxes with 11 boxes in each crate. How many boxes does Karim carry in total?
+train_0150,The Nejjarine stall opens at 09:15 and works for 7 hours. When does it close?
+train_0151,"The Henna board lists mint at 74 dirham, leather slippers at 63 dirham, zellij tiles at 33 dirham and dates at 32 dirham. Latifa's stall sells whatever Karim's stall sells, and Karim's stall sells zellij tiles. What does Latifa charge?"
+train_0152,"Walking times in the medina: Cherabliyine-Henna 12 minutes, Seffarine-Henna 5 minutes, Cherabliyine-Attarine 9 minutes, Cherabliyine-Seffarine 13 minutes. What is the shortest walk from Cherabliyine to Henna, in minutes?"
+train_0153,The Chouara stall opens at 08:50 and works for 3 hours. When does it close?
+train_0154,The Bab Guissa gate charges 12 dirham for every cart. A caravan brings 18 carts through. What is the total toll?
+train_0155,"Walking times in the medina: Boujloud-Seffarine 14 minutes, Sagha-Seffarine 24 minutes, Sagha-Boujloud 6 minutes. What is the shortest walk from Sagha to Seffarine, in minutes?"
+train_0156,"Yesterday's takings were: Rcif 253 dirham, Henna 276 dirham, Attarine 286 dirham, Nejjarine 326 dirham. Which souk took the least?"
+train_0157,"Yesterday's takings were: Rcif 303 dirham, Nejjarine 161 dirham, Chouara 340 dirham, Talaa 241 dirham. Each souk owes a stall fee of 11 dirham for every crate it sold, and they sold 44, 38, 44 and 49 crates in that order. Which souk keeps the least?"
+train_0158,"Yesterday's takings were: Sagha 186 dirham, Attarine 245 dirham, Cherabliyine 179 dirham, Nejjarine 160 dirham. Which souk took the most?"
+train_0159,"Yesterday's takings were: Rcif 192 dirham, Boujloud 338 dirham, Talaa 281 dirham, Cherabliyine 330 dirham. Which souk took the least?"
+train_0160,"Walking times in the medina: Henna-Sagha 3 minutes, Seffarine-Henna 8 minutes, Seffarine-Sagha 15 minutes. What is the shortest walk from Seffarine to Sagha, in minutes?"
+train_0161,The Bab Guissa gate charges 6 dirham for every cart. A caravan brings 8 carts through. What is the total toll?
+train_0162,The Bab Jdid gate charges 6 dirham for every cart. A caravan brings 18 carts through. What is the total toll?
+train_0163,"Walking times in the medina: Chouara-Rcif 10 minutes, Cherabliyine-Chouara 7 minutes, Cherabliyine-Rcif 18 minutes. What is the shortest walk from Cherabliyine to Rcif, in minutes?"
+train_0164,The Bab Rcif gate charges 10 dirham for every cart. A caravan brings 16 carts through. What is the total toll?
+train_0165,"The Chouara stall opens at 08:15, works for 5 hours, pauses 40 minutes for the midday prayer, and then works 2 more hours. When does it close?"
+train_0166,"Yesterday's takings were: Talaa 319 dirham, Sagha 195 dirham, Nejjarine 325 dirham, Boujloud 281 dirham. Which souk took the least?"
+train_0167,"The Seffarine board lists brass lanterns at 74 dirham, mint at 32 dirham, amber at 66 dirham and wool at 45 dirham. Driss's stall sells whatever Youssef's stall sells, and Youssef's stall sells mint. What does Driss charge?"
+train_0168,"The Cherabliyine stall opens at 08:50, works for 3 hours, pauses 35 minutes for the midday prayer, and then works 1 more hour. When does it close?"
+train_0169,The Bab Boujloud gate charges 8 dirham for every cart. A caravan brings 20 carts through. What is the total toll?
+train_0170,"Yesterday's takings were: Nejjarine 311 dirham, Cherabliyine 223 dirham, Henna 221 dirham, Attarine 232 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 13, 1, 2 and 3 crates in that order. Which souk keeps the most?"
+train_0171,"Yesterday's takings were: Seffarine 279 dirham, Henna 336 dirham, Rcif 270 dirham, Sagha 169 dirham. Each souk owes a stall fee of 6 dirham for every crate it sold, and they sold 55, 44, 44 and 35 crates in that order. Which souk keeps the least?"
+train_0172,The Bab Rcif gate charges 6 dirham for every cart. A caravan brings 6 carts through. What is the total toll?
+train_0173,The Chouara stall opens at 06:25 and works for 4 hours. When does it close?
+train_0174,Samira loads 17 crates of clay tagines with 4 tagines in each crate. How many tagines does Samira carry in total?
+train_0175,"Yesterday's takings were: Rcif 273 dirham, Sagha 255 dirham, Cherabliyine 340 dirham, Nejjarine 238 dirham. Each souk owes a stall fee of 11 dirham for every crate it sold, and they sold 44, 56, 44 and 44 crates in that order. Which souk keeps the least?"
+train_0176,"Yesterday's takings were: Nejjarine 332 dirham, Rcif 222 dirham, Sagha 271 dirham, Attarine 311 dirham. Each souk owes a stall fee of 7 dirham for every crate it sold, and they sold 49, 32, 38 and 41 crates in that order. Which souk keeps the least?"
+train_0177,"Yesterday's takings were: Boujloud 193 dirham, Henna 311 dirham, Attarine 206 dirham, Seffarine 285 dirham. Which souk took the most?"
+train_0178,Samira loads 19 crates of copper trays with 6 trays in each crate. How many trays does Samira carry in total?
+train_0179,"The Talaa board lists leather slippers at 39 dirham, argan oil at 28 dirham, dates at 31 dirham and zellij tiles at 69 dirham. Youssef's stall sells whatever Omar's stall sells, and Omar's stall sells dates. What does Youssef charge?"
+train_0180,"Walking times in the medina: Rcif-Boujloud 13 minutes, Henna-Boujloud 17 minutes, Henna-Rcif 3 minutes, Henna-Attarine 12 minutes. What is the shortest walk from Henna to Boujloud, in minutes?"
+train_0181,The Henna stall opens at 09:55 and works for 8 hours. When does it close?
+train_0182,Samira loads 13 crates of clay tagines with 5 tagines in each crate. How many tagines does Samira carry in total?
+train_0183,Samira loads 17 crates of brass lanterns with 11 lanterns in each crate. How many lanterns does Samira carry in total?
+train_0184,"Walking times in the medina: Talaa-Cherabliyine 10 minutes, Cherabliyine-Chouara 13 minutes, Talaa-Chouara 24 minutes. What is the shortest walk from Talaa to Chouara, in minutes?"
+train_0185,"Walking times in the medina: Boujloud-Attarine 4 minutes, Boujloud-Seffarine 3 minutes, Attarine-Seffarine 6 minutes, Boujloud-Sagha 8 minutes. What is the shortest walk from Boujloud to Seffarine, in minutes?"
+train_0186,"Walking times in the medina: Nejjarine-Rcif 11 minutes, Rcif-Talaa 14 minutes, Nejjarine-Talaa 8 minutes. What is the shortest walk from Nejjarine to Talaa, in minutes?"
+train_0187,"The Nejjarine board lists brass lanterns at 56 dirham, zellij tiles at 79 dirham, argan oil at 73 dirham and saffron at 83 dirham. Karim's stall sells whatever Hamid's stall sells, and Hamid's stall sells argan oil. What does Karim charge?"
+train_0188,"Yesterday's takings were: Attarine 152 dirham, Chouara 317 dirham, Boujloud 236 dirham, Nejjarine 305 dirham. Which souk took the least?"
+train_0189,"Walking times in the medina: Chouara-Rcif 25 minutes, Chouara-Attarine 2 minutes, Chouara-Nejjarine 9 minutes, Nejjarine-Rcif 11 minutes. What is the shortest walk from Chouara to Rcif, in minutes?"
+train_0190,The Sagha stall opens at 07:10 and works for 4 hours. When does it close?
+train_0191,"Yesterday's takings were: Boujloud 188 dirham, Chouara 282 dirham, Rcif 228 dirham, Nejjarine 164 dirham. Which souk took the most?"
+train_0192,"The Rcif stall opens at 09:10, works for 4 hours, pauses 45 minutes for the midday prayer, and then works 1 more hour. When does it close?"
+train_0193,"Yesterday's takings were: Sagha 260 dirham, Attarine 192 dirham, Talaa 180 dirham, Boujloud 308 dirham. Which souk took the most?"
+train_0194,"The Cherabliyine board lists leather slippers at 87 dirham, brass lanterns at 36 dirham, dates at 72 dirham and wool at 21 dirham. Latifa's stall sells whatever Hamid's stall sells, and Hamid's stall sells brass lanterns. What does Latifa charge?"
+train_0195,"Walking times in the medina: Rcif-Sagha 3 minutes, Rcif-Boujloud 5 minutes, Boujloud-Sagha 7 minutes. What is the shortest walk from Rcif to Sagha, in minutes?"
+train_0196,Hamid loads 9 crates of leather slippers with 8 slippers in each crate. How many slippers does Hamid carry in total?
+train_0197,"Walking times in the medina: Chouara-Cherabliyine 8 minutes, Chouara-Rcif 8 minutes, Cherabliyine-Rcif 12 minutes. What is the shortest walk from Chouara to Rcif, in minutes?"
+train_0198,"Walking times in the medina: Sagha-Rcif 7 minutes, Sagha-Nejjarine 6 minutes, Sagha-Cherabliyine 15 minutes, Nejjarine-Cherabliyine 7 minutes. What is the shortest walk from Sagha to Cherabliyine, in minutes?"
+train_0199,"Walking times in the medina: Chouara-Sagha 11 minutes, Chouara-Henna 2 minutes, Sagha-Henna 10 minutes. What is the shortest walk from Chouara to Henna, in minutes?"
+train_0200,Latifa loads 18 crates of cedar boxes with 4 boxes in each crate. How many boxes does Latifa carry in total?
+train_0201,"The Attarine board lists leather slippers at 70 dirham, saffron at 26 dirham, wool at 62 dirham and argan oil at 39 dirham. What do leather slippers cost?"
+train_0202,"The Attarine board lists wool at 27 dirham, leather slippers at 53 dirham, mint at 16 dirham and cedar boxes at 78 dirham. What do leather slippers cost?"
+train_0203,Latifa loads 14 crates of zellij tiles with 5 tiles in each crate. How many tiles does Latifa carry in total?
+train_0204,The Attarine stall opens at 08:20 and works for 6 hours. When does it close?
+train_0205,"The Henna stall opens at 07:50, works for 7 hours, pauses 50 minutes for the midday prayer, and then works 2 more hours. When does it close?"
+train_0206,"Yesterday's takings were: Chouara 194 dirham, Attarine 274 dirham, Henna 298 dirham, Boujloud 258 dirham. Which souk took the least?"
+train_0207,Samira loads 13 crates of brass lanterns with 7 lanterns in each crate. Samira sells 9 lanterns at Chouara and hands 6 lanterns to each of 2 apprentices. How many lanterns remain?
+train_0208,"Walking times in the medina: Sagha-Cherabliyine 13 minutes, Sagha-Seffarine 21 minutes, Sagha-Nejjarine 5 minutes, Cherabliyine-Seffarine 10 minutes. What is the shortest walk from Sagha to Seffarine, in minutes?"
+train_0209,Youssef loads 12 crates of zellij tiles with 4 tiles in each crate. How many tiles does Youssef carry in total?
+train_0210,"The Nejjarine stall opens at 07:35, works for 7 hours, pauses 25 minutes for the midday prayer, and then works 2 more hours. When does it close?"
+train_0211,"Walking times in the medina: Cherabliyine-Chouara 15 minutes, Boujloud-Chouara 8 minutes, Cherabliyine-Boujloud 9 minutes. What is the shortest walk from Cherabliyine to Chouara, in minutes?"
+train_0212,Samira loads 12 crates of cedar boxes with 9 boxes in each crate. How many boxes does Samira carry in total?
+train_0213,Youssef loads 9 crates of brass lanterns with 7 lanterns in each crate. How many lanterns does Youssef carry in total?
+train_0214,"Yesterday's takings were: Rcif 186 dirham, Talaa 327 dirham, Henna 294 dirham, Boujloud 234 dirham. Which souk took the least?"
+train_0215,The Bab Jdid gate charges 10 dirham for every cart. A caravan brings 7 carts through. What is the total toll?
+train_0216,The Bab Jdid gate charges 5 dirham for every cart. A caravan brings 6 carts through. What is the total toll?
+train_0217,The Chouara stall opens at 08:05 and works for 4 hours. When does it close?
+train_0218,Najat loads 17 crates of copper trays with 7 trays in each crate. How many trays does Najat carry in total?
+train_0219,"The Nejjarine board lists argan oil at 81 dirham, dates at 34 dirham, cedar boxes at 24 dirham and zellij tiles at 17 dirham. What do dates cost?"
+train_0220,Karim loads 15 crates of clay tagines with 4 tagines in each crate. How many tagines does Karim carry in total?
+train_0221,"The Bab Jdid gate charges 4 dirham for every cart, but 16 dirham for any cart heavier than 40 kg. A caravan brings 4 carts through; 3 of them weigh 50 kg and the rest weigh 31 kg. What is the total toll?"
+train_0222,"Walking times in the medina: Boujloud-Attarine 23 minutes, Seffarine-Attarine 12 minutes, Boujloud-Henna 2 minutes, Boujloud-Seffarine 8 minutes. What is the shortest walk from Boujloud to Attarine, in minutes?"
+train_0223,The Bab Guissa gate charges 4 dirham for every cart. A caravan brings 14 carts through. What is the total toll?
+train_0224,"Yesterday's takings were: Cherabliyine 244 dirham, Chouara 340 dirham, Talaa 313 dirham, Seffarine 293 dirham. Which souk took the most?"
+train_0225,"The Boujloud stall opens at 09:15, works for 3 hours, pauses 35 minutes for the midday prayer, and then works 4 more hours. When does it close?"
+train_0226,The Bab Jdid gate charges 6 dirham for every cart. A caravan brings 14 carts through. What is the total toll?
+train_0227,"Yesterday's takings were: Chouara 258 dirham, Henna 340 dirham, Attarine 163 dirham, Talaa 270 dirham. Which souk took the least?"
+train_0228,"The Henna stall opens at 06:50, works for 4 hours, pauses 25 minutes for the midday prayer, and then works 2 more hours. When does it close?"
+train_0229,"Yesterday's takings were: Nejjarine 176 dirham, Boujloud 265 dirham, Chouara 324 dirham, Talaa 322 dirham. Which souk took the least?"
+train_0230,"The Bab Guissa gate charges 11 dirham for every cart, but 23 dirham for any cart heavier than 40 kg. A caravan brings 4 carts through; 3 of them weigh 59 kg and the rest weigh 31 kg. What is the total toll?"
+train_0231,"Walking times in the medina: Nejjarine-Sagha 11 minutes, Nejjarine-Rcif 9 minutes, Talaa-Sagha 13 minutes, Nejjarine-Talaa 7 minutes. What is the shortest walk from Nejjarine to Sagha, in minutes?"
+train_0232,"Yesterday's takings were: Cherabliyine 303 dirham, Chouara 211 dirham, Attarine 195 dirham, Henna 182 dirham. Each souk owes a stall fee of 9 dirham for every crate it sold, and they sold 50, 38, 37 and 34 crates in that order. Which souk keeps the least?"
+train_0233,"The Bab Jdid gate charges 12 dirham for every cart, but 21 dirham for any cart heavier than 50 kg. A caravan brings 20 carts through; 2 of them weigh 59 kg and the rest weigh 31 kg. What is the total toll?"
+train_0234,The Talaa stall opens at 09:15 and works for 7 hours. When does it close?
+train_0235,Driss loads 8 crates of cedar boxes with 8 boxes in each crate. How many boxes does Driss carry in total?
+train_0236,"The Cherabliyine stall opens at 09:25, works for 4 hours, pauses 35 minutes for the midday prayer, and then works 3 more hours. When does it close?"
+train_0237,"Yesterday's takings were: Attarine 188 dirham, Henna 204 dirham, Talaa 261 dirham, Rcif 202 dirham. Each souk owes a stall fee of 12 dirham for every crate it sold, and they sold 3, 2, 9 and 3 crates in that order. Which souk keeps the most?"
+train_0238,"The Bab Jdid gate charges 10 dirham for every cart, but 19 dirham for any cart heavier than 75 kg. A caravan brings 11 carts through; 4 of them weigh 94 kg and the rest weigh 59 kg. What is the total toll?"
+train_0239,The Boujloud stall opens at 09:15 and works for 3 hours. When does it close?
+train_0240,"Walking times in the medina: Seffarine-Boujloud 13 minutes, Boujloud-Rcif 14 minutes, Seffarine-Rcif 3 minutes. What is the shortest walk from Seffarine to Rcif, in minutes?"
+train_0241,"Walking times in the medina: Cherabliyine-Nejjarine 19 minutes, Cherabliyine-Rcif 3 minutes, Cherabliyine-Attarine 4 minutes, Attarine-Nejjarine 11 minutes. What is the shortest walk from Cherabliyine to Nejjarine, in minutes?"
+train_0242,"Yesterday's takings were: Boujloud 160 dirham, Nejjarine 327 dirham, Attarine 308 dirham, Cherabliyine 167 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 30, 44, 52 and 33 crates in that order. Which souk keeps the least?"
+train_0243,"Walking times in the medina: Seffarine-Rcif 4 minutes, Rcif-Cherabliyine 3 minutes, Seffarine-Cherabliyine 5 minutes, Seffarine-Attarine 9 minutes. What is the shortest walk from Seffarine to Cherabliyine, in minutes?"
+train_0244,"Walking times in the medina: Cherabliyine-Talaa 12 minutes, Boujloud-Talaa 8 minutes, Boujloud-Cherabliyine 8 minutes. What is the shortest walk from Boujloud to Talaa, in minutes?"
+train_0245,"Yesterday's takings were: Boujloud 211 dirham, Sagha 280 dirham, Talaa 168 dirham, Chouara 174 dirham. Which souk took the least?"
+train_0246,"The Nejjarine board lists wool at 46 dirham, cedar boxes at 54 dirham, zellij tiles at 41 dirham and argan oil at 25 dirham. What do zellij tiles cost?"
+train_0247,"Yesterday's takings were: Nejjarine 298 dirham, Attarine 327 dirham, Cherabliyine 265 dirham, Chouara 255 dirham. Each souk owes a stall fee of 9 dirham for every crate it sold, and they sold 44, 44, 58 and 44 crates in that order. Which souk keeps the least?"
+train_0248,"The Sagha board lists amber at 26 dirham, zellij tiles at 37 dirham, leather slippers at 86 dirham and brass lanterns at 39 dirham. What does amber cost?"
+train_0249,Omar loads 12 crates of clay tagines with 5 tagines in each crate. Omar sells 7 tagines at Attarine and hands 2 tagines to each of 2 apprentices. How many tagines remain?
+train_0250,"The Bab Ftouh gate charges 12 dirham for every cart, but 16 dirham for any cart heavier than 60 kg. A caravan brings 15 carts through; 2 of them weigh 65 kg and the rest weigh 49 kg. What is the total toll?"
+train_0251,"Walking times in the medina: Seffarine-Talaa 10 minutes, Rcif-Talaa 4 minutes, Seffarine-Rcif 10 minutes. What is the shortest walk from Seffarine to Talaa, in minutes?"
+train_0252,"The Seffarine board lists cedar boxes at 27 dirham, saffron at 5 dirham, wool at 71 dirham and zellij tiles at 42 dirham. Karim's stall sells whatever Latifa's stall sells, and Latifa's stall sells zellij tiles. What does Karim charge?"
+train_0253,The Henna stall opens at 09:35 and works for 3 hours. When does it close?
+train_0254,"Yesterday's takings were: Talaa 177 dirham, Boujloud 298 dirham, Rcif 151 dirham, Cherabliyine 188 dirham. Which souk took the least?"
+train_0255,Latifa loads 17 crates of copper trays with 7 trays in each crate. How many trays does Latifa carry in total?
+train_0256,"The Talaa board lists wool at 76 dirham, zellij tiles at 48 dirham, leather slippers at 20 dirham and saffron at 6 dirham. What do leather slippers cost?"
+train_0257,"Walking times in the medina: Talaa-Seffarine 13 minutes, Talaa-Boujloud 28 minutes, Talaa-Henna 5 minutes, Henna-Boujloud 14 minutes. What is the shortest walk from Talaa to Boujloud, in minutes?"
+train_0258,The Henna stall opens at 07:55 and works for 5 hours. When does it close?
+train_0259,"Yesterday's takings were: Seffarine 230 dirham, Henna 164 dirham, Cherabliyine 178 dirham, Nejjarine 237 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 1, 1, 1 and 7 crates in that order. Which souk keeps the most?"
+train_0260,"The Nejjarine board lists wool at 35 dirham, mint at 46 dirham, saffron at 83 dirham and leather slippers at 46 dirham. Hamid's stall sells whatever Najat's stall sells, and Najat's stall sells saffron. What does Hamid charge?"
+train_0261,The Bab Jdid gate charges 4 dirham for every cart. A caravan brings 8 carts through. What is the total toll?
+train_0262,"The Sagha board lists argan oil at 85 dirham, mint at 25 dirham, saffron at 89 dirham and dates at 13 dirham. What does argan oil cost?"
+train_0263,Omar loads 11 crates of cedar boxes with 9 boxes in each crate. How many boxes does Omar carry in total?
+train_0264,"The Nejjarine board lists leather slippers at 75 dirham, brass lanterns at 6 dirham, dates at 25 dirham and zellij tiles at 68 dirham. What do leather slippers cost?"
+train_0265,Latifa loads 15 crates of cedar boxes with 9 boxes in each crate. Latifa sells 25 boxes at Rcif and hands 2 boxes to each of 4 apprentices. How many boxes remain?
+train_0266,The Bab Boujloud gate charges 9 dirham for every cart. A caravan brings 5 carts through. What is the total toll?
+train_0267,"The Boujloud stall opens at 07:20, works for 4 hours, pauses 25 minutes for the midday prayer, and then works 1 more hour. When does it close?"
+train_0268,Omar loads 13 crates of leather slippers with 12 slippers in each crate. Omar sells 34 slippers at Talaa and hands 3 slippers to each of 5 apprentices. How many slippers remain?
+train_0269,"Walking times in the medina: Sagha-Boujloud 2 minutes, Sagha-Seffarine 4 minutes, Sagha-Rcif 2 minutes, Seffarine-Boujloud 8 minutes. What is the shortest walk from Sagha to Boujloud, in minutes?"
+train_0270,"Yesterday's takings were: Chouara 236 dirham, Nejjarine 256 dirham, Rcif 172 dirham, Boujloud 289 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 40, 44, 31 and 51 crates in that order. Which souk keeps the least?"
+train_0271,"Walking times in the medina: Sagha-Boujloud 27 minutes, Talaa-Boujloud 11 minutes, Sagha-Talaa 12 minutes. What is the shortest walk from Sagha to Boujloud, in minutes?"
+train_0272,The Bab Ftouh gate charges 12 dirham for every cart. A caravan brings 6 carts through. What is the total toll?
+train_0273,"The Bab Guissa gate charges 11 dirham for every cart, but 25 dirham for any cart heavier than 50 kg. A caravan brings 11 carts through; 5 of them weigh 72 kg and the rest weigh 38 kg. What is the total toll?"
+train_0274,The Seffarine stall opens at 07:05 and works for 7 hours. When does it close?
+train_0275,The Henna stall opens at 08:10 and works for 8 hours. When does it close?
+train_0276,"Yesterday's takings were: Sagha 321 dirham, Attarine 285 dirham, Henna 314 dirham, Talaa 255 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 44, 44, 51 and 41 crates in that order. Which souk keeps the least?"
+train_0277,The Bab Boujloud gate charges 6 dirham for every cart. A caravan brings 6 carts through. What is the total toll?
+train_0278,"The Henna board lists mint at 71 dirham, dates at 88 dirham, argan oil at 27 dirham and saffron at 59 dirham. Omar's stall sells whatever Samira's stall sells, and Samira's stall sells dates. What does Omar charge?"
+train_0279,Najat loads 6 crates of cedar boxes with 6 boxes in each crate. How many boxes does Najat carry in total?
+train_0280,"Yesterday's takings were: Sagha 165 dirham, Nejjarine 164 dirham, Boujloud 178 dirham, Rcif 201 dirham. Which souk took the least?"
+train_0281,Omar loads 8 crates of leather slippers with 9 slippers in each crate. Omar sells 20 slippers at Talaa and hands 5 slippers to each of 3 apprentices. How many slippers remain?
+train_0282,Karim loads 10 crates of zellij tiles with 9 tiles in each crate. How many tiles does Karim carry in total?
+train_0283,Hamid loads 9 crates of clay tagines with 11 tagines in each crate. How many tagines does Hamid carry in total?
+train_0284,"The Bab Ftouh gate charges 6 dirham for every cart, but 16 dirham for any cart heavier than 40 kg. A caravan brings 7 carts through; 3 of them weigh 62 kg and the rest weigh 35 kg. What is the total toll?"
+train_0285,"Yesterday's takings were: Seffarine 162 dirham, Sagha 255 dirham, Nejjarine 249 dirham, Cherabliyine 179 dirham. Each souk owes a stall fee of 6 dirham for every crate it sold, and they sold 1, 12, 4 and 1 crates in that order. Which souk keeps the most?"
+train_0286,"Yesterday's takings were: Henna 188 dirham, Sagha 210 dirham, Boujloud 186 dirham, Seffarine 338 dirham. Which souk took the most?"
+train_0287,"The Nejjarine stall opens at 08:05, works for 7 hours, pauses 40 minutes for the midday prayer, and then works 3 more hours. When does it close?"
+train_0288,"Walking times in the medina: Henna-Seffarine 11 minutes, Henna-Attarine 3 minutes, Seffarine-Boujloud 12 minutes, Henna-Boujloud 7 minutes. What is the shortest walk from Henna to Boujloud, in minutes?"
+train_0289,"Yesterday's takings were: Boujloud 177 dirham, Chouara 226 dirham, Seffarine 238 dirham, Rcif 172 dirham. Which souk took the least?"
+train_0290,The Bab Boujloud gate charges 8 dirham for every cart. A caravan brings 20 carts through. What is the total toll?
+train_0291,"The Sagha stall opens at 09:25, works for 3 hours, pauses 45 minutes for the midday prayer, and then works 3 more hours. When does it close?"
+train_0292,"Yesterday's takings were: Boujloud 273 dirham, Attarine 283 dirham, Seffarine 282 dirham, Sagha 235 dirham. Which souk took the least?"
+train_0293,"The Cherabliyine board lists zellij tiles at 39 dirham, brass lanterns at 84 dirham, saffron at 41 dirham and dates at 85 dirham. Omar's stall sells whatever Najat's stall sells, and Najat's stall sells dates. What does Omar charge?"
+train_0294,"The Bab Boujloud gate charges 6 dirham for every cart, but 20 dirham for any cart heavier than 50 kg. A caravan brings 17 carts through; 6 of them weigh 61 kg and the rest weigh 42 kg. What is the total toll?"
+train_0295,Samira loads 18 crates of leather slippers with 4 slippers in each crate. How many slippers does Samira carry in total?
+train_0296,Hamid loads 17 crates of cedar boxes with 10 boxes in each crate. How many boxes does Hamid carry in total?
+train_0297,The Bab Ftouh gate charges 9 dirham for every cart. A caravan brings 10 carts through. What is the total toll?
+train_0298,"The Sagha board lists amber at 26 dirham, dates at 56 dirham, saffron at 71 dirham and brass lanterns at 50 dirham. What do brass lanterns cost?"
+train_0299,"Walking times in the medina: Henna-Boujloud 9 minutes, Boujloud-Talaa 11 minutes, Henna-Talaa 6 minutes. What is the shortest walk from Henna to Talaa, in minutes?"
+train_0300,"Walking times in the medina: Nejjarine-Attarine 9 minutes, Attarine-Chouara 10 minutes, Nejjarine-Chouara 15 minutes. What is the shortest walk from Nejjarine to Chouara, in minutes?"
+train_0301,The Bab Rcif gate charges 6 dirham for every cart. A caravan brings 18 carts through. What is the total toll?
+train_0302,"The Attarine board lists brass lanterns at 70 dirham, argan oil at 70 dirham, saffron at 71 dirham and cedar boxes at 71 dirham. Latifa's stall sells whatever Driss's stall sells, and Driss's stall sells cedar boxes. What does Latifa charge?"
+train_0303,"Walking times in the medina: Seffarine-Nejjarine 11 minutes, Boujloud-Seffarine 6 minutes, Boujloud-Nejjarine 2 minutes. What is the shortest walk from Boujloud to Nejjarine, in minutes?"
+train_0304,"The Bab Guissa gate charges 4 dirham for every cart, but 19 dirham for any cart heavier than 75 kg. A caravan brings 10 carts through; 3 of them weigh 91 kg and the rest weigh 62 kg. What is the total toll?"
+train_0305,"The Bab Rcif gate charges 9 dirham for every cart, but 19 dirham for any cart heavier than 60 kg. A caravan brings 8 carts through; 4 of them weigh 66 kg and the rest weigh 50 kg. What is the total toll?"
+train_0306,"Yesterday's takings were: Chouara 259 dirham, Seffarine 302 dirham, Sagha 340 dirham, Cherabliyine 260 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 1, 8, 15 and 4 crates in that order. Which souk keeps the most?"
+train_0307,"The Henna board lists zellij tiles at 40 dirham, saffron at 33 dirham, amber at 24 dirham and cedar boxes at 11 dirham. Najat's stall sells whatever Hamid's stall sells, and Hamid's stall sells cedar boxes. What does Najat charge?"
+train_0308,"The Cherabliyine board lists leather slippers at 43 dirham, amber at 83 dirham, saffron at 64 dirham and mint at 80 dirham. Driss's stall sells whatever Youssef's stall sells, and Youssef's stall sells saffron. What does Driss charge?"
+train_0309,"Walking times in the medina: Henna-Chouara 7 minutes, Boujloud-Chouara 6 minutes, Henna-Boujloud 3 minutes. What is the shortest walk from Henna to Chouara, in minutes?"
+train_0310,"The Bab Guissa gate charges 12 dirham for every cart, but 22 dirham for any cart heavier than 50 kg. A caravan brings 8 carts through; 4 of them weigh 68 kg and the rest weigh 31 kg. What is the total toll?"
+train_0311,"Yesterday's takings were: Chouara 176 dirham, Boujloud 273 dirham, Nejjarine 160 dirham, Talaa 283 dirham. Each souk owes a stall fee of 8 dirham for every crate it sold, and they sold 1, 4, 1 and 10 crates in that order. Which souk keeps the most?"
+train_0312,"The Nejjarine stall opens at 09:30, works for 7 hours, pauses 50 minutes for the midday prayer, and then works 4 more hours. When does it close?"
+train_0313,"The Henna board lists saffron at 39 dirham, argan oil at 85 dirham, amber at 9 dirham and mint at 45 dirham. What does saffron cost?"
+train_0314,The Bab Jdid gate charges 9 dirham for every cart. A caravan brings 10 carts through. What is the total toll?
+train_0315,"Walking times in the medina: Cherabliyine-Talaa 21 minutes, Henna-Talaa 11 minutes, Cherabliyine-Henna 8 minutes, Cherabliyine-Sagha 3 minutes. What is the shortest walk from Cherabliyine to Talaa, in minutes?"
+train_0316,"The Nejjarine stall opens at 09:40, works for 5 hours, pauses 20 minutes for the midday prayer, and then works 4 more hours. When does it close?"
+train_0317,The Bab Jdid gate charges 8 dirham for every cart. A caravan brings 18 carts through. What is the total toll?
+train_0318,"The Sagha stall opens at 09:30, works for 8 hours, pauses 25 minutes for the midday prayer, and then works 4 more hours. When does it close?"
+train_0319,Samira loads 7 crates of zellij tiles with 7 tiles in each crate. Samira sells 16 tiles at Rcif and hands 3 tiles to each of 4 apprentices. How many tiles remain?
+train_0320,"The Seffarine board lists wool at 60 dirham, brass lanterns at 86 dirham, cedar boxes at 48 dirham and saffron at 62 dirham. What does saffron cost?"
+train_0321,"Walking times in the medina: Henna-Talaa 9 minutes, Talaa-Boujloud 7 minutes, Henna-Boujloud 21 minutes. What is the shortest walk from Henna to Boujloud, in minutes?"
+train_0322,Omar loads 7 crates of zellij tiles with 12 tiles in each crate. Omar sells 7 tiles at Cherabliyine and hands 4 tiles to each of 2 apprentices. How many tiles remain?
+train_0323,Samira loads 12 crates of leather slippers with 10 slippers in each crate. How many slippers does Samira carry in total?
+train_0324,The Bab Jdid gate charges 8 dirham for every cart. A caravan brings 14 carts through. What is the total toll?
+train_0325,"The Nejjarine stall opens at 07:00, works for 4 hours, pauses 40 minutes for the midday prayer, and then works 4 more hours. When does it close?"
+train_0326,The Cherabliyine stall opens at 06:30 and works for 6 hours. When does it close?
+train_0327,Driss loads 10 crates of brass lanterns with 11 lanterns in each crate. How many lanterns does Driss carry in total?
+train_0328,"The Bab Guissa gate charges 5 dirham for every cart, but 11 dirham for any cart heavier than 40 kg. A caravan brings 10 carts through; 4 of them weigh 65 kg and the rest weigh 36 kg. What is the total toll?"
+train_0329,Latifa loads 7 crates of clay tagines with 12 tagines in each crate. How many tagines does Latifa carry in total?
+train_0330,"Walking times in the medina: Attarine-Sagha 13 minutes, Attarine-Nejjarine 12 minutes, Sagha-Nejjarine 7 minutes. What is the shortest walk from Attarine to Nejjarine, in minutes?"
+train_0331,The Cherabliyine stall opens at 08:25 and works for 4 hours. When does it close?
+train_0332,Driss loads 12 crates of leather slippers with 4 slippers in each crate. Driss sells 5 slippers at Cherabliyine and hands 6 slippers to each of 4 apprentices. How many slippers remain?
+train_0333,Hamid loads 17 crates of zellij tiles with 12 tiles in each crate. How many tiles does Hamid carry in total?
+train_0334,"Walking times in the medina: Sagha-Seffarine 24 minutes, Nejjarine-Seffarine 9 minutes, Sagha-Nejjarine 7 minutes. What is the shortest walk from Sagha to Seffarine, in minutes?"
+train_0335,"Walking times in the medina: Nejjarine-Chouara 7 minutes, Nejjarine-Attarine 22 minutes, Chouara-Attarine 6 minutes, Nejjarine-Rcif 9 minutes. What is the shortest walk from Nejjarine to Attarine, in minutes?"
+train_0336,"Walking times in the medina: Boujloud-Talaa 14 minutes, Chouara-Boujloud 6 minutes, Chouara-Talaa 28 minutes. What is the shortest walk from Chouara to Talaa, in minutes?"
+train_0337,The Bab Boujloud gate charges 6 dirham for every cart. A caravan brings 16 carts through. What is the total toll?
+train_0338,"The Henna board lists amber at 70 dirham, brass lanterns at 54 dirham, dates at 74 dirham and zellij tiles at 52 dirham. Youssef's stall sells whatever Karim's stall sells, and Karim's stall sells dates. What does Youssef charge?"
+train_0339,"Yesterday's takings were: Chouara 200 dirham, Nejjarine 247 dirham, Seffarine 253 dirham, Henna 221 dirham. Which souk took the least?"
+train_0340,"Walking times in the medina: Talaa-Sagha 4 minutes, Sagha-Boujloud 7 minutes, Talaa-Boujloud 14 minutes. What is the shortest walk from Talaa to Boujloud, in minutes?"
+train_0341,Samira loads 7 crates of brass lanterns with 11 lanterns in each crate. Samira sells 25 lanterns at Cherabliyine and hands 5 lanterns to each of 3 apprentices. How many lanterns remain?
+train_0342,"The Attarine stall opens at 06:55, works for 6 hours, pauses 40 minutes for the midday prayer, and then works 3 more hours. When does it close?"
+train_0343,"Walking times in the medina: Cherabliyine-Seffarine 14 minutes, Seffarine-Henna 5 minutes, Cherabliyine-Henna 20 minutes, Cherabliyine-Sagha 3 minutes. What is the shortest walk from Cherabliyine to Henna, in minutes?"
+train_0344,"Yesterday's takings were: Boujloud 154 dirham, Talaa 175 dirham, Sagha 284 dirham, Rcif 180 dirham. Which souk took the least?"
+train_0345,"The Bab Jdid gate charges 4 dirham for every cart, but 18 dirham for any cart heavier than 50 kg. A caravan brings 17 carts through; 11 of them weigh 61 kg and the rest weigh 42 kg. What is the total toll?"
+train_0346,"The Rcif board lists amber at 18 dirham, brass lanterns at 66 dirham, saffron at 45 dirham and dates at 22 dirham. What do dates cost?"
+train_0347,"The Rcif board lists argan oil at 71 dirham, saffron at 61 dirham, amber at 66 dirham and zellij tiles at 19 dirham. What do zellij tiles cost?"
+train_0348,"The Rcif stall opens at 06:50, works for 5 hours, pauses 45 minutes for the midday prayer, and then works 2 more hours. When does it close?"
+train_0349,"The Nejjarine board lists zellij tiles at 49 dirham, brass lanterns at 44 dirham, mint at 47 dirham and argan oil at 26 dirham. Najat's stall sells whatever Driss's stall sells, and Driss's stall sells brass lanterns. What does Najat charge?"
+train_0350,"The Seffarine stall opens at 09:30, works for 6 hours, pauses 50 minutes for the midday prayer, and then works 4 more hours. When does it close?"
+train_0351,"The Henna board lists amber at 68 dirham, cedar boxes at 67 dirham, leather slippers at 23 dirham and mint at 31 dirham. What does mint cost?"
+train_0352,"The Bab Rcif gate charges 3 dirham for every cart, but 9 dirham for any cart heavier than 50 kg. A caravan brings 18 carts through; 14 of them weigh 54 kg and the rest weigh 45 kg. What is the total toll?"
+train_0353,"The Bab Boujloud gate charges 5 dirham for every cart, but 11 dirham for any cart heavier than 40 kg. A caravan brings 7 carts through; 4 of them weigh 57 kg and the rest weigh 27 kg. What is the total toll?"
+train_0354,The Bab Jdid gate charges 12 dirham for every cart. A caravan brings 4 carts through. What is the total toll?
+train_0355,Omar loads 19 crates of cedar boxes with 4 boxes in each crate. How many boxes does Omar carry in total?
+train_0356,The Bab Guissa gate charges 8 dirham for every cart. A caravan brings 19 carts through. What is the total toll?
+train_0357,The Bab Rcif gate charges 11 dirham for every cart. A caravan brings 18 carts through. What is the total toll?
+train_0358,Youssef loads 17 crates of clay tagines with 5 tagines in each crate. How many tagines does Youssef carry in total?
+train_0359,The Henna stall opens at 09:40 and works for 5 hours. When does it close?
+train_0360,Najat loads 10 crates of brass lanterns with 12 lanterns in each crate. How many lanterns does Najat carry in total?
+train_0361,"Walking times in the medina: Rcif-Cherabliyine 10 minutes, Rcif-Sagha 13 minutes, Cherabliyine-Sagha 8 minutes. What is the shortest walk from Rcif to Sagha, in minutes?"
+train_0362,"Yesterday's takings were: Chouara 164 dirham, Boujloud 200 dirham, Henna 254 dirham, Rcif 257 dirham. Which souk took the least?"
+train_0363,"Yesterday's takings were: Henna 185 dirham, Talaa 271 dirham, Boujloud 159 dirham, Chouara 338 dirham. Which souk took the least?"
+train_0364,Latifa loads 17 crates of zellij tiles with 11 tiles in each crate. Latifa sells 13 tiles at Chouara and hands 3 tiles to each of 3 apprentices. How many tiles remain?
+train_0365,Karim loads 14 crates of zellij tiles with 9 tiles in each crate. How many tiles does Karim carry in total?
+train_0366,"The Bab Boujloud gate charges 3 dirham for every cart, but 18 dirham for any cart heavier than 50 kg. A caravan brings 11 carts through; 10 of them weigh 72 kg and the rest weigh 32 kg. What is the total toll?"
+train_0367,Omar loads 14 crates of brass lanterns with 5 lanterns in each crate. Omar sells 10 lanterns at Attarine and hands 5 lanterns to each of 4 apprentices. How many lanterns remain?
+train_0368,The Nejjarine stall opens at 07:55 and works for 4 hours. When does it close?
+train_0369,"The Rcif board lists zellij tiles at 86 dirham, cedar boxes at 7 dirham, amber at 11 dirham and leather slippers at 47 dirham. What do leather slippers cost?"
+train_0370,"Walking times in the medina: Sagha-Chouara 8 minutes, Rcif-Sagha 4 minutes, Rcif-Chouara 21 minutes, Rcif-Henna 12 minutes. What is the shortest walk from Rcif to Chouara, in minutes?"
+train_0371,"The Bab Jdid gate charges 5 dirham for every cart, but 10 dirham for any cart heavier than 50 kg. A caravan brings 10 carts through; 9 of them weigh 68 kg and the rest weigh 42 kg. What is the total toll?"
+train_0372,"Yesterday's takings were: Sagha 296 dirham, Nejjarine 268 dirham, Boujloud 174 dirham, Henna 247 dirham. Which souk took the most?"
+train_0373,Driss loads 10 crates of cedar boxes with 4 boxes in each crate. How many boxes does Driss carry in total?
+train_0374,"Yesterday's takings were: Boujloud 224 dirham, Nejjarine 154 dirham, Sagha 320 dirham, Rcif 309 dirham. Which souk took the most?"
+train_0375,"The Chouara board lists leather slippers at 16 dirham, brass lanterns at 25 dirham, zellij tiles at 76 dirham and amber at 32 dirham. What do zellij tiles cost?"
+train_0376,"The Cherabliyine board lists dates at 32 dirham, saffron at 20 dirham, brass lanterns at 58 dirham and zellij tiles at 26 dirham. What do zellij tiles cost?"
+train_0377,"The Attarine board lists amber at 88 dirham, dates at 80 dirham, leather slippers at 59 dirham and saffron at 16 dirham. What do leather slippers cost?"
+train_0378,Karim loads 12 crates of leather slippers with 6 slippers in each crate. Karim sells 20 slippers at Chouara and hands 2 slippers to each of 4 apprentices. How many slippers remain?
+train_0379,"The Rcif board lists wool at 31 dirham, mint at 44 dirham, saffron at 78 dirham and dates at 70 dirham. What do dates cost?"
+train_0380,"The Talaa stall opens at 06:35, works for 3 hours, pauses 50 minutes for the midday prayer, and then works 3 more hours. When does it close?"
+train_0381,The Bab Jdid gate charges 8 dirham for every cart. A caravan brings 18 carts through. What is the total toll?
+train_0382,"The Attarine board lists dates at 9 dirham, amber at 87 dirham, wool at 76 dirham and saffron at 90 dirham. Hamid's stall sells whatever Samira's stall sells, and Samira's stall sells wool. What does Hamid charge?"
+train_0383,The Bab Guissa gate charges 11 dirham for every cart. A caravan brings 9 carts through. What is the total toll?
+train_0384,"Yesterday's takings were: Cherabliyine 284 dirham, Nejjarine 210 dirham, Attarine 276 dirham, Chouara 211 dirham. Which souk took the most?"
+train_0385,"The Bab Guissa gate charges 12 dirham for every cart, but 19 dirham for any cart heavier than 60 kg. A caravan brings 19 carts through; 9 of them weigh 67 kg and the rest weigh 50 kg. What is the total toll?"
+train_0386,"The Bab Jdid gate charges 12 dirham for every cart, but 19 dirham for any cart heavier than 40 kg. A caravan brings 15 carts through; 13 of them weigh 49 kg and the rest weigh 33 kg. What is the total toll?"
+train_0387,The Boujloud stall opens at 09:45 and works for 6 hours. When does it close?
+train_0388,"The Chouara board lists brass lanterns at 43 dirham, mint at 8 dirham, leather slippers at 43 dirham and dates at 39 dirham. What do brass lanterns cost?"
+train_0389,"The Chouara stall opens at 08:00, works for 3 hours, pauses 40 minutes for the midday prayer, and then works 3 more hours. When does it close?"
+train_0390,"Walking times in the medina: Boujloud-Henna 12 minutes, Talaa-Henna 12 minutes, Talaa-Boujloud 6 minutes. What is the shortest walk from Talaa to Henna, in minutes?"
+train_0391,"The Nejjarine board lists argan oil at 77 dirham, leather slippers at 40 dirham, wool at 87 dirham and amber at 9 dirham. What does wool cost?"
+train_0392,The Rcif stall opens at 06:45 and works for 4 hours. When does it close?
+train_0393,Latifa loads 12 crates of cedar boxes with 6 boxes in each crate. Latifa sells 6 boxes at Attarine and hands 3 boxes to each of 3 apprentices. How many boxes remain?
+train_0394,The Nejjarine stall opens at 09:20 and works for 4 hours. When does it close?
+train_0395,"The Cherabliyine board lists wool at 36 dirham, leather slippers at 27 dirham, argan oil at 76 dirham and saffron at 7 dirham. What does wool cost?"
+train_0396,"Walking times in the medina: Chouara-Attarine 12 minutes, Henna-Seffarine 8 minutes, Henna-Attarine 20 minutes, Henna-Chouara 7 minutes. What is the shortest walk from Henna to Attarine, in minutes?"
+train_0397,The Bab Boujloud gate charges 8 dirham for every cart. A caravan brings 9 carts through. What is the total toll?
+train_0398,The Attarine stall opens at 09:35 and works for 7 hours. When does it close?
+train_0399,"Walking times in the medina: Nejjarine-Boujloud 11 minutes, Nejjarine-Henna 21 minutes, Nejjarine-Attarine 6 minutes, Attarine-Henna 7 minutes. What is the shortest walk from Nejjarine to Henna, in minutes?"
+train_0400,"The Attarine board lists saffron at 32 dirham, leather slippers at 20 dirham, mint at 46 dirham and argan oil at 44 dirham. Youssef's stall sells whatever Najat's stall sells, and Najat's stall sells leather slippers. What does Youssef charge?"
