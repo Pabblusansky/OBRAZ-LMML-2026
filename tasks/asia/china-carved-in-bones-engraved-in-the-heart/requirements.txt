@@ -1,0 +1,5 @@
+ultralytics==8.4.212
+torch==2.14.1
+opencv-python==4.9.0.80
+numpy==1.26.4
+pandas==2.3.3
