@@ -6,7 +6,7 @@
 | Difficulty | Hard |
 | Category | Shortest Path / Dijkstra Search on Time-Dependent State Graph |
 | Solved by | Artem |
-| Status | solution ready (`main.py`) |
+| Status | solved |
 | Flag | `SIGMOID_<WORD>` (issued by evaluation platform upon uploading solution) |
 
 ## Summary

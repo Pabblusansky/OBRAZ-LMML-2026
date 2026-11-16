@@ -4,7 +4,7 @@
 |---|---|
 | Țara | Norvegia |
 | Categorie | etichete zgomotoase / detecția unui interval corupt |
-| Status | rezolvat local (F1 reparații = 1,0000, 30/30); necesar F1 ≥ 0,93 |
+| Status | rezolvat |
 | Flag | se primește pe platformă după trimiterea `test-output.csv` + `model.joblib` |
 
 ## Problema pe scurt

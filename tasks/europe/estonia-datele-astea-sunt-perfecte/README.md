@@ -6,7 +6,7 @@
 | Dificultate | Mediu |
 | Categorie | audit ML / scurgere de date (data leakage) |
 | Rezolvat de | Dragos |
-| Status | soluție verificată local, flag în așteptare |
+| Status | rezolvat |
 | Flag | `SIGMOID_76` (trunchiere, ca în exemplul `0.8649 → SIGMOID_86`); `SIGMOID_77` dacă se rotunjește |
 
 ## Problema pe scurt

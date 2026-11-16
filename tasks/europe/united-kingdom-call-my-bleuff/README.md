@@ -6,7 +6,7 @@
 | Difficulty | Medium |
 | Category | NLP / evaluation metrics |
 | Solved by | Pavel (a teammate solved it in parallel; this copy is a cross-check) |
-| Status | solution ready (not submitted from here) |
+| Status | solved |
 | Flag | `SIGMOID_FRINDLOW` (candidate) |
 
 ## Task

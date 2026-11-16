@@ -6,7 +6,7 @@
 | Difficulty | Easy |
 | Category | prompt injection (system-prompt / secret extraction) |
 | Solved by | Pavel |
-| Status | solved — platform: **Passed** (14/11/2026) |
+| Status | solved |
 | Flag | `SIGMOID_PANDORA_BOX` |
 
 ## 60-second version

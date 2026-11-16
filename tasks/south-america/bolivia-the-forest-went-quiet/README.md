@@ -6,7 +6,7 @@
 | Difficulty | Medium |
 | Category | model backdoor / audio trigger |
 | Solved by | Pavel |
-| Status | solved — platform: **Passed** |
+| Status | solved |
 | Flag | `SIGMOID_POISONING` |
 
 ## Summary

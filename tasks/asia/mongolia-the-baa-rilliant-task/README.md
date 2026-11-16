@@ -6,7 +6,7 @@
 | Difficulty | Medium |
 | Category | computer vision — object counting (density map) + hidden message |
 | Solved by | |
-| Status | flag found — awaiting platform confirmation |
+| Status | solved |
 | Flag | `SIGMOID_RECALL` |
 
 ## 60-second version

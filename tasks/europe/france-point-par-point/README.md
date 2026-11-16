@@ -6,7 +6,7 @@
 | Difficulty | Easy |
 | Category | Classic ML / clustering |
 | Solved by | Pavel |
-| Status | solution ready (not submitted yet) |
+| Status | solved |
 | Flag | `SIGMOID_NEURO` (candidate, not yet checked by the platform) |
 
 ## Task

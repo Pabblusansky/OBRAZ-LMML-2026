@@ -6,7 +6,7 @@
 | Difficulty | Hard |
 | Category | model backdoor / constrained fine-tuning |
 | Solved by | Pavel |
-| Status | see `reports/2026-11-14-brazil-dont-pull-my-triggers.md` |
+| Status | solved |
 | Flag | `SIGMOID_...` (fill in after the platform accepts it) |
 
 ## 60-second version

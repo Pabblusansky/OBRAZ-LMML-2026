@@ -6,7 +6,7 @@
 | Difficulty | Medium |
 | Category | prompt injection / guardrail bypass |
 | Solved by | Pavel |
-| Status | **solved** |
+| Status | solved |
 | Flag | `SIGMOID_TROJAN_HORSE` |
 
 ## Task

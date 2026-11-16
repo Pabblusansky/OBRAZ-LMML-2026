@@ -6,7 +6,7 @@
 | Titlu | Doar o chestie între frați |
 | Dificultate | Mediu |
 | Categorie | clasificare binară / evaluare modele pe date dezechilibrate |
-| Status | rezolvat (`ARES` ales cu `Recall = 95.00%`, `FN = 5`, `F2 = 0.8796`) |
+| Status | rezolvat |
 | Flag | `SIGMOID_ARES` |
 
 ## Problema pe scurt

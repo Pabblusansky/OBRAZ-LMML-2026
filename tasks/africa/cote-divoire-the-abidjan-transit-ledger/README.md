@@ -6,7 +6,7 @@
 | Difficulty | Medium |
 | Category | General AI — catastrophic forgetting / continual learning |
 | Solved by | Pavel |
-| Status | solution ready (not submitted yet) |
+| Status | solved |
 | Flag | released by the platform after `main.py` passes both gates |
 
 ## Task

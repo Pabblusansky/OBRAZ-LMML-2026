@@ -5,7 +5,7 @@
 | Țara | Elveția |
 | Dificultate | Ușor |
 | Categorie | arbori de decizie / mesaj ascuns în structura modelului |
-| Status | în lucru – `main.py` gata (train → `SIGMOID_DEMO` verificat), de trimis pe platformă |
+| Status | rezolvat |
 | Flag | `SIGMOID_<WORD>` (pe setul de antrenament: `SIGMOID_DEMO`) |
 
 ## Problema pe scurt

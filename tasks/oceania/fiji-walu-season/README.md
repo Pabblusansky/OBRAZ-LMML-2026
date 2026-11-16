@@ -6,7 +6,7 @@
 | Difficulty | Easy |
 | Category | Reinforcement Learning / Multi-Armed Bandits |
 | Solved by | Artem |
-| Status | solved (`main.py`) |
+| Status | solved |
 | Flag | No flag (automatic evaluation) |
 
 ## Summary

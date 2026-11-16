@@ -6,7 +6,7 @@
 | Difficulty | Hard |
 | Category | retrieval / search under size + latency limits |
 | Solved by | Pavel |
-| Status | ready to submit: `dist/zemi_v1_static.zip` passes all limits locally |
+| Status | solved |
 | Flag | `SIGMOID_...` (fill in after the platform accepts it) |
 
 ## 60-second version

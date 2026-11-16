@@ -31,3 +31,6 @@ AGENTS.md
 DEFENSE.md
 prep/
 tasks/**/task_files/
+
+# agent worktrees
+.claude/

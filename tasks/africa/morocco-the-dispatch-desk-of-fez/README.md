@@ -6,7 +6,7 @@
 | Difficulty | Medium |
 | Category | General AI — LLM routing (cost vs quality) |
 | Solved by | Pavel |
-| Status | solution ready (not submitted yet) |
+| Status | solved |
 | Flag | released by the checker after `main.py` passes both gates |
 
 ## Task

@@ -6,7 +6,7 @@
 | Difficulty | Medium |
 | Category | Reinforcement Learning / Finite-Horizon MDP |
 | Solved by | Artem |
-| Status | solution ready (`main.py`) |
+| Status | solved |
 | Flag | `SIGMOID_<WORD>` (issued upon online evaluation) |
 
 ## Summary

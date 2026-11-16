@@ -6,7 +6,7 @@
 | Difficulty | Medium |
 | Category | computer vision — object detection + counting, then a 5-bit decode |
 | Solved by | |
-| Status | flag decoded — awaiting platform result |
+| Status | solved |
 | Flag | `SIGMOID_FENGSHUI` (fill in after the platform accepts it) |
 
 ## 60-second version

@@ -6,7 +6,7 @@
 | Difficulty | Hard |
 | Category | indirect prompt injection via a RAG corpus |
 | Solved by | Pavel |
-| Status | solved — platform: **Passed** |
+| Status | solved |
 | Flag | `SIGMOID_GOLDEN_FLEECE` |
 
 ## Summary

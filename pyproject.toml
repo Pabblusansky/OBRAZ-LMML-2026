@@ -1,7 +1,7 @@
 [project]
 name = "sigmoid-llm-marathon"
 version = "0.1.0"
-description = "Sigmoid LLM Marathon — data, training, eval, serving"
+description = "Team solutions for the Sigmoid LLM Marathon 2026 — 48 AI/ML challenges"
 requires-python = ">=3.12,<3.14"
 dependencies = [
     "numpy>=2.0",
@@ -34,7 +34,7 @@ posttrain = [
 quant = ["bitsandbytes>=0.44"]
 eval = ["lm-eval>=0.4", "evaluate>=0.4", "scikit-learn>=1.5"]
 
-# Serving.  RTX 2050 (4 GB) is below the practical floor for vLLM; use for reading only.
+# Serving.  uv sync --group serve
 serve = ["vllm>=0.6"]
 
 # Experiment tracking.  uv sync --group track
