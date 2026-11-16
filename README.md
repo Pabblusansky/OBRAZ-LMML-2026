@@ -48,7 +48,7 @@ and rerun.
 | <img src="assets/icons/accepted.svg" width="16" height="16" alt="accepted"> | 🇪🇸 Spain | [¡Feliz Navidad!](tasks/europe/spain-feliz-navidad/) | Rule-based data validation | Easy | Artem |
 | <img src="assets/icons/accepted.svg" width="16" height="16" alt="accepted"> | 🇨🇭 Switzerland | [Stratul slab](tasks/europe/switzerland-stratul-slab/) | Message hidden in a decision tree | Easy | Dragos |
 | <img src="assets/icons/solved.svg" width="16" height="16" alt="solved, not submitted"> | 🇫🇷 France | [Point par point](tasks/europe/france-point-par-point/) | Clustering | Easy | Pavel |
-| <img src="assets/icons/solved.svg" width="16" height="16" alt="solved, not submitted"> | 🇷🇴 Romania | *not pushed yet* | — | Hard | Dragos |
+| <img src="assets/icons/solved.svg" width="16" height="16" alt="solved, not submitted"> | 🇷🇴 Romania | [Shaken, Still Standing](tasks/europe/romania-shaken-still-standing/) | Noisy-channel classification · Reed–Solomon vault | Hard | Dragos |
 | <img src="assets/icons/solved.svg" width="16" height="16" alt="solved, not submitted"> | 🇬🇧 United Kingdom | [Call My BLEUff](tasks/europe/united-kingdom-call-my-bleuff/) | NLP evaluation metrics | Medium | Pavel |
 | <img src="assets/icons/open.svg" width="16" height="16" alt="not cracked"> | 🇩🇪 Germany | *not cracked* | — | Hard | — |
 ### Africa — 10 / 12
@@ -87,7 +87,7 @@ and rerun.
 | <img src="assets/icons/accepted.svg" width="16" height="16" alt="accepted"> | 🇲🇽 Mexico | [Ruta de las Identidades](tasks/north-america/mexico-ruta-de-las-identidades/) | Record linkage | Easy | Dragos |
 | <img src="assets/icons/accepted.svg" width="16" height="16" alt="accepted"> | 🇵🇦 Panama | [The Canal Knows Too Much](tasks/north-america/panama-the-canal-knows-too-much/) | Benchmark contamination audit | Medium | Dragos |
 | <img src="assets/icons/accepted.svg" width="16" height="16" alt="accepted"> | 🇺🇸 USA | [The Great American Token Mystery](tasks/north-america/usa-the-great-american-token-mystery/) | Tokenizer identification | Easy | Dragos |
-| <img src="assets/icons/solved.svg" width="16" height="16" alt="solved, not submitted"> | 🇨🇦 Canada | *not pushed yet* | — | Hard | Dragos |
+| <img src="assets/icons/solved.svg" width="16" height="16" alt="solved, not submitted"> | 🇨🇦 Canada | [Two Solitudes](tasks/north-america/canada-two-solitudes/) | Bilingual EN/FR text classification | Hard | Dragos |
 | <img src="assets/icons/solved.svg" width="16" height="16" alt="solved, not submitted"> | 🇨🇺 Cuba | [If you know, you know!](tasks/north-america/cuba-if-you-know-you-know/) | Retrieval under size + latency limits | Hard | Pavel |
 ### South America — 8 / 8
 
