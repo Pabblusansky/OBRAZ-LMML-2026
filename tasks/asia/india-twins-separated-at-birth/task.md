@@ -1,59 +1,59 @@
-Обзор задачи
-📖 Сюжет
-Памятники Индии стоят веками, храня истории в камне, мраморе и сложной архитектуре. Сегодня эти истории живут и в постоянно растущем цифровом архиве культурного наследия: тысячи фотографий со всей страны — от древних пещер и величественных крепостей до знаменитых ворот, храмов, дворцов и мемориалов.
+Task Overview
+📖 Storyline
+India's monuments have stood for centuries, preserving stories in stone, marble, and intricate architecture. Today, those stories also live inside an ever-growing digital heritage archive containing thousands of photographs collected from across the country, from ancient caves and majestic forts to iconic gateways, temples, palaces, and memorials.
 
-Со временем упорядочивать архив стало всё сложнее. Некоторые файлы получены из одной и той же фотографии, хотя на первый взгляд уже не выглядят одинаковыми. В то же время множество разных фотографий запечатлели один и тот же памятник с похожих ракурсов, при похожем освещении или с разницей всего в несколько мгновений.
+Over time, the archive has become increasingly difficult to organize. Some files originate from the exact same photograph, even though they may no longer appear identical at first glance. At the same time, many different photographs capture the same monument from similar viewpoints, under similar lighting conditions, or only moments apart.
 
-Получается непростая смесь настоящих дубликатов и фотографий, которые визуально похожи, но являются разными снимками. Ваша задача — навести порядок в архиве: найти каждую пару изображений, полученных из одной и той же исходной фотографии, и не поддаться на разные фотографии, на которых просто изображён один и тот же памятник.
+This creates a challenging mix of true duplicates and photographs that are visually similar but represent distinct captures. Your mission is to restore order to the archive by identifying every pair of images that originates from the exact same source photograph, without being misled by different photographs that simply happen to show the same monument.
 
-📌 Название задачи
-Близнецы, разлучённые при рождении (Twins Separated at Birth)
+📌 Task Title
+Twins Separated at Birth
 
-🔥 Сложность
-Лёгкая
+🔥 Difficulty
+Easy
 
-🎯 Цель
-Дана перемешанная коллекция фотографий индийских памятников. Найдите все неупорядоченные пары изображений, которые получены из одной и той же исходной фотографии.
+🎯 Objective
+Given a shuffled collection of photographs of Indian monuments, identify all unordered pairs of images that originate from the same source photograph.
 
-Два изображения одного памятника не обязательно являются дубликатами. Разные фотографии одной достопримечательности нужно считать разными изображениями, даже если у них похожие ракурс, композиция или освещение. Не у каждого изображения гарантированно есть дубликат.
+Two images showing the same monument are not necessarily duplicates. Different photographs of the same landmark must be treated as distinct images, even when they show similar viewpoints, composition, or lighting. Not every image is guaranteed to have a duplicate.
 
-Найдите как можно больше настоящих пар-дубликатов, избегая ложных совпадений.
+Recover as many true duplicate pairs as possible while avoiding false matches.
 
-🚩 ФЛАГ
-Флаг имеет формат SIGMOID_<PHRASE> и показывается только тогда, когда отправленное решение достигает требуемого порога оценки.
+🚩 FLAG
+The flag follows the format SIGMOID_<PHRASE> and is revealed only when the submitted solution reaches the required evaluation threshold.
 
-📂 Входные данные
-Скачайте train-input.zip из папки с данными для участников.
+📂 Task Input
+Download train-input.zip from the participant data folder.
 
-Участники получают:
+Participants receive:
 
-train-input.zip — обучающие изображения, доступны по ссылке на Google Drive выше;
-train-output.csv — известные пары-дубликаты, лежит в этой папке задачи.
-SHA-256 хеш файла train-input.zip:
+train-input.zip — the training images, available through the Google Drive link above;
+train-output.csv — the known duplicate pairs, included in this task folder.
+The SHA-256 hash of train-input.zip is:
 
 2e1a5df7bd6c87c581dfdd890ff6d74ebd24dad7a4072d333c4212c6f061316a
-Два изображения являются дубликатами, только если они получены из одной и той же исходной фотографии. Разные фотографии одного памятника — не дубликаты, даже если внешне похожи.
+Two images are duplicates only when they originate from the exact same source photograph. Different photographs of the same monument are not duplicates, even if they appear visually similar.
 
-При официальной оценке программа main.py запускается в рабочей папке, где уже лежит скрытый тестовый архив test-input.zip (именно его программа должна открыть), и должна создать output.csv в той же папке. Для локальной практики переименуйте свой train-input.zip в test-input.zip. Ожидаемые пары-дубликаты от участников скрыты.
+During official evaluation, the submitted program receives a hidden test input. The expected duplicate pairs remain hidden from participants.
 
-✅ Ожидаемый результат
-Участники отправляют программу на Python с именем:
+✅ Expected Output
+Participants submit a Python program named:
 
 main.py
-При оценке main.py обрабатывает предоставленный входной архив и должна создать файл с именем output.csv в той же рабочей папке.
+During evaluation, main.py processes the provided input archive and must create a file named output.csv in the same working directory.
 
-CSV должен содержать ровно такие столбцы:
+The CSV must contain exactly these columns:
 
 image_a,image_b
-Каждая строка — пара изображений, которые, по предсказанию, получены из одной и той же исходной фотографии.
+Each row represents a pair of images predicted to originate from the same source photograph.
 
-Пары неупорядоченные: (image_a, image_b) равносильно (image_b, image_a).
-Повторяющиеся или перевёрнутые строки дополнительных баллов не дают.
-Пары «сам с собой», например (image_a, image_a), недопустимы.
-Имена изображений должны ссылаться на файлы из предоставленного архива для оценки.
-Если ни одной пары не предсказано, output.csv всё равно должен содержать строку заголовка.
-🏆 Критерии оценки
-Отправленные пары сравниваются со скрытыми ожидаемыми парами-дубликатами. Проверяющий считает точность (precision), полноту (recall) и F1-меру.
+Image pairs are unordered: (image_a, image_b) is equivalent to (image_b, image_a).
+Repeated or reversed duplicate rows receive no additional credit.
+Self-pairs such as (image_a, image_a) are invalid.
+Image names must refer to files contained in the provided evaluation archive.
+If no duplicate pairs are predicted, output.csv must still contain the header row.
+🏆 Scoring Criteria
+The submitted pairs are compared with the hidden expected duplicate pairs. The evaluator calculates precision, recall, and the F1 score.
 
-✅ F1 больше или равен 0.88: 100 баллов (ПРОЙДЕНО), флаг показывается.
-❌ F1 ниже 0.88: 0 баллов (НЕ ПРОЙДЕНО), флаг не показывается.
+✅ F1 score greater than or equal to 0.88: 100 points (PASS), and the flag is revealed.
+❌ F1 score below 0.88: 0 points (FAIL), and the flag is not revealed.

@@ -1,90 +1,82 @@
-# Близнецы, разлучённые при рождении (Twins Separated at Birth)
+# Twins Separated at Birth
 
-| Поле | Значение |
+| Field | Value |
 |---|---|
-| Страна | Индия |
-| Сложность | Лёгкая |
-| Категория | компьютерное зрение — поиск почти-дубликатов изображений |
-| Решил | |
-| Статус | решено |
-| Флаг | `SIGMOID_...` (вписать после того, как платформа примет решение) |
+| Country | India |
+| Difficulty | Easy |
+| Category | computer vision — near-duplicate image detection |
+| Solved by | |
+| Status | ready to submit — local F1 on train = **0.957** (pass threshold 0.88) |
+| Flag | `SIGMOID_...` (fill in after the platform accepts it) |
 
-## Коротко, за 60 секунд
+## 60-second version
 
-4 057 фотографий индийских памятников; часть из них — отредактированные копии одного исходного
-фото (уменьшены, обрезаны, повёрнуты на несколько градусов, пересохранены, осветлены). Ловушка:
-много *разных* фотографий одного памятника, часто снятых с разницей в секунды почти с той же
-точки. `main.py` сначала дешёвым «отпечатком» находит ~10 похожих кандидатов на каждую картинку,
-затем проверяет каждого кандидата: сопоставляет ключевые точки ORB, подбирает через RANSAC одно
-преобразование «поворот + масштаб + сдвиг», накладывает две картинки и сравнивает их мелкие
-детали. Отредактированные копии накладываются идеально, а снимки с разницей в секунды — нет
-(отличаются облака, листья, люди, есть параллакс). F1 на train = 0.957 (точность 0.924, полнота 0.993).
+4,057 photos of Indian monuments; some are edited copies (resized, cropped, rotated a few
+degrees, re-saved, brightened) of the same source photo. The trap: many *different* photos of
+the same monument, often taken seconds apart from almost the same spot. `main.py` first finds
+~10 look-alike candidates per image with a cheap fingerprint, then verifies each candidate by
+matching ORB keypoints, fitting one rotation+scale+shift with RANSAC, aligning the two images and
+comparing their fine details. Edited copies align perfectly; photos taken seconds apart do not
+(clouds, leaves, people and parallax differ). Train F1 = 0.957 (precision 0.924, recall 0.993).
 
-## Задача
+## Task
 
-Найти все неупорядоченные пары изображений, полученных из одной и той же исходной фотографии.
-Отправляется `main.py`; он должен прочитать входной архив и записать `output.csv` (`image_a,image_b`).
-Оценка — F1 по скрытым парам; при F1 ≥ 0.88 показывается флаг. Полное условие — в `task.md`.
+Find every unordered pair of images that originates from the same source photograph.
+Submit `main.py`; it must read the input archive and write `output.csv` (`image_a,image_b`).
+Scored by F1 against hidden pairs; F1 ≥ 0.88 reveals the flag.
 
-## Подход
+## Approach
 
 ```bash
-python main.py              # ищет картинки (или .zip) в рабочей папке -> output.csv
-python main.py <папка|zip>  # явно указанный вход
-python check_f1.py --sweep  # локальная оценка на train + перебор порогов (только для разработки)
+python main.py              # searches the working folder (images or .zip) -> output.csv
+python main.py <folder|zip> # explicit input
+python check_f1.py --sweep  # local score on train + threshold search (development only)
 ```
 
-1. **Кандидаты** (дёшево): каждая картинка → серая миниатюра 16×16 её центра (256 чисел,
-   с вычтенным средним) + гистограмма оттенка/насыщенности (128 чисел). Сходство = корреляция
-   миниатюр + сходство гистограмм. Для каждой картинки берём 10 самых похожих → 32 728 пар-кандидатов
-   вместо 8,2 млн возможных пар; из 1399 истинных пар в кандидатах остаются 1398.
-2. **Проверка** (точно), для каждой пары-кандидата:
-   - ключевые точки ORB (1000 на картинку, копия 512 px) + сопоставление с тестом отношения Лоу;
-   - RANSAC-подбор преобразования подобия (`cv2.estimateAffinePartial2D`) → число согласных точек (инлайеров);
-   - медианная ошибка наложения инлайеров (одно фото: ~0,01–0,8 px);
-   - переносим картинку A на B и считаем корреляцию **мелких деталей** (картинка − размытие Гаусса σ=3) в зоне перекрытия.
-3. **Решение**: инлайеров ≥ 40 **и** ошибка наложения ≤ 1,3 px **и** корреляция деталей ≥ 0,6.
+1. **Candidates** (cheap): each image → 16×16 grayscale thumbnail of its centre (256 numbers,
+   mean-removed) + hue/saturation histogram (128 numbers). Similarity = thumbnail correlation +
+   histogram similarity. Keep each image's 10 most similar → 32,728 candidate pairs instead of
+   8.2 M possible pairs; 1398 of 1399 true pairs survive.
+2. **Verification** (exact), per candidate pair:
+   - ORB keypoints (1000 per image, 512 px copy) + ratio-test matching;
+   - RANSAC fit of a similarity transform (`cv2.estimateAffinePartial2D`) → number of inliers;
+   - median alignment error of the inliers (same photo: ~0.01–0.8 px);
+   - warp image A onto B, correlate the **fine details** (image − Gaussian blur σ=3) in the overlap.
+3. **Decision**: inliers ≥ 40 **and** alignment error ≤ 1.3 px **and** detail correlation ≥ 0.6.
 
-Время работы ≈ 60–80 с на 4 057 картинок на 12 ядрах, ~1,2 ГБ памяти. Нужны `numpy` и `opencv-python`.
+Runtime ≈ 60 s for 4,057 images on 12 CPU cores, ~1.2 GB RAM. Needs `numpy` and `opencv-python`.
 
-## Почему это работает
+## Why it works
 
-- Все правки, применённые к копии (уменьшение, обрезка, небольшой поворот, пересжатие, яркость),
-  описываются **одним** преобразованием «поворот + масштаб + сдвиг», поэтому с ним согласны сотни ключевых точек.
-- Второй снимок той же сцены сделан с чуть другой позиции: близкие и далёкие предметы смещаются
-  по-разному (параллакс), поэтому одно преобразование не подходит всем точкам; а движущиеся объекты
-  (облака, птицы, люди, листья) отличаются, поэтому мелкие детали после наложения не коррелируют.
-- Сравнение мелких деталей, а не сырых пикселей, игнорирует крупную общую структуру (небо,
-  силуэт здания), из-за которой любые два фото одного памятника выглядят похоже.
+- Edits applied to a copy (resize, crop, small rotation, re-compression, brightness) are all
+  explained by **one** rotation + scale + shift, so hundreds of keypoints agree on it.
+- A second photo of the same scene was taken from a slightly different position: near and far
+  objects shift differently (parallax), so no single transform fits all points; and moving
+  things (clouds, birds, people, leaves) differ, so the aligned fine details do not correlate.
+- Comparing fine details instead of raw pixels ignores the large shared structure (sky, building
+  outline) that makes any two photos of the same monument look alike.
 
-## Что не сработало
+## What failed
 
-| # | Идея | Результат | Вывод |
+| # | Idea | Result | Lesson |
 |---|---|---|---|
-| 1 | dHash (64-битный перцептивный хеш) для кандидатов | настоящий близнец в топ-10 только у 84% | поворот/обрезка сдвигают биты хеша |
-| 2 | миниатюра + цветовая гистограмма для кандидатов | настоящий близнец в топ-10 у **99,5%** | оставлено |
-| 3 | проверка по инлайерам + корреляции сырых пикселей | F1 0.940 | сырая корреляция высокая у любого фото того же памятника |
-| 4 | добавить ошибку наложения + корреляцию мелких деталей | F1 **0.957** | оставлено |
-| 5 | достройка групп (A~B, B~C ⇒ A~C) | F1 0.949 (хуже) | одна ложная пара склеивает две группы в несколько ложных пар |
-| — | в train номера файлов в паре всегда соседние | **не используется** | утечка: тестовая выборка перемешана |
+| 1 | dHash (64-bit perceptual hash) for candidates | true twin in top-10 only 84% | rotation/crop shift the hash bits |
+| 2 | thumbnail + colour histogram for candidates | true twin in top-10 **99.5%** | kept |
+| 3 | verify with inliers + raw pixel correlation | F1 0.940 | raw correlation is high for any photo of the same monument |
+| 4 | add alignment error + fine-detail correlation | F1 **0.957** | kept |
+| 5 | complete groups (A~B, B~C ⇒ A~C) | F1 0.949 (worse) | one false match merges two groups into several false pairs |
+| — | file numbers of pairs are always adjacent in train | **not used** | leakage: the test set is shuffled |
 
-### Журнал отправок
+### Submission log
 
-| # | Ответ платформы | Причина / действие |
+| # | Platform feedback | Cause / action |
 |---|---|---|
-| 1 | "Staging failed: task input missing: test-input.zip" | у проверяющего не было тестового файла → сообщили организаторам |
-| 2 | `zipfile.BadZipFile: File is not a zip file` | сделали чтение входа надёжным (тип архива по содержимому, без падения, диагностика) |
-| 3 | "no images found" + диагностика: `test-input.zip: 134 bytes, starts with b'version https://'` | `test-input.zip` у проверяющего — это **указатель Git LFS**, а не архив (на их стороне нужен `git lfs pull`) → сообщили организаторам |
+| 1 | "Staging failed: task input missing: test-input.zip" | evaluator had no test file → reported to organisers |
+| 2 | `zipfile.BadZipFile: File is not a zip file` | made input handling robust (detect archive type by content, no crash, diagnostics) |
+| 3 | "no images found" + diagnostics: `test-input.zip: 134 bytes, starts with b'version https://'` | the evaluator's `test-input.zip` is a **Git LFS pointer**, not the archive (needs `git lfs pull` on their side) → reported to organisers |
 
-## Локальная проверка (2026-11-15)
+## Files
 
-- `check_f1.py`: 1503 пары, точность 0.9242, полнота 0.9929, **F1 0.9573 — PASS**.
-- Имитация официального запуска (чистая папка, только `main.py` + `test-input.zip` из train-картинок):
-  заголовок `image_a,image_b`, 0 пар «сам с собой», 0 повторов/перевёрнутых строк, все имена есть в архиве, F1 0.9573.
-- Вход без дубликатов → `output.csv` содержит только заголовок.
-
-## Файлы
-
-- `main.py` — решение для отправки (самодостаточное).
-- `check_f1.py` — оценивает `main.py` на обучающих данных (`data/task_india/`, в .gitignore).
-- `task.md` — условие задачи.
+- `main.py` — the submission (self-contained).
+- `check_f1.py` — scores `main.py` on the training data (`data/task_india/`, gitignored).
+- `task.md` — original task text.
