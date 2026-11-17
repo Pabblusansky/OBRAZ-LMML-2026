@@ -89,6 +89,6 @@ ale detectorului au fost șterse; singura versiune e `detector.py`.
 
 
 ## Fișiere
-- `detector.py` – soluția de trimis.
+- `detector.py` – soluția trimisă.
 - `work/` – scripturile de evaluare (`evaluate.py`) și de căutare a parametrilor (`sweep.py`).
 - `files/` – datele primite (train-input.csv, train-output.csv).

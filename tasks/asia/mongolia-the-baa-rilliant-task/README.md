@@ -5,7 +5,7 @@
 | Country | Mongolia |
 | Difficulty | Medium |
 | Category | computer vision — object counting (density map) + hidden message |
-| Solved by | |
+| Solved by | Stanislav |
 | Status | solved |
 | Flag | `SIGMOID_RECALL` |
 

@@ -7,7 +7,7 @@
 | Category | model backdoor / constrained fine-tuning |
 | Solved by | Pavel |
 | Status | solved |
-| Flag | `SIGMOID_...` (fill in after the platform accepts it) |
+| Flag | accepted on the platform (word not recorded here) |
 
 ## 60-second version
 

@@ -50,6 +50,6 @@ python main.py
 ```
 
 ## Fișiere
-- `main.py` – soluția (de trimis).
+- `main.py` – soluția (trimisă).
 - `test-input.csv` – intrarea; `test-output.txt` – flag-ul generat.
 - `files/` – fișierele primite; `task.md` – enunțul.

@@ -6,6 +6,7 @@
 | Difficulty | — |
 | Category | image forensics — camera attribution (PRNU) |
 | Solved by | Pavel |
+| Status | attempted, not finished in the 24 hours |
 
 ## Task
 Photos from six credited photographers, plus a pile of anonymous weeks. Work out which

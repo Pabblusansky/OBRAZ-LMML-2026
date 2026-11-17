@@ -6,6 +6,7 @@
 | Difficulty | — |
 | Category | image forensics — forgery localisation |
 | Solved by | Pavel |
+| Status | attempted, not finished in the 24 hours |
 
 ## Task
 Albums of stamp pages, some with stamps that were digitally altered. Locate the tampered stamp

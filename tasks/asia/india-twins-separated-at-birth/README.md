@@ -5,9 +5,9 @@
 | Country | India |
 | Difficulty | Easy |
 | Category | computer vision — near-duplicate image detection |
-| Solved by | |
-| Status | ready to submit — local F1 on train = **0.957** (pass threshold 0.88) |
-| Flag | `SIGMOID_...` (fill in after the platform accepts it) |
+| Solved by | Stanislav |
+| Status | solved |
+| Flag | accepted on the platform (word not recorded here) |
 
 ## 60-second version
 

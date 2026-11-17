@@ -64,6 +64,6 @@ python main.py
 ## Fișiere
 - `main.py` – soluția.
 - `train-input.csv`, `train-output.csv`, `test-input.csv`, `requirements.txt` – datele primite.
-- `test-output.csv` – etichetele corectate (de trimis).
-- `model.joblib` – clasificatorul reantrenat (de trimis).
+- `test-output.csv` – etichetele corectate (trimise).
+- `model.joblib` – clasificatorul reantrenat (trimis).
 - `task.md` – enunțul.

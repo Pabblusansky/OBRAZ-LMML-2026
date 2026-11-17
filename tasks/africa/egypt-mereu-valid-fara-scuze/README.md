@@ -78,5 +78,5 @@ python main.py
 ## Fișiere
 - `main.py` – soluția (descrisă mai sus).
 - `test-input.txt` – intrarea (copie din `files/`, citită din directorul scriptului).
-- `test-output.txt` – ieșirea generată (100 de linii), de trimis.
+- `test-output.txt` – ieșirea generată (100 de linii), trimisă pe platformă.
 - `files/` – fișierele primite (train-input/train-output pentru verificare, test-input).

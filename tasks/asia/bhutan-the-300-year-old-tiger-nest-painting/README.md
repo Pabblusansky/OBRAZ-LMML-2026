@@ -7,7 +7,7 @@
 | Category | computer vision — image strip reassembly (unshredding) |
 | Solved by | Stanislav |
 | Status | solved |
-| Flag | `SIGMOID_...` (fill in after the platform accepts it) |
+| Flag | accepted on the platform (word not recorded here) |
 
 ## 60-second version
 

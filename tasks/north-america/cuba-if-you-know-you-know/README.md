@@ -7,7 +7,7 @@
 | Category | retrieval / search under size + latency limits |
 | Solved by | Pavel |
 | Status | solved |
-| Flag | `SIGMOID_...` (fill in after the platform accepts it) |
+| Flag | not submitted before the deadline |
 
 ## 60-second version
 

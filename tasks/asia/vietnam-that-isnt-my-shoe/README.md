@@ -6,6 +6,7 @@
 | Difficulty | Medium |
 | Category | computer vision — open-set recognition |
 | Solved by | Stanislav |
+| Status | attempted, not finished in the 24 hours |
 
 ## Task
 A factory scanner sorts sneakers into Nike, Adidas and Converse. Train only on those three

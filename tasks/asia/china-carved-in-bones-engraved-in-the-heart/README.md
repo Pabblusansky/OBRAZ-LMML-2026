@@ -5,9 +5,9 @@
 | Country | China |
 | Difficulty | Medium |
 | Category | computer vision — object detection + counting, then a 5-bit decode |
-| Solved by | |
+| Solved by | Stanislav |
 | Status | solved |
-| Flag | `SIGMOID_FENGSHUI` (fill in after the platform accepts it) |
+| Flag | `SIGMOID_FENGSHUI` (decoded, not submitted in time) |
 
 ## 60-second version
 
